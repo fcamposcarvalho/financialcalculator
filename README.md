@@ -48,6 +48,7 @@ To add this calculator to your site:
 1. Copy the `index.html` file
 2. Copy the `calculator.css` file
 3. Copy the `calculator.js` file
+4. Copy the `financialcalculator.js` file 
 
 ## Usage Guide
 
