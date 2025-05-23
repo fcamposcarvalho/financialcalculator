@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.className = 'npv-cash-flow-amount';
         amountInput.value = amount;
         amountInput.placeholder = "e.g., 200 or -150";
+        amountInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
+        quantityInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -67,6 +69,23 @@ document.addEventListener('DOMContentLoaded', function() {
             row.remove();
         };
         cellAction.appendChild(removeBtn);
+
+        // Adicionar event listener para F1/Enter/Espaço aos inputs dinâmicos
+        // Assumindo que handleNumericInputKeydown está acessível globalmente ou no escopo.
+        // Se a função está em calculator.js e não é global, essa chamada pode falhar.
+        // Certifique-se de que handleNumericInputKeydown é acessível aqui.
+        // A forma mais segura é verificar se a função existe antes de chamar.
+        if (typeof handleNumericInputKeydown === 'function') {
+            [amountInput, quantityInput].forEach(input => {
+                input.addEventListener('keydown', handleNumericInputKeydown);
+            });
+        } else if (typeof window.handleNumericInputKeydown === 'function') {
+             [amountInput, quantityInput].forEach(input => {
+                input.addEventListener('keydown', window.handleNumericInputKeydown);
+            });
+        } else {
+            console.warn('handleNumericInputKeydown não está definida globalmente ou no escopo para calculator_npv.js');
+        }
     }
 
     function setupDynamicTooltips(modalElement) {
@@ -81,13 +100,12 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltip.addEventListener('mouseover', function(event) {
                 tooltipText.classList.remove('tooltiptext-above', 'tooltiptext-below');
                 
-                // Forçar cálculo de dimensões se necessário
                 let actualTooltipHeight = tooltipText.offsetHeight;
                 let needsTempShow = false;
                 if (actualTooltipHeight === 0) {
                     needsTempShow = true;
-                    tooltipText.style.visibility = 'hidden'; // Mantenha escondido mas calculável
-                    tooltipText.style.position = 'absolute'; // Para cálculo correto
+                    tooltipText.style.visibility = 'hidden'; 
+                    tooltipText.style.position = 'absolute'; 
                     tooltipText.style.display = 'block';
                     actualTooltipHeight = tooltipText.offsetHeight;
                 }
@@ -96,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const modalContent = modalElement.querySelector('.modal-content');
                 const modalContentRect = modalContent.getBoundingClientRect();
                 
-                // Posição do ícone relativa ao topo do .modal-content visível
                 const iconTopRelativeToModalContent = iconRect.top - modalContentRect.top;
 
                 if (iconTopRelativeToModalContent - actualTooltipHeight - tooltipMargin < 0) {
@@ -105,10 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     tooltipText.classList.add('tooltiptext-above');
                 }
 
-                if (needsTempShow) { // Resetar estilos temporários
+                if (needsTempShow) { 
                     tooltipText.style.display = '';
                     tooltipText.style.position = '';
-                    // A visibilidade será controlada pelo :hover do CSS
                 }
             });
         });
@@ -132,18 +148,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (npvModalContent) { 
-            npvModalContent.style.position = ''; // Reset position if dragged
+            npvModalContent.style.position = ''; 
             npvModalContent.style.left = '';
             npvModalContent.style.top = '';
         }
         npvModal.style.display = 'flex'; 
 
-        // Configurar tooltips dinâmicos APÓS o modal estar visível
         setTimeout(() => {
-            if (npvModal) { // Use a referência direta ao npvModal
+            if (npvModal) { 
                  setupDynamicTooltips(npvModal);
             }
-        }, 50); // Pequeno delay para garantir renderização
+        }, 50); 
     }
 
     function closeNpvModal() {
@@ -171,15 +186,13 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const initialInvestment = parseFloat(initialInvestmentInput.value);
                 const overallDiscountRate = parseFloat(overallDiscountRateInput.value) / 100;
-                // Parse financingRate and reinvestmentRate carefully, defaulting to 0 if empty or not a number after trim
                 let financingRate = parseFloat(financingRateInput.value);
                 if (isNaN(financingRate) || financingRateInput.value.trim() === "") financingRate = 0; else financingRate /= 100;
 
                 let reinvestmentRate = parseFloat(reinvestmentRateInput.value);
                 if (isNaN(reinvestmentRate) || reinvestmentRateInput.value.trim() === "") reinvestmentRate = 0; else reinvestmentRate /= 100;
 
-
-                if (isNaN(initialInvestment) || isNaN(overallDiscountRateInput.value)) { // Check original input for ODR
+                if (isNaN(initialInvestment) || isNaN(overallDiscountRateInput.value)) {
                     throw new Error("Initial Investment and Overall Discount Rate must be valid numbers.");
                 }
                  if (overallDiscountRate <= -1 && overallDiscountRateInput.value.trim() !== "") { 
@@ -235,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const numPeriods = expandedCashFlows.length;
                     expandedCashFlows.forEach((cf, index) => {
                         if (cf > 0) {
-                            // No division by zero risk here as it's multiplication
                             fvInflowsAtEnd += cf * Math.pow(1 + effectiveReinvestmentRate, numPeriods - (index + 1));
                         }
                     });
@@ -269,7 +281,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Dragging logic
     if (npvModal && npvModalContent) {
         let isNpvDragging = false;
         let npvDragOffsetX, npvDragOffsetY;

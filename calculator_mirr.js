@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.className = 'mirr-cash-flow-amount';
         amountInput.value = amount;
         amountInput.placeholder = "e.g., 200 or -150";
+        amountInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
+        quantityInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -63,6 +65,22 @@ document.addEventListener('DOMContentLoaded', function() {
             row.remove();
         };
         cellAction.appendChild(removeBtn);
+
+        // Adicionar event listener para F1/Enter/Espaço aos inputs dinâmicos
+        // Assumindo que handleNumericInputKeydown está acessível globalmente ou no escopo.
+        // Se a função está em calculator.js e não é global, essa chamada pode falhar.
+        // Certifique-se de que handleNumericInputKeydown é acessível aqui.
+        if (typeof handleNumericInputKeydown === 'function') {
+            [amountInput, quantityInput].forEach(input => {
+                input.addEventListener('keydown', handleNumericInputKeydown);
+            });
+        } else if (typeof window.handleNumericInputKeydown === 'function') {
+             [amountInput, quantityInput].forEach(input => {
+                input.addEventListener('keydown', window.handleNumericInputKeydown);
+            });
+        } else {
+            console.warn('handleNumericInputKeydown não está definida globalmente ou no escopo para calculator_mirr.js');
+        }
     }
 
     function openMirrModal() {
@@ -182,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      throw new Error("Cannot calculate MIRR: FV of inflows is negative. Check cash flow signs and reinvestment rate.");
                 }
                  if (fvInflows === 0 && pvOutflows > 0) {
-                     mirrResultValue.textContent = "-100.000000%"; // Alterado para 6 casas decimais
+                     mirrResultValue.textContent = "-100.000000%";
                      mirrResultContainer.style.display = 'block';
                      return;
                  }
@@ -193,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error("Could not calculate a finite MIRR. Check inputs, especially if PV of outflows is zero or very small, or N is zero.");
                 }
 
-                mirrResultValue.textContent = (mirr * 100).toFixed(6) + "%"; // Alterado para 6 casas decimais
+                mirrResultValue.textContent = (mirr * 100).toFixed(6) + "%";
                 mirrResultContainer.style.display = 'block';
 
             } catch (error) {

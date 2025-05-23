@@ -13,7 +13,7 @@
         <header>
             <h1>Financial Calculator</h1>
 			<p>Calculate financial cash flow values with the <span class="destacado">"Value to Calculate:"</span> option.</p>
-			<p>Press <span class="destacado">Enter or F1</span> in the numeric fields to access the calculator.</p>
+			<p>Press <span class="destacado">Enter, F1 or Space</span> in the numeric fields to access the calculator.</p> <!-- Atualizado texto de ajuda -->
         </header>
         
         <main>
@@ -23,7 +23,7 @@
                 <div class="form-group">
                     <label for="periods">Periods (n):</label>
                     <div class="input-group">
-                        <input type="number" id="periods" min="0" value="12" title="Press Enter or F1 to access the calculator">
+                        <input type="number" id="periods" min="0" value="12" title="Press Enter, F1 or Space to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="multiplyPeriods">12×</button>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                 <div class="form-group">
                     <label for="rate">Rate (i) %:</label>
                     <div class="input-group">
-                        <input type="number" id="rate" step="0.01" value="1.00" title="Press Enter or F1 to access the calculator">
+                        <input type="number" id="rate" step="0.01" value="1.00" title="Press Enter, F1 or Space to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="divideRate">12÷</button>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                 <div class="form-group">
                     <label for="payment">Payment (PMT):</label>
                     <div class="input-group">
-                        <input type="number" id="payment" value="0.00" step="0.01" title="Press Enter or F1 to access the calculator">
+                        <input type="number" id="payment" value="0.00" step="0.01" title="Press Enter, F1 or Space to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="togglePayment">+/-</button>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label for="presentValue">Present Value (PV):</label>
                     <div class="input-group">
-                        <input type="number" id="presentValue" value="1000.00" step="0.01" title="Press Enter or F1 to access the calculator">
+                        <input type="number" id="presentValue" value="1000.00" step="0.01" title="Press Enter, F1 or Space to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="togglePV">+/-</button>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                 <div class="form-group">
                     <label for="futureValue">Future Value (FV):</label>
                     <div class="input-group">
-                        <input type="number" id="futureValue" value="0.00" step="0.01" title="Press Enter or F1 to access the calculator">
+                        <input type="number" id="futureValue" value="0.00" step="0.01" title="Press Enter, F1 or Space to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="toggleFV">+/-</button>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
 					<button class="btn-info" id="amortizationBtn">Amortization</button> 
                     <button class="btn-tool" id="calculatorBtn">Calculator</button>
                     <button class="btn-info" id="mirrBtn">MIRR</button>
-                    <button class="btn-tool" id="npvBtn">NPV</button> <!-- Changed class to btn-tool for green color -->
+                    <button class="btn-tool" id="npvBtn">NPV</button> 
 					<button class="btn-log" id="historyBtn">History</button>
 					<button class="btn-action" id="clearBtn">Clear</button>      
 				</div>
@@ -112,7 +112,7 @@
         
 		<!-- Modal for amortization table -->
 		<div id="amortizationModal" class="modal">
-			<div class="modal-content"> <!-- JS will target this for drag -->
+			<div class="modal-content"> 
 				<span class="close" id="closeAmortizationModal">×</span>
 				<h2>Amortization Table</h2>
 				<div id="amortizationContent"></div>
@@ -196,15 +196,15 @@
                 <div class="mirr-form-container">
                     <div class="form-group">
                         <label for="mirrInitialInvestment">Initial Investment (CF0):</label>
-                        <input type="number" id="mirrInitialInvestment" value="-1000.00" step="0.01">
+                        <input type="number" id="mirrInitialInvestment" value="-1000.00" step="0.01" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="mirrFinancingRate">Financing Rate (% per period):</label>
-                        <input type="number" id="mirrFinancingRate" value="5.0" step="0.01">
+                        <input type="number" id="mirrFinancingRate" value="5.0" step="0.01" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="mirrReinvestmentRate">Reinvestment Rate (% per period):</label>
-                        <input type="number" id="mirrReinvestmentRate" value="7.0" step="0.01">
+                        <input type="number" id="mirrReinvestmentRate" value="7.0" step="0.01" enterkeyhint="enter">
                     </div>
 
                     <h3>Cash Flows (after initial investment):</h3>
@@ -247,25 +247,25 @@
                         <label for="npvInitialInvestment">Initial Investment (CF0):
                             <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value).</span></span>
                         </label>
-                        <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01">
+                        <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvOverallDiscountRate">Overall Discount Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">The main rate used for final present value calculations and for traditional NPV. Also acts as a fallback if specific Financing or Reinvestment rates are zero. Must be greater than -100%.</span></span>
                         </label>
-                        <input type="number" id="npvOverallDiscountRate" value="10.0" step="0.01">
+                        <input type="number" id="npvOverallDiscountRate" value="10.0" step="0.01" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvFinancingRate">Financing Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">Rate for discounting intermediate negative cash flows (costs). If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
                         </label>
-                        <input type="number" id="npvFinancingRate" value="0.00" step="0.01">
+                        <input type="number" id="npvFinancingRate" value="0.00" step="0.01" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvReinvestmentRate">Reinvestment Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">Rate for compounding intermediate positive cash flows (benefits) to their future value. If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
                         </label>
-                        <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01">
+                        <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01" enterkeyhint="enter">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
@@ -292,7 +292,7 @@
                     </div>
 
                     <div id="npvResultContainer" class="result-container" style="display: none; margin-top: 20px;">
-                        <div class="result-title" id="npvResultTitle">NPV Result:</div> <!-- ID added for dynamic title -->
+                        <div class="result-title" id="npvResultTitle">NPV Result:</div> 
                         <div class="result-value" id="npvResultValue"></div>
                     </div>
                 </div>
@@ -308,6 +308,6 @@
     <script src="financialcalculator.js"></script>
     <script src="calculator.js"></script>
     <script src="calculator_mirr.js"></script>
-    <script src="calculator_npv.js"></script> <!-- Added NPV JS -->
+    <script src="calculator_npv.js"></script> 
 </body>
 </html>
