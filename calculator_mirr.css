@@ -110,47 +110,46 @@
     width: auto;
     padding: 12px 25px; 
     font-size: 1em; 
-    /* Estilos de cor adicionados/modificados abaixo */
-    background-color: var(--soft-green); /* Verde claro da sua paleta */
-    color: var(--primary-dark); /* Texto escuro para contraste com fundo claro */
-    border: 1px solid #a6c9b3; /* Borda sutil um pouco mais escura que o fundo */
-    border-radius: 5px; /* Mantém o arredondamento padrão */
-    font-weight: 600; /* Deixa o texto do botão em negrito */
-    transition: background-color 0.3s, border-color 0.3s; /* Transição suave */
+    background-color: var(--soft-green); 
+    color: var(--primary-dark); 
+    border: 1px solid #a6c9b3; 
+    border-radius: 5px; 
+    font-weight: 600; 
+    transition: background-color 0.3s, border-color 0.3s; 
 }
 
 .mirr-btn-add:hover {
-    background-color: var(--soft-green-hover); /* Verde um pouco mais escuro no hover */
-    border-color: #8dbf9d; /* Borda um pouco mais escura no hover */
+    background-color: var(--soft-green-hover); 
+    border-color: #8dbf9d; 
 }
 
 .mirr-button-group {
     margin-top: 25px;
-    display: flex; /* Para centralizar o botão Calcular */
-    justify-content: center; /* Para centralizar o botão Calcular */
+    display: flex; 
+    justify-content: center; 
 }
 .mirr-button-group .btn-primary {
-    padding: 12px 30px; /* Botão de calcular maior */
-    font-size: 1.05em; /* Fonte do botão de calcular */
+    padding: 12px 30px; 
+    font-size: 1.05em; 
 }
 
 
 #mirrErrorMessage {
     margin-bottom: 20px; 
-    font-size: 1em; /* Fonte da mensagem de erro */
+    font-size: 1em; 
 }
 
-#mirrResultContainer { /* Herdando de .result-container mas com ajustes específicos */
+#mirrResultContainer { 
     padding: 20px;
     margin-top: 25px;
 }
 
 #mirrResultContainer .result-title {
-    font-size: 1.2em; /* Título do resultado */
+    font-size: 1.2em; 
     color: var(--primary-dark);
 }
 #mirrResultContainer .result-value {
-    font-size: 1.6em; /* Valor do resultado MIRR */
+    font-size: 1.6em; 
     font-weight: bold;
     color: var(--primary-color);
 }

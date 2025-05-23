@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let calculationOperator = '';
     let resetScreen = false;
     let expressionMode = false;
-    let activeInputField = null;
+    let activeInputField = null; // Será usado para saber qual campo preencher
 
     // Math constants
     const MATH_CONSTANTS = {
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function shouldInsertMultiplication(inputStr) {
-        if (inputStr === '0' || inputStr === 'Error') return false; // Changed 'Erro' to 'Error'
+        if (inputStr === '0' || inputStr === 'Error') return false;
         const lastChar = inputStr.charAt(inputStr.length - 1);
         return (/\d$/.test(lastChar) || lastChar === ')' || endsWithConstant(inputStr) || endsWithCompleteFunction(inputStr));
     }
@@ -157,7 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- MAIN CALCULATOR FUNCTIONS ---
-    function openCalculator() {
+    // Função para abrir o modal da calculadora, chamada por Enter/F1/Espaço ou pelo botão
+    function openCalculator(inputField = null) { // Adicionado parâmetro opcional
         if (!calculatorModal) {
             console.error("ERROR in openCalculator: calculatorModal is NULL!");
             return;
@@ -165,32 +166,47 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof window.resetCalculatorModalPosition === 'function') {
             window.resetCalculatorModalPosition();
         }
-		// calculatorModal.style.display = "block"; // Linha Antiga
-		calculatorModal.style.display = "flex";    // Nova Linha
+        calculatorModal.style.display = "flex";
+
+        if (inputField) { // Se um campo foi passado (ex: via Enter/F1/Espaço)
+            activeInputField = inputField; // Define o campo ativo
+            // Preenche o display da calculadora com o valor do campo
+            if (inputField.value && inputField.value.trim() !== "" && !isNaN(parseFloat(inputField.value))) {
+                currentInput = inputField.value.replace(',', '.'); // Garante ponto decimal
+                resetScreen = true; // Para permitir que o próximo dígito substitua ou concatene
+                expressionMode = false; // Começa sem ser uma expressão complexa
+            } else {
+                resetCalculator(); // Se o campo estiver vazio ou inválido, reseta a calculadora
+            }
+        } else { // Se nenhum campo foi passado (ex: clicando no botão "Calculator")
+            activeInputField = null; // Nenhum campo ativo para preencher
+            resetCalculator(); // Reseta para o estado inicial
+        }
+        
+        updateDisplay(); // Atualiza o display da calculadora
         if (calcDisplay) {
-            calcDisplay.focus();
-        } else {
-            console.warn("Could not focus on calcDisplay because it is NULL.");
+            // calcDisplay.focus(); // Descomentar se quiser focar no display
         }
     }
 
+
     function updateDisplay() {
         if (calcDisplay) {
-            calcDisplay.value = currentInput; // Display '.' as decimal separator (already done)
+            calcDisplay.value = currentInput;
         }
     }
 
     function inputDigit(digit) {
         if (resetScreen) {
             const lastChar = currentInput.charAt(currentInput.length - 1);
-            if (!'+-×÷^('.includes(lastChar) && currentInput !== 'Error') { // Changed 'Erro' to 'Error'
+            if (!'+-×÷^('.includes(lastChar) && currentInput !== 'Error') {
                 if (shouldInsertMultiplication(currentInput)) {
                     currentInput += '×' + digit;
                 } else {
                     currentInput = digit;
                 }
             } else {
-                if (currentInput === 'Error') currentInput = digit; // Changed 'Erro' to 'Error'
+                if (currentInput === 'Error') currentInput = digit;
                 else currentInput += digit;
             }
             resetScreen = false;
@@ -206,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function inputConstant(constantName) {
         const value = MATH_CONSTANTS[constantName].toString();
-        if (resetScreen && !'+-×÷^('.includes(currentInput.charAt(currentInput.length - 1)) && currentInput !== 'Error') { // Changed 'Erro' to 'Error'
+        if (resetScreen && !'+-×÷^('.includes(currentInput.charAt(currentInput.length - 1)) && currentInput !== 'Error') {
             if (shouldInsertMultiplication(currentInput)) {
                 currentInput += '×' + value;
             } else {
@@ -216,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (shouldInsertMultiplication(currentInput)) {
                 currentInput += '×' + value;
             } else {
-                 currentInput = (currentInput === '0' || currentInput === 'Error') ? value : currentInput + value; // Changed 'Erro' to 'Error'
+                 currentInput = (currentInput === '0' || currentInput === 'Error') ? value : currentInput + value;
             }
         }
         expressionMode = true;
@@ -229,16 +245,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (shouldInsertMultiplication(currentInput)) {
                 currentInput += '×' + parenthesis;
             } else {
-                currentInput = (currentInput === '0' || currentInput === 'Error') ? parenthesis : currentInput + parenthesis; // Changed 'Erro' to 'Error'
+                currentInput = (currentInput === '0' || currentInput === 'Error') ? parenthesis : currentInput + parenthesis;
             }
         } else { // ')'
             let openCount = (currentInput.match(/\(/g) || []).length;
             let closeCount = (currentInput.match(/\)/g) || []).length;
             const lastChar = currentInput.charAt(currentInput.length - 1);
-            if (openCount > closeCount && !'+-×÷^('.includes(lastChar) && lastChar !== 'Error') { // Changed 'Erro' to 'Error'
+            if (openCount > closeCount && !'+-×÷^('.includes(lastChar) && lastChar !== 'Error') {
                 currentInput += parenthesis;
             } else {
-                // Silently ignore invalid ')'
                 return;
             }
         }
@@ -251,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shouldInsertMultiplication(currentInput)) {
             currentInput += '×' + displayFunction + '(';
         } else {
-            currentInput = (currentInput === '0' || currentInput === 'Error') ? (displayFunction + '(') : (currentInput + displayFunction + '('); // Changed 'Erro' to 'Error'
+            currentInput = (currentInput === '0' || currentInput === 'Error') ? (displayFunction + '(') : (currentInput + displayFunction + '(');
         }
         resetScreen = false;
     }
@@ -259,12 +274,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function inputDecimal() {
         const match = currentInput.match(/[^+\-×÷^()]*$/);
         const lastNumberSegment = match ? match[0] : "";
-        if (lastNumberSegment.includes('.')) return; // Use '.' for decimal
+        if (lastNumberSegment.includes('.')) return;
 
         if (resetScreen) {
             const lastChar = currentInput.charAt(currentInput.length - 1);
-            if ('+-×÷^('.includes(lastChar) || currentInput === 'Error') { // Changed 'Erro' to 'Error'
-                currentInput = (currentInput === 'Error' ? '0.' : currentInput + '0.'); // Changed 'Erro' to 'Error'
+            if ('+-×÷^('.includes(lastChar) || currentInput === 'Error') {
+                currentInput = (currentInput === 'Error' ? '0.' : currentInput + '0.');
             } else {
                  if (shouldInsertMultiplication(currentInput)){
                      currentInput += '×0.';
@@ -290,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const operatorChar = getOperatorChar(operatorAction);
         const lastChar = currentInput.charAt(currentInput.length - 1);
 
-        if (currentInput === 'Error') return; // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') return;
 
         if ('+-×÷^'.includes(lastChar) && lastChar !== '(') {
             if (operatorChar === '-' && (lastChar === '×' || lastChar === '÷' || lastChar === '^')) {
@@ -308,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function negateValue() {
-        if (currentInput === 'Error') return; // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') return;
         if (!expressionMode && currentInput !== '0' && !isNaN(parseFloat(currentInput))) {
             currentInput = (parseFloat(currentInput) * -1).toString();
             updateDisplay();
@@ -352,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function inputPercent() {
-        if (currentInput === 'Error') return; // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') return;
         const lastChar = currentInput.charAt(currentInput.length - 1);
         if (/\d$/.test(lastChar) || lastChar === ')') {
             currentInput += '%';
@@ -361,8 +376,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateInverse() {
-        if (currentInput === 'Error' || currentInput === '0') { // Changed 'Erro' to 'Error'
-            if (currentInput === '0') alert('Error: Division by zero!'); // Translated alert
+        if (currentInput === 'Error' || currentInput === '0') {
+            if (currentInput === '0') alert('Error: Division by zero!');
             return;
         }
         let i = currentInput.length - 1;
@@ -377,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (i < 0) i = 0;
         const prefix = currentInput.substring(0, i);
         const term = currentInput.substring(i);
-        if (term === '0') { alert('Error: Division by zero!'); return; } // Translated alert
+        if (term === '0') { alert('Error: Division by zero!'); return; }
 
         currentInput = prefix + `(1÷${term})`;
         expressionMode = true;
@@ -385,13 +400,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function formatResult(value) {
-        if (!isFinite(value)) return "Error"; // Changed 'Erro' to 'Error'
+        if (!isFinite(value)) return "Error";
         const stringValue = Number(value.toPrecision(12)).toString();
         return parseFloat(stringValue).toString();
     }
 
     function calculate() {
-        if (currentInput === 'Error') return; // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') return;
         let expressionToEvaluate = currentInput;
 
         try {
@@ -413,10 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .replace(/÷/g, '/')
                 .replace(/\^/g, '**');
 
-            // Percentage treatment:
-            // Step 1: Convert all "X%" or "(expr)%" to "(X/100)" or "((expr)/100)"
             expressionToEvaluate = expressionToEvaluate.replace(/(\d+\.?\d*|\([\s\S]*?\))%/g, (match, p1) => `(${p1}/100)`);
-            // Step 2: Transform "Y + (X/100)" to "Y * (1 + X/100)" and "Y - (X/100)" to "Y * (1 - X/100)"
             expressionToEvaluate = expressionToEvaluate.replace(
                 /(\d+\.?\d*|\([\s\S]*?\))\s*([+\-])\s*\((\d+\.?\d*|\([\s\S]*?\))\/100\)/g,
                 (match, Y, op, X) => {
@@ -424,11 +436,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             );
 
-            // console.log("Expression for eval:", expressionToEvaluate); // Optional debug log
             const result = eval(expressionToEvaluate);
 
             if (result === undefined || result === null || !isFinite(result)) {
-                currentInput = 'Error'; // Changed 'Erro' to 'Error'
+                currentInput = 'Error';
                 updateDisplay();
                 _resetCalculationInternalState();
                 return;
@@ -438,15 +449,15 @@ document.addEventListener('DOMContentLoaded', function() {
             _resetCalculationInternalState();
 
         } catch (error) {
-            console.error("Error evaluating expression:", error); // Keep this log for eval errors
-            currentInput = 'Error'; // Changed 'Erro' to 'Error'
+            console.error("Error evaluating expression:", error);
+            currentInput = 'Error';
             updateDisplay();
             _resetCalculationInternalState();
         }
     }
 
     function backspace() {
-        if (currentInput === 'Error') { // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') {
             resetCalculator();
             return;
         }
@@ -471,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearEntry() {
-        if (currentInput === 'Error') { // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') {
             resetCalculator();
             return;
         }
@@ -508,33 +519,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyValueToField() {
         if (activeInputField) {
-            if (currentInput === 'Error') { // Changed 'Erro' to 'Error'
-                calculatorModal.style.display = "none";
+            if (currentInput === 'Error') {
+                if (calculatorModal) calculatorModal.style.display = "none";
                 activeInputField.focus();
                 return;
             }
             if (expressionMode && /[\+\-\×\÷\^\(\)%]/.test(currentInput) && !resetScreen) {
-                calculate();
-                if (currentInput === 'Error') { // Changed 'Erro' to 'Error'
-                     calculatorModal.style.display = "none";
+                calculate(); // Calcula a expressão antes de aplicar
+                if (currentInput === 'Error') {
+                     if (calculatorModal) calculatorModal.style.display = "none";
                      activeInputField.focus();
                      return;
                 }
             }
-            activeInputField.value = currentInput; // Use '.' as decimal separator (already done)
+            // Tenta converter para número e formatar para 2 casas decimais se for um número
+            let valueToApply = currentInput;
+            const numericValue = parseFloat(currentInput.replace(',', '.')); // Garante ponto para parseFloat
+            if (!isNaN(numericValue)) {
+                valueToApply = numericValue.toFixed(2);
+            }
+
+            activeInputField.value = valueToApply;
             if (calculatorModal) calculatorModal.style.display = "none";
-            const event = new Event('input', { bubbles: true });
-            activeInputField.dispatchEvent(event);
+            
+            // Disparar eventos para garantir que outras lógicas (ex: validação, cálculo principal) sejam acionadas
+            activeInputField.dispatchEvent(new Event('input', { bubbles: true }));
+            activeInputField.dispatchEvent(new Event('change', { bubbles: true }));
+            
             activeInputField.focus();
+            activeInputField = null; // Limpa o campo ativo
+        } else {
+            // Se não houver campo ativo, apenas fecha o modal (se estiver aberto)
+            if (calculatorModal) calculatorModal.style.display = "none";
         }
     }
 
     function handleKeyboardInput(event) {
+        if (calculatorModal && calculatorModal.style.display !== 'flex') return; // Só processa se o modal estiver visível
         if (event.ctrlKey || event.metaKey) return;
 
-        if (currentInput === 'Error') { // Changed 'Erro' to 'Error'
+        if (currentInput === 'Error') {
             if (event.key === 'Escape') {
                 if (calculatorModal) calculatorModal.style.display = "none";
+                activeInputField = null;
             } else if (event.key === 'Backspace' || event.key.toLowerCase() === 'c' || event.key === 'Delete') {
                 event.preventDefault();
                 resetCalculator();
@@ -556,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                 inputDigit(event.key); break;
             case '.': inputDecimal(); break;
-            case ',': inputDecimal(); break; // Allow ',' as decimal input for convenience
+            case ',': inputDecimal(); break;
             case '+': handleOperator('add'); break;
             case '-': handleOperator('subtract'); break;
             case '*': handleOperator('multiply'); break;
@@ -566,18 +593,21 @@ document.addEventListener('DOMContentLoaded', function() {
             case '(': inputParenthesis('('); break;
             case ')': inputParenthesis(')'); break;
             case 'Enter': case '=': calculate(); break;
-            case 'Escape': if (calculatorModal) calculatorModal.style.display = "none"; break;
+            case 'Escape': 
+                if (calculatorModal) calculatorModal.style.display = "none"; 
+                activeInputField = null;
+                break;
             case 'Backspace': backspace(); break;
             case 'Delete': resetCalculator(); break;
             default:
-                if (event.key.toLowerCase() === 'c') { // 'c' for Clear
+                if (event.key.toLowerCase() === 'c') {
                     resetCalculator();
                 } else if (event.key.toLowerCase() === 'p' && !event.shiftKey) {
                     inputConstant('pi');
                 } else if (event.key.toLowerCase() === 'e' && !event.shiftKey && !event.altKey) {
                     inputConstant('euler');
                 } else {
-                    keyHandled = false; // Key not handled
+                    keyHandled = false;
                 }
                 break;
         }
@@ -587,14 +617,66 @@ document.addEventListener('DOMContentLoaded', function() {
             updateDisplay();
         }
     }
+    
+    // --- MODIFICAÇÃO: Tornar handleNumericInputKeydown global ---
+    window.handleNumericInputKeydown = function(event) {
+        // Permitir teclas de navegação, delete, backspace, tab, home, end etc.
+        const allowedNonFunctionKeys = [
+            'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 
+            'Delete', 'Backspace', 'Tab', 'Home', 'End', 
+            'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 
+            'PageUp', 'PageDown', 'Insert'
+        ];
+        if (allowedNonFunctionKeys.includes(event.key)) {
+            return;
+        }
+
+        // Se pressionar Enter, F1 ou Espaço, abre a calculadora
+        if (event.key === 'Enter' || event.key === 'F1' || event.key === ' ') {
+            event.preventDefault(); // Previne a ação padrão (ex: submeter form, inserir espaço)
+            event.stopPropagation(); // Impede que o evento se propague para outros listeners (ex: do modal NPV)
+            
+            const inputField = event.target; // O campo que disparou o evento
+            openCalculator(inputField); // Passa o campo para a função openCalculator
+        }
+        // Não impede a digitação normal de números e outros caracteres válidos para input[type=number]
+    };
+
+    // --- MODIFICAÇÃO: setupNumericInputs para aplicar o listener global ---
+    function setupNumericInputs() {
+        // Seleciona todos os inputs numéricos, incluindo os de modais que já existem no DOM
+        const numericInputs = document.querySelectorAll(
+            'input[type="number"], ' + // Todos os inputs numéricos genéricos
+            '#periods, #rate, #payment, #presentValue, #futureValue, ' +
+            '#mirrInitialInvestment, #mirrFinancingRate, #mirrReinvestmentRate, ' +
+            '#npvInitialInvestment, #npvOverallDiscountRate, #npvFinancingRate, #npvReinvestmentRate'
+        );
+
+        numericInputs.forEach(input => {
+            // Remove listener antigo para evitar duplicação se esta função for chamada múltiplas vezes
+            input.removeEventListener('keydown', window.handleNumericInputKeydown); // Usa a função global
+            // Adiciona o novo listener
+            input.addEventListener('keydown', window.handleNumericInputKeydown); // Usa a função global
+            
+            input.title = "Pressione Enter, F1 ou Espaço para acessar a calculadora";
+            
+            input.removeEventListener('focus', highlightInput); // Evitar duplicação
+            input.removeEventListener('blur', unhighlightInput); // Evitar duplicação
+            input.addEventListener('focus', highlightInput);
+            input.addEventListener('blur', unhighlightInput);
+        });
+    }
+    
+    function highlightInput() { this.classList.add('highlighted'); }
+    function unhighlightInput() { this.classList.remove('highlighted'); }
 
     // --- INITIALIZATION AND GENERAL EVENTS (continued) ---
     updateDisplay();
-    setupNumericInputs();
+    setupNumericInputs(); // Chama a função para configurar os inputs numéricos estáticos
 
     if (calculatorBtn) {
         calculatorBtn.addEventListener('click', function() {
-            openCalculator();
+            openCalculator(); // Abre a calculadora sem um campo ativo específico
         });
     }
 
@@ -602,6 +684,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeCalculatorModal.addEventListener('click', function() {
             if (calculatorModal) {
                 calculatorModal.style.display = "none";
+                activeInputField = null; // Limpa o campo ativo ao fechar
             }
         });
     }
@@ -609,8 +692,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('click', function(event) {
         if (calculatorModal && event.target === calculatorModal) {
             calculatorModal.style.display = "none";
+            activeInputField = null; // Limpa o campo ativo
         }
     });
+    
+    // Listener para o teclado DENTRO do modal da calculadora
+    if (calculatorModal) {
+        calculatorModal.addEventListener('keydown', handleKeyboardInput);
+    }
+
 
     if (calcButtons && calcButtons.length > 0) {
         calcButtons.forEach(button => {
@@ -618,10 +708,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const action = button.dataset.action;
                 const buttonValue = button.textContent;
 
-                if (currentInput === 'Error' && action !== 'clear' && action !== 'backspace' && action !== 'clearEntry') { // Changed 'Erro' to 'Error'
+                if (currentInput === 'Error' && action !== 'clear' && action !== 'backspace' && action !== 'clearEntry') {
                      return;
                 }
-                if (action === 'clearEntry' && currentInput === 'Error'){ // Changed 'Erro' to 'Error'
+                if (action === 'clearEntry' && currentInput === 'Error'){
                     resetCalculator();
                     updateDisplay();
                     return;
@@ -657,34 +747,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         console.warn("Calculator buttons (.calc-btn) not found or array is empty.");
-    }
-
-    function setupNumericInputs() {
-        const numericInputs = document.querySelectorAll('input[type="number"]');
-        numericInputs.forEach(input => {
-            input.addEventListener('keydown', function(event) {
-         if (event.key === 'Enter' || event.key === 'F1' || event.key === ' ') { // <<< LINHA MODIFICADA
-                    event.preventDefault();
-                    event.stopPropagation();
-                    activeInputField = this;
-                    openCalculator();
-
-                    // Use '.' as decimal separator for internal logic
-                    if (this.value && this.value.trim() !== "" && parseFloat(this.value) !== 0) {
-                        currentInput = this.value; // Value from input[type=number] is already using '.'
-                        resetScreen = true;
-                        expressionMode = false;
-                    } else {
-                        resetCalculator();
-                    }
-                    updateDisplay();
-                }
-            });
-            if (!input.title) { // Fallback if title is not set in HTML
-                input.title = "Press Enter or F1 to access the calculator";
-            }
-            input.addEventListener('focus', function() { this.classList.add('highlighted'); });
-            input.addEventListener('blur', function() { this.classList.remove('highlighted'); });
-        });
     }
 });

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.className = 'mirr-cash-flow-amount';
         amountInput.value = amount;
         amountInput.placeholder = "e.g., 200 or -150";
-        amountInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
+        amountInput.enterKeyHint = "enter"; // MODIFICADO
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
-        quantityInput.enterKeyHint = "enter"; // MODIFICADO/ADICIONADO
+        quantityInput.enterKeyHint = "enter"; // MODIFICADO
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -67,19 +67,14 @@ document.addEventListener('DOMContentLoaded', function() {
         cellAction.appendChild(removeBtn);
 
         // Adicionar event listener para F1/Enter/Espaço aos inputs dinâmicos
-        // Assumindo que handleNumericInputKeydown está acessível globalmente ou no escopo.
-        // Se a função está em calculator.js e não é global, essa chamada pode falhar.
-        // Certifique-se de que handleNumericInputKeydown é acessível aqui.
-        if (typeof handleNumericInputKeydown === 'function') {
+        if (typeof window.handleNumericInputKeydown === 'function') {
             [amountInput, quantityInput].forEach(input => {
-                input.addEventListener('keydown', handleNumericInputKeydown);
-            });
-        } else if (typeof window.handleNumericInputKeydown === 'function') {
-             [amountInput, quantityInput].forEach(input => {
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
+                // Adicionar title para consistência
+                input.title = "Pressione Enter, F1 ou Espaço para acessar a calculadora";
             });
         } else {
-            console.warn('handleNumericInputKeydown não está definida globalmente ou no escopo para calculator_mirr.js');
+            console.warn('window.handleNumericInputKeydown não está definida. A calculadora pode não abrir com Enter/F1/Espaço nos campos dinâmicos de MIRR.');
         }
     }
 
@@ -88,10 +83,13 @@ document.addEventListener('DOMContentLoaded', function() {
         hideMirrError();
         if (mirrResultContainer) mirrResultContainer.style.display = 'none';
         
-        if (cashFlowsTableBody.rows.length === 0) {
-            addCashFlowRow(250, 3); 
-            addCashFlowRow(-50, 2); 
+        // Limpa as linhas existentes antes de adicionar as padrão
+        while (cashFlowsTableBody.firstChild) {
+            cashFlowsTableBody.removeChild(cashFlowsTableBody.firstChild);
         }
+        cfRowCounter = 0; // Reseta o contador de linhas
+        addCashFlowRow(250, 3); 
+        addCashFlowRow(-50, 2); 
         
         if (mirrModalContent) { 
             mirrModalContent.style.position = '';
@@ -108,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (mirrBtn) mirrBtn.addEventListener('click', openMirrModal);
     if (closeMirrModalBtn) closeMirrModalBtn.addEventListener('click', closeMirrModal);
-    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addCashFlowRow());
+    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addCashFlowRow("", 1)); // Adiciona linha vazia
 
     window.addEventListener('click', function(event) {
         if (event.target === mirrModal) {
@@ -176,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 expandedCashFlows.forEach((cf, index) => {
                     const t = index + 1; 
                     if (cf < 0) {
+                        if (1 + financingRate === 0 && cf !== 0) throw new Error("Division by zero: Financing Rate is -100% with negative cash flow.");
                         pvOutflows += Math.abs(cf) / Math.pow(1 + financingRate, t);
                     }
                 });
@@ -194,16 +193,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (pvOutflows === 0) {
                     if (fvInflows > 0) throw new Error("Cannot calculate MIRR: No outflows (PV of outflows is zero) but there are inflows.");
-                    else throw new Error("Cannot calculate MIRR: Both PV of outflows and FV of inflows are zero.");
+                    else if (fvInflows === 0 && N > 0) throw new Error("Cannot calculate MIRR: Both PV of outflows and FV of inflows are zero with N > 0.");
+                    else if (fvInflows === 0 && N === 0) throw new Error("Cannot calculate MIRR: No cash flows (N=0).");
+                    // If fvInflows is also 0 and N > 0, it implies all CFs were 0 or balanced out.
+                    // Or if N=0 (no subsequent cashflows)
+                    mirrResultValue.textContent = "N/A";
+                    mirrResultContainer.style.display = 'block';
+                    return;
                 }
                 if (fvInflows < 0 && pvOutflows > 0) { 
                      throw new Error("Cannot calculate MIRR: FV of inflows is negative. Check cash flow signs and reinvestment rate.");
                 }
-                 if (fvInflows === 0 && pvOutflows > 0) {
+                 if (fvInflows === 0 && pvOutflows > 0) { // All subsequent CFs are negative or zero
                      mirrResultValue.textContent = "-100.000000%";
                      mirrResultContainer.style.display = 'block';
                      return;
                  }
+                if (N === 0 && initialInvestment !== 0) { // Only initial investment, no subsequent flows
+                     throw new Error("Cannot calculate MIRR: Only initial investment, no subsequent cash flows (N=0).");
+                }
+                if (N === 0 && initialInvestment === 0) {
+                     throw new Error("Cannot calculate MIRR: No cash flows at all.");
+                }
+
 
                 const mirr = Math.pow(fvInflows / pvOutflows, 1 / N) - 1;
 
@@ -281,8 +293,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.removeEventListener('mouseup', onMirrMouseUp);
         }
     }
-    if (cashFlowsTableBody && cashFlowsTableBody.rows.length === 0) {
-       addCashFlowRow(250, 3); 
-       addCashFlowRow(-50, 2); 
-    }
+    // Não adiciona linhas padrão se já houver alguma, para permitir reabertura sem resetar inputs manuais
+    // A função openMirrModal agora limpa e adiciona as linhas padrão sempre.
 });
