@@ -1,135 +1,133 @@
-# Financial Calculator
+# Calculadora Financeira
 
-An advanced cash flow calculator to perform financial calculations such as present value (PV), future value (FV), installments (PMT), interest rates and periods.
+Uma calculadora de fluxo de caixa avançada para realizar cálculos financeiros como valor presente (PV), valor futuro (FV), prestações (PMT), taxas de juros e períodos.
 
-![Financial Calculator](https://github.com/fcamposcarvalho/financialcalculator/raw/main/financialcalculator.png)
+![Calculadora Financeira](https://github.com/fcamposcarvalho/calculadorafinanceira/raw/main/calculadorafinanceira.png)
 
-## Features
+## Funcionalidades
 
-- **Complete cash flow calculation**:
-- Present Value (PV)
-- Future Value (FV)
-- Installments (PMT)
-- Interest rate (i)
-- Number of periods (n)
-- **Automatic sign inversion** to maintain financial coherence
-- **Results cache** to improve performance
-- **Calculation history** with capacity for the last 10 calculations
-- **Advanced numerical methods** such as Newton-Raphson for calculating rates
-- **Responsive interface** adapted to all screen sizes
-- **Special case handling** in various financial scenarios
+- **Cálculo completo de fluxo de caixa**:
+  - Valor Presente (PV)
+  - Valor Futuro (FV)
+  - Prestações (PMT)
+  - Taxa de juros (i)
+  - Número de períodos (n)
+- **Inversão automática de sinais** para manter coerência financeira
+- **Cache de resultados** para melhorar performance
+- **Histórico de cálculos** com capacidade para os últimos 10 cálculos
+- **Métodos numéricos avançados** como Newton-Raphson para cálculo de taxas
+- **Interface responsiva** adaptada para todos os tamanhos de tela
+- **Tratamento de casos especiais** em diversos cenários financeiros
 
-## Technologies Used
+## Tecnologias Utilizadas
 
 - HTML5
 - CSS3
 - JavaScript (ES6+)
-- Modern UI/UX techniques
-- Mathematical methods financial
+- Técnicas de UI/UX modernas
+- Métodos matemáticos financeiros
 
-## How to Use
+## Como Usar
 
-### Installation
+### Instalação
 
-1. Clone this repository:
-```
-git clone https://github.com/your-user/financialcalculator.git
-```
-2. Open the `index.html` file in any modern browser
+1. Clone este repositório:
+   ```
+   git clone https://github.com/seu-usuario/calculadorafinanceira.git
+   ```
+2. Abra o arquivo `index.html` em qualquer navegador moderno
 
-### Online Usage
+### Uso Online
 
-Access the calculator directly at: [https://fcamposcarvalho.github.io/financialcalculator](https://fcamposcarvalho.github.io/financialcalculator)
+Acesse a calculadora diretamente em: [https://fcamposcarvalho.github.io/calculadorafinanceira](https://fcamposcarvalho.github.io/calculadorafinanceira)
 
-### Integration into Other Sites
+### Integração em Outros Sites
 
-To add this calculator to your site:
+Para adicionar esta calculadora ao seu site:
 
-1. Copy the `index.html` file
-2. Copy the `calculator.css` file
-3. Copy the `calculator.js` file
-4. Copy the `financialcalculator.js` file 
+1. Copie o arquivo `index.html`
+2. Copie o arquivo `calculadora.css`
+3. Copie o arquivo `calculadora.js`
 
-## Usage Guide
+## Guia de Uso
 
-1. **Select the value to calculate** in the dropdown
-2. **Fill in the known fields**
-3. **Click on "Calculate"** to get the result
-4. Use the **+/-** buttons to invert signs when necessary
-5. View the **calculation history** by clicking the "History" button
+1. **Selecione o valor a calcular** no dropdown
+2. **Preencha os campos conhecidos**
+3. **Clique em "Calcular"** para obter o resultado
+4. Use os botões **+/-** para inverter sinais quando necessário
+5. Visualize o **histórico de cálculos** clicando no botão "Histórico"
 
-## Common Use Cases
+## Casos de Uso Comuns
 
-### Calculating Loan Payments
-- Enter the Present Value with the loan amount (positive)
-- Set the number of periods
-- Set the interest rate
-- Set Future Value = 0
-- Select "Payment (PMT)" from the dropdown
-- Calculate
+### Cálculo de Prestação de Financiamento
+- Preencha o Valor Atual com o valor do empréstimo (positivo)
+- Defina o número de períodos
+- Defina a taxa de juros
+- Coloque Valor Futuro = 0
+- Selecione "Prestação (PMT)" no dropdown
+- Calcule
 
-### Calculating Accumulation Time
-- Enter the Present Value (initial investment)
-- Enter the interest rate
-- Enter the amount of the periodic contribution (PMT)
-- Enter the desired future value
-- Select "Periods (n)" from the dropdown
-- Calculate
+### Cálculo de Tempo para Acumulação
+- Preencha o Valor Atual (investimento inicial)
+- Insira a taxa de juros
+- Insira o valor da contribuição periódica (PMT)
+- Insira o valor futuro desejado
+- Selecione "Períodos (n)" no dropdown
+- Calcule
 
-## Mathematical Basics
+## Fundamentos Matemáticos
 
-The calculator implements the following financial formulas:
+A calculadora implementa as seguintes fórmulas financeiras:
 
-- **Present Value (PV)**:
+- **Valor Presente (PV)**: 
+  - Com PMT=0: `PV = FV / (1+i)^n`
+  - Caso geral: `PV = -PMT * (1-(1+i)^-n)/i - FV*(1+i)^-n`
 
-- With PMT=0: `PV = FV / (1+i)^n`
-- General case: `PV = -PMT * (1-(1+i)^-n)/i - FV*(1+i)^-n`
+- **Valor Futuro (FV)**:
+  - Com PMT=0: `FV = PV * (1+i)^n`
+  - Caso geral: `FV = -PMT * ((1+i)^n-1)/i - PV*(1+i)^n`
 
-- **Future Value (FV)**:
-- With PMT=0: `FV = PV * (1+i)^n`
-- General case: `FV = -PMT * ((1+i)^n-1)/i - PV*(1+i)^n`
+- **Métodos Numéricos**:
+  - Busca Binária para cálculo de períodos
+  - Newton-Raphson para cálculo de taxas
 
-- **Numerical Methods**:
-- Binary Search for calculating periods
-- Newton-Raphson for calculating rates
-
-## Project Structure
+## Estrutura do Projeto
 
 ```
-financialcalculator/
+calculadorafinanceira/
 │
-├── index.html # Main file containing HTML, CSS and JavaScript
-├── calculator.css # CSS formatting file
-├── calculator.js # Javascript file for execution, validation, messages, ...
-├── financialcalculator.png # Calculator screenshot
-└── README.md # This file
+├── index.html                    # Arquivo principal contendo HTML, CSS e JavaScript
+├── calculadora.css               # Arquivo de formatação css
+├── calculadora.js                # Arquivo javascript para execução, validação, mensagens, ...
+├── calculadorafinanceira.png     # Captura de tela da calculadora
+└── README.md                     # Este arquivo
 ```
 
-## Future Improvements
+## Melhorias Futuras
 
-- [ ] Addition of graphs for visualization
-- [ ] Export of results in PDF
-- [ ] Implementation of additional financial functions
-- [ ] Customizable visual themes
+- [ ] Adição de gráficos para visualização
+- [ ] Exportação dos resultados em PDF
+- [ ] Implementação de funções financeiras adicionais
+- [ ] Temas visuais personalizáveis
 
-## License
+## Licença
 
-This project is licensed under the MIT license - see the [LICENSE](LICENSE) file for details.
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## Credits
+## Créditos
 
-Originally developed for the website [Cabala e Matemática](https://cabalaematematica.com.br/) as an educational and practical tool for financial calculations.
+Desenvolvido originalmente para o site [Cabala e Matemática](https://cabalaematematica.com.br/) como uma ferramenta educacional e prática para cálculos financeiros.
 
-## Contributions
+## Contribuições
 
-Contributions are welcome! To contribute:
+Contribuições são bem-vindas! Para contribuir:
 
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/new-feature`)
-3. Commit the changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Open a Pull Request
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Faça commit das mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Faça push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
 ---
 
-© 2025 Financial Calculator | All rights reserved.
+© 2025 Calculadora Financeira | Todos os direitos reservados.

@@ -1,0 +1,702 @@
+:root {
+    --primary-color: #3a7ca5;
+    --primary-dark: #2c5d7c;
+    --secondary-color: #f8f9fa; /* Fundo atual do btn-secondary */
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --text-color: #343a40;
+    --light-gray: #f5f5f5;
+
+    /* Novas cores suaves sugeridas */
+    --soft-blue: #d1e7f3; /* Azul mais claro e suave */
+    --soft-blue-hover: #badec9; /* Note: This was likely a typo and meant a darker blue, adjusted below in .btn-info:hover */
+    --soft-green: #d4edda; /* Verde claro (relacionado ao success) */
+    --soft-green-hover: #c3e6cb;
+    --soft-orange: #ffe8d6; /* Laranja claro para Limpar/Atenção */
+    --soft-orange-hover: #fed7b3;
+    --soft-gray: #e9ecef; /* Cinza claro (alternativa para botões de info) */
+    --soft-gray-hover: #d8dde1;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.calculator {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.destacado {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.btn-toggle {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-toggle:hover {
+    background-color: var(--primary-dark);
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 20px;
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(58, 124, 165, 0.2);
+}
+
+select { /* Estilos para o select nativo, caso o custom dropdown falhe ou seja removido */
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px top 50%;
+    background-size: 12px auto;
+    padding-right: 35px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px; /* Reduced gap slightly for more buttons */
+    margin-top: 35px;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+button {
+    padding: 14px 20px; /* Adjusted padding for potentially smaller buttons */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; /* Slightly smaller base font for buttons */
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary { /* Este será o estilo base para os botões que não são "Calcular" */
+    background-color: var(--secondary-color); /* Mantém o fundo quase branco */
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.btn-secondary:hover {
+    background-color: #e9ecef; /* Um cinza um pouco mais escuro no hover */
+}
+
+/* Novos estilos para botões específicos com cores suaves */
+.btn-info { /* Para Amortização, Histórico, MIRR */
+    background-color: var(--soft-blue);
+    color: var(--primary-dark); /* Texto mais escuro para contraste com fundo claro */
+    border: 1px solid #b4cad6; /* Borda sutil um pouco mais escura que o fundo */
+}
+.btn-info:hover {
+    background-color: #b9d7e9; /* Azul um pouco mais escuro no hover */
+    border-color: #a0c2d6;
+}
+
+.btn-tool { /* Para Calculadora */
+    background-color: var(--soft-green);
+    color: #155724; /* Verde escuro para texto (do bootstrap success text color) */
+    border: 1px solid #badbcc; /* Borda sutil */
+}
+.btn-tool:hover {
+    background-color: var(--soft-green-hover);
+    border-color: #a6c9b3;
+}
+
+.btn-action { /* Para Limpar */
+    background-color: var(--soft-orange);
+    color: #721c24; /* Cor de texto de erro/alerta escura */
+    border: 1px solid #f5c6cb; /* Borda sutil (usando a do .error como base) */
+}
+.btn-action:hover {
+    background-color: var(--soft-orange-hover);
+    border-color: #f1b0b7;
+}
+
+.btn-log { /* For History if it needs to be different from .btn-info */
+    background-color: var(--soft-gray);
+    color: var(--text-color);
+    border: 1px solid #ced4da;
+}
+.btn-log:hover {
+    background-color: var(--soft-gray-hover);
+    border-color: #adb5bd;
+}
+
+
+.result-container {
+    margin-top: 35px;
+    padding: 25px;
+    border-radius: 10px;
+    background-color: var(--light-gray);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    display: none;
+}
+
+.result-container.visible {
+    display: block;
+}
+
+.result-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--primary-dark);
+}
+
+.result-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.error {
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    color: var(--error-color);
+    display: none;
+}
+
+.error.visible {
+    display: block;
+}
+
+/* Modal base style adjustments for centering */
+.modal {
+    display: none; /* Will be 'flex' when active */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    /* Added for flex centering: */
+    align-items: flex-start; /* Align content to the top */
+    justify-content: center; /* Center content horizontally */
+    overflow-y: auto; /* Allow modal itself to scroll if content is too tall */
+}
+
+/* Add this class via JS when showing a modal */
+.modal.visible { /* Not strictly needed if JS sets display: flex directly */
+    display: flex;
+}
+
+
+.modal-content {
+    background-color: white;
+    margin-top: 5vh; 
+    margin-bottom: 5vh; 
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px; /* Default max-width */
+    max-height: 90vh; 
+    overflow-y: auto; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative; 
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1; 
+    padding: 0 5px; 
+}
+
+.close:hover,
+.close:focus { 
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.history-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-detail {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.history-result {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.empty-history, .empty-amortization { 
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Tabela de amortização */
+.amortization-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.amortization-table th, 
+.amortization-table td {
+    padding: 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.amortization-table th {
+    background-color: var(--light-gray);
+    color: var(--primary-dark);
+    font-weight: 600;
+    position: sticky;
+    top: 0; 
+    z-index: 10;
+}
+
+.amortization-table tr:nth-child(even) {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.amortization-table tr:last-child td { 
+    font-weight: bold;
+    border-top: 2px solid var(--primary-color);
+    background-color: var(--light-gray);
+    position: sticky;
+    bottom: 0; 
+    z-index: 5;
+}
+
+.amortization-summary {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.amortization-summary p {
+    margin: 5px 0;
+}
+
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .calculator {
+        padding: 20px;
+    }
+    
+    .button-group {
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    .button-group button {
+        width: 100%; 
+        margin-bottom: 10px; 
+    }
+    .button-group button:last-child {
+        margin-bottom: 0;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .amortization-table {
+        font-size: 12px;
+    }
+    
+    .amortization-table th, 
+    .amortization-table td {
+        padding: 6px 4px;
+    }
+     .amortization-summary {
+        font-size: 13px;
+    }
+}
+
+/* Containers para resultados adicionais (já existentes) */
+.interest-value-container {
+    margin-top: 15px;
+    display: none;
+}
+.interest-value-container.visible { display: block; }
+.total-payments-container {
+    margin-top: 15px;
+    display: none;
+}
+.total-payments-container.visible { display: block; }
+
+/* Layout para resultados (já existentes) */
+.result-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-top: 20px;
+}
+.result-column {
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+}
+.result-row.three-columns .result-column {
+    flex-basis: 30%; 
+    min-width: 150px; 
+}
+
+@media (max-width: 600px) { 
+    .result-row.three-columns {
+        flex-direction: column;
+        align-items: center;
+    }
+    .result-row.three-columns .result-column {
+        flex-basis: auto; 
+        width: 80%; 
+        min-width: 0;
+        margin-bottom: 15px;
+    }
+}
+
+
+/* ESTILOS MOVIDOS DO JS PARA CÁ (Dropdown Personalizado) */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.dropdown-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px; 
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    transition: border-color 0.3s;
+    font-size: 18px; 
+    line-height: 1.5; 
+}
+
+.dropdown-button:hover, .dropdown-button:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(58, 124, 165, 0.2);
+}
+
+.dropdown-icon {
+    margin-left: 8px;
+    color: var(--primary-color); 
+    font-size: 10px; 
+    transition: transform 0.2s ease-in-out; 
+}
+.dropdown-list.visible .dropdown-icon { 
+    transform: rotate(180deg);
+}
+
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 2px); 
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 100; 
+    max-height: 250px; 
+    overflow-y: auto;
+    padding: 5px 0;  
+    display: none; 
+}
+.dropdown-list.visible { 
+    display: block;
+}
+
+
+.dropdown-item {
+    padding: 10px 15px !important; 
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 16px; 
+    white-space: nowrap; 
+}
+
+.dropdown-item:hover {
+    background-color: var(--light-gray); 
+}
+
+.dropdown-item.selected {
+    background-color: var(--soft-blue); 
+    color: var(--primary-dark); 
+    font-weight: 600; 
+}
+/* FIM DOS ESTILOS DO DROPDOWN */
+
+
+.calculator-modal { 
+    max-width: 340px;
+    padding-top: 15px; 
+}
+
+/* Estilo para o título dentro do modal da calculadora */
+#calculatorContent h2 {
+    text-align: center;
+    font-size: 1.4em; /* Ajuste conforme necessário */
+    color: var(--primary-dark);
+    margin-bottom: 15px;
+}
+
+.calculator-modal .close {
+    margin-right: 5px;
+    margin-top: -5px; 
+}
+
+.basic-calculator {
+    background-color: #f8f9fa; 
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); 
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.85); 
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 10px; 
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px; 
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 13px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+}
+
+input[type="number"].highlighted,
+input[type="text"].highlighted { 
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.3); 
+}
+
+.calc-display {
+    margin-bottom: 15px;
+}
+
+.calc-display input {
+    width: 100%;
+    padding: 15px;
+    font-size: 28px; 
+    text-align: right;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: white;
+    color: var(--text-color);
+    font-family: 'Consolas', 'Menlo', 'Courier New', monospace; 
+}
+
+.calc-buttons {
+    display: grid;
+    grid-gap: 8px;
+}
+
+.calc-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 8px;
+}
+
+.calc-btn {
+    padding: 15px 0; 
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    background-clip: padding-box; 
+}
+.calc-btn:active {
+    transform: translateY(1px); 
+}
+
+
+.calc-btn-num {
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.calc-btn-num:hover { background-color: #f1f3f5; }
+
+.calc-btn-op { 
+    background-color: var(--soft-gray);
+    color: var(--text-color);
+    border: 1px solid #ced4da;
+}
+.calc-btn-op:hover { background-color: var(--soft-gray-hover); }
+
+.calc-btn-clear, .calc-btn-backspace, .calc-btn-ce { 
+    background-color: var(--soft-orange);
+    color: #721c24; 
+    font-weight: bold;
+    border: 1px solid #f5c6cb;
+}
+.calc-btn-clear:hover, .calc-btn-backspace:hover, .calc-btn-ce:hover {
+    background-color: var(--soft-orange-hover);
+}
+
+.calc-btn-equal {
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-dark);
+}
+.calc-btn-equal:hover { background-color: var(--primary-dark); }
+
+.calc-btn-const { 
+    background-color: var(--soft-blue);
+    color: var(--primary-dark);
+    border: 1px solid #b4cad6;
+}
+.calc-btn-const:hover { background-color: #b9d7e9; }
+
+.calc-btn-apply {
+    background-color: var(--success-color); 
+    color: white;
+    grid-column: span 4; 
+    font-weight: bold;
+    border: 1px solid #1e7e34;
+}
+.calc-btn-apply:hover { background-color: #1e7e34; } 

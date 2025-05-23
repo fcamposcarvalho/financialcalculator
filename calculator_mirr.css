@@ -1,0 +1,118 @@
+/* calculadora_mirr.css */
+
+.mirr-modal {
+    max-width: 650px; /* Pode aumentar um pouco se o conteúdo crescer */
+    font-size: 1.05em; /* Aumento base da fonte para o modal MIRR */
+}
+
+.mirr-modal h2 {
+    font-size: 1.5em; /* Ajuste o tamanho do título do modal se necessário */
+    margin-bottom: 20px;
+}
+
+.mirr-form-container .form-group {
+    margin-bottom: 18px; /* Mais espaço entre os grupos */
+}
+
+.mirr-form-container label {
+    font-size: 1.1em; /* Aumento para labels (relativo ao font-size do .mirr-modal) */
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.mirr-form-container input[type="number"] {
+    font-size: 1em; /* Inputs acompanham o aumento base */
+    padding: 12px; /* Mais padding para inputs maiores */
+}
+
+.mirr-form-container h3 {
+    font-size: 1.2em; /* Aumento para o subtítulo "Cash Flows" */
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.mirr-cashflows-table-container {
+    max-height: 220px; 
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+#mirrCashFlowsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#mirrCashFlowsTable th,
+#mirrCashFlowsTable td {
+    padding: 10px; /* Mais padding nas células da tabela */
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95em; /* Leve ajuste se o texto da tabela ficar muito grande */
+}
+
+#mirrCashFlowsTable th {
+    background-color: var(--light-gray);
+    color: var(--primary-dark);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-size: 1em; /* Header da tabela acompanha o aumento */
+}
+
+#mirrCashFlowsTable td input[type="number"] {
+    width: 90%; 
+    padding: 8px; /* Padding para inputs na tabela */
+    font-size: 1em; /* Inputs na tabela acompanham o aumento */
+}
+
+#mirrCashFlowsTable .mirr-remove-cf-btn {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 6px 10px; /* Padding para o botão de remover */
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em; /* Fonte do botão de remover */
+}
+#mirrCashFlowsTable .mirr-remove-cf-btn:hover {
+    background-color: #c82333; 
+}
+
+
+.mirr-btn-add {
+    display: block;
+    margin: 0 auto 20px auto; 
+    width: auto;
+    padding: 12px 25px; /* Botão de adicionar maior */
+    font-size: 1em; /* Fonte do botão de adicionar */
+}
+
+.mirr-button-group {
+    margin-top: 25px;
+}
+.mirr-button-group .btn-primary {
+    padding: 12px 30px; /* Botão de calcular maior */
+    font-size: 1.05em; /* Fonte do botão de calcular */
+}
+
+
+#mirrErrorMessage {
+    margin-bottom: 20px; 
+    font-size: 1em; /* Fonte da mensagem de erro */
+}
+
+#mirrResultContainer .result-title {
+    font-size: 1.2em; /* Título do resultado */
+}
+#mirrResultContainer .result-value {
+    font-size: 1.6em; /* Valor do resultado MIRR */
+    font-weight: bold;
+}
+
+
+.mirr-modal.modal-content { 
+    overflow-y: auto;
+}
