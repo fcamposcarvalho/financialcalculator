@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const numericInputs = document.querySelectorAll('input[type="number"]');
         numericInputs.forEach(input => {
             input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter' || event.key === 'F1') {
+         if (event.key === 'Enter' || event.key === 'F1' || event.key === ' ') { // <<< LINHA MODIFICADA
                     event.preventDefault();
                     event.stopPropagation();
                     activeInputField = this;
