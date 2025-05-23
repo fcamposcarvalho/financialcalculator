@@ -157,8 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- MAIN CALCULATOR FUNCTIONS ---
-    // Função para abrir o modal da calculadora, chamada por Enter/F1/Espaço ou pelo botão
-    function openCalculator(inputField = null) { // Adicionado parâmetro opcional
+    function openCalculator(inputField = null) { 
         if (!calculatorModal) {
             console.error("ERROR in openCalculator: calculatorModal is NULL!");
             return;
@@ -168,24 +167,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         calculatorModal.style.display = "flex";
 
-        if (inputField) { // Se um campo foi passado (ex: via Enter/F1/Espaço)
-            activeInputField = inputField; // Define o campo ativo
-            // Preenche o display da calculadora com o valor do campo
-            if (inputField.value && inputField.value.trim() !== "" && !isNaN(parseFloat(inputField.value))) {
-                currentInput = inputField.value.replace(',', '.'); // Garante ponto decimal
-                resetScreen = true; // Para permitir que o próximo dígito substitua ou concatene
-                expressionMode = false; // Começa sem ser uma expressão complexa
+        if (inputField) { 
+            activeInputField = inputField; 
+            if (inputField.value && inputField.value.trim() !== "" && !isNaN(parseFloat(inputField.value.replace(',', '.')))) { // Garante que vírgula seja tratada
+                currentInput = inputField.value.replace(',', '.'); 
+                resetScreen = true; 
+                expressionMode = false; 
             } else {
-                resetCalculator(); // Se o campo estiver vazio ou inválido, reseta a calculadora
+                resetCalculator(); 
             }
-        } else { // Se nenhum campo foi passado (ex: clicando no botão "Calculator")
-            activeInputField = null; // Nenhum campo ativo para preencher
-            resetCalculator(); // Reseta para o estado inicial
+        } else { 
+            activeInputField = null; 
+            resetCalculator(); 
         }
         
-        updateDisplay(); // Atualiza o display da calculadora
+        updateDisplay(); 
         if (calcDisplay) {
-            // calcDisplay.focus(); // Descomentar se quiser focar no display
+            // calcDisplay.focus(); 
         }
     }
 
@@ -522,40 +520,40 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentInput === 'Error') {
                 if (calculatorModal) calculatorModal.style.display = "none";
                 activeInputField.focus();
+                activeInputField = null; // Limpa o campo ativo
                 return;
             }
             if (expressionMode && /[\+\-\×\÷\^\(\)%]/.test(currentInput) && !resetScreen) {
-                calculate(); // Calcula a expressão antes de aplicar
+                calculate(); 
                 if (currentInput === 'Error') {
                      if (calculatorModal) calculatorModal.style.display = "none";
                      activeInputField.focus();
+                     activeInputField = null; // Limpa o campo ativo
                      return;
                 }
             }
-            // Tenta converter para número e formatar para 2 casas decimais se for um número
+            
             let valueToApply = currentInput;
-            const numericValue = parseFloat(currentInput.replace(',', '.')); // Garante ponto para parseFloat
+            const numericValue = parseFloat(currentInput.replace(',', '.')); 
             if (!isNaN(numericValue)) {
-                valueToApply = numericValue.toFixed(2);
+                valueToApply = numericValue.toFixed(2); // Aplica com 2 casas decimais
             }
 
             activeInputField.value = valueToApply;
             if (calculatorModal) calculatorModal.style.display = "none";
             
-            // Disparar eventos para garantir que outras lógicas (ex: validação, cálculo principal) sejam acionadas
             activeInputField.dispatchEvent(new Event('input', { bubbles: true }));
             activeInputField.dispatchEvent(new Event('change', { bubbles: true }));
             
             activeInputField.focus();
-            activeInputField = null; // Limpa o campo ativo
+            activeInputField = null; 
         } else {
-            // Se não houver campo ativo, apenas fecha o modal (se estiver aberto)
             if (calculatorModal) calculatorModal.style.display = "none";
         }
     }
 
     function handleKeyboardInput(event) {
-        if (calculatorModal && calculatorModal.style.display !== 'flex') return; // Só processa se o modal estiver visível
+        if (calculatorModal && calculatorModal.style.display !== 'flex') return; 
         if (event.ctrlKey || event.metaKey) return;
 
         if (currentInput === 'Error') {
@@ -618,9 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- MODIFICAÇÃO: Tornar handleNumericInputKeydown global ---
+    // --- Listener para KEYDOWN nos campos numéricos (Enter, F1, Espaço) ---
     window.handleNumericInputKeydown = function(event) {
-        // Permitir teclas de navegação, delete, backspace, tab, home, end etc.
         const allowedNonFunctionKeys = [
             'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 
             'Delete', 'Backspace', 'Tab', 'Home', 'End', 
@@ -631,37 +628,39 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Se pressionar Enter, F1 ou Espaço, abre a calculadora
         if (event.key === 'Enter' || event.key === 'F1' || event.key === ' ') {
-            event.preventDefault(); // Previne a ação padrão (ex: submeter form, inserir espaço)
-            event.stopPropagation(); // Impede que o evento se propague para outros listeners (ex: do modal NPV)
+            event.preventDefault(); 
+            event.stopPropagation(); 
             
-            const inputField = event.target; // O campo que disparou o evento
-            openCalculator(inputField); // Passa o campo para a função openCalculator
+            const inputField = event.target; 
+            openCalculator(inputField); 
         }
-        // Não impede a digitação normal de números e outros caracteres válidos para input[type=number]
     };
 
-    // --- MODIFICAÇÃO: setupNumericInputs para aplicar o listener global ---
+    // --- Listener para DBLCLICK nos campos numéricos ---
+    window.handleNumericInputDblClick = function(event) {
+        event.preventDefault();
+        const inputField = event.target;
+        openCalculator(inputField);
+    };
+
+
     function setupNumericInputs() {
-        // Seleciona todos os inputs numéricos, incluindo os de modais que já existem no DOM
         const numericInputs = document.querySelectorAll(
-            'input[type="number"], ' + // Todos os inputs numéricos genéricos
-            '#periods, #rate, #payment, #presentValue, #futureValue, ' +
-            '#mirrInitialInvestment, #mirrFinancingRate, #mirrReinvestmentRate, ' +
-            '#npvInitialInvestment, #npvOverallDiscountRate, #npvFinancingRate, #npvReinvestmentRate'
+            'input[type="number"]' // Seletor mais genérico para pegar todos os inputs number
         );
 
         numericInputs.forEach(input => {
-            // Remove listener antigo para evitar duplicação se esta função for chamada múltiplas vezes
-            input.removeEventListener('keydown', window.handleNumericInputKeydown); // Usa a função global
-            // Adiciona o novo listener
-            input.addEventListener('keydown', window.handleNumericInputKeydown); // Usa a função global
+            input.removeEventListener('keydown', window.handleNumericInputKeydown); 
+            input.addEventListener('keydown', window.handleNumericInputKeydown); 
             
-            input.title = "Pressione Enter, F1 ou Espaço para acessar a calculadora";
+            input.removeEventListener('dblclick', window.handleNumericInputDblClick); // Adicionado listener de duplo clique
+            input.addEventListener('dblclick', window.handleNumericInputDblClick);    // Adicionado listener de duplo clique
             
-            input.removeEventListener('focus', highlightInput); // Evitar duplicação
-            input.removeEventListener('blur', unhighlightInput); // Evitar duplicação
+            input.title = "Pressione Enter, F1, Espaço ou duplo clique para acessar a calculadora"; // Atualizado title
+            
+            input.removeEventListener('focus', highlightInput); 
+            input.removeEventListener('blur', unhighlightInput); 
             input.addEventListener('focus', highlightInput);
             input.addEventListener('blur', unhighlightInput);
         });
@@ -670,13 +669,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function highlightInput() { this.classList.add('highlighted'); }
     function unhighlightInput() { this.classList.remove('highlighted'); }
 
-    // --- INITIALIZATION AND GENERAL EVENTS (continued) ---
+    // --- INITIALIZATION AND GENERAL EVENTS ---
     updateDisplay();
-    setupNumericInputs(); // Chama a função para configurar os inputs numéricos estáticos
+    setupNumericInputs(); 
 
     if (calculatorBtn) {
         calculatorBtn.addEventListener('click', function() {
-            openCalculator(); // Abre a calculadora sem um campo ativo específico
+            openCalculator(); 
         });
     }
 
@@ -684,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeCalculatorModal.addEventListener('click', function() {
             if (calculatorModal) {
                 calculatorModal.style.display = "none";
-                activeInputField = null; // Limpa o campo ativo ao fechar
+                activeInputField = null; 
             }
         });
     }
@@ -692,11 +691,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('click', function(event) {
         if (calculatorModal && event.target === calculatorModal) {
             calculatorModal.style.display = "none";
-            activeInputField = null; // Limpa o campo ativo
+            activeInputField = null; 
         }
     });
     
-    // Listener para o teclado DENTRO do modal da calculadora
     if (calculatorModal) {
         calculatorModal.addEventListener('keydown', handleKeyboardInput);
     }

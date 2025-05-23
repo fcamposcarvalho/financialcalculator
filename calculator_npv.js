@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.className = 'npv-cash-flow-amount';
         amountInput.value = amount;
         amountInput.placeholder = "e.g., 200 or -150";
-        amountInput.enterKeyHint = "enter"; // MODIFICADO
+        amountInput.enterKeyHint = "enter"; 
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
-        quantityInput.enterKeyHint = "enter"; // MODIFICADO
+        quantityInput.enterKeyHint = "enter"; 
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -70,15 +70,16 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         cellAction.appendChild(removeBtn);
 
-        // Adicionar event listener para F1/Enter/Espaço aos inputs dinâmicos
-        if (typeof window.handleNumericInputKeydown === 'function') {
+        if (typeof window.handleNumericInputKeydown === 'function' && typeof window.handleNumericInputDblClick === 'function') {
             [amountInput, quantityInput].forEach(input => {
+                input.removeEventListener('keydown', window.handleNumericInputKeydown); // Evitar duplicidade
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
-                // Adicionar title para consistência
-                input.title = "Pressione Enter, F1 ou Espaço para acessar a calculadora";
+                input.removeEventListener('dblclick', window.handleNumericInputDblClick); // Evitar duplicidade
+                input.addEventListener('dblclick', window.handleNumericInputDblClick);    // Adicionado dblclick
+                input.title = "Pressione Enter, F1, Espaço ou duplo clique para acessar a calculadora";
             });
         } else {
-            console.warn('window.handleNumericInputKeydown não está definida. A calculadora pode não abrir com Enter/F1/Espaço nos campos dinâmicos de NPV.');
+            console.warn('Funções globais para input numérico não definidas. A calculadora pode não abrir corretamente nos campos dinâmicos de NPV.');
         }
     }
 
@@ -135,11 +136,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (financingRateInput) financingRateInput.value = "0.00";
         if (reinvestmentRateInput) reinvestmentRateInput.value = "0.00";
         
-        // Limpa as linhas existentes antes de adicionar as padrão, se necessário
         while (cashFlowsTableBody.firstChild) {
             cashFlowsTableBody.removeChild(cashFlowsTableBody.firstChild);
         }
-        cfRowCounterNpv = 0; // Reseta o contador de linhas
+        cfRowCounterNpv = 0; 
         addNpvCashFlowRow(200, 1); 
         addNpvCashFlowRow(300, 2); 
         addNpvCashFlowRow(500, 1); 
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (npvBtn) npvBtn.addEventListener('click', openNpvModal);
     if (closeNpvModalBtn) closeNpvModalBtn.addEventListener('click', closeNpvModal);
-    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1)); // Adiciona linha vazia
+    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1)); 
 
     window.addEventListener('click', function(event) {
         if (event.target === npvModal) {
@@ -340,7 +340,4 @@ document.addEventListener('DOMContentLoaded', function() {
             document.removeEventListener('mouseup', onNpvMouseUp);
         }
     }
-    
-    // Não adiciona linhas padrão se já houver alguma, para permitir reabertura sem resetar inputs manuais
-    // A função openNpvModal agora limpa e adiciona as linhas padrão sempre.
 });
