@@ -69,8 +69,13 @@ h1 {
     position: relative;
 }
 
-label {
-    display: block;
+/* Ajuste para label para melhor alinhamento com o ícone de tooltip - MOVING THIS HIGHER FOR GENERAL LABEL STYLING */
+.form-group label, /* Aplica a todos os labels dentro de form-group */
+.npv-form-container label, /* Específico para NPV modal se necessário */
+.mirr-form-container label { /* Específico para MIRR modal se necessário */
+    display: flex; 
+    align-items: center; 
+    /* Estilos originais de label abaixo */
     margin-bottom: 10px;
     font-weight: 600;
     color: var(--primary-dark);
@@ -173,7 +178,7 @@ button {
     border-color: #a0c2d6;
 }
 
-.btn-tool { /* Para Calculadora */
+.btn-tool { /* Para Calculadora, NPV */
     background-color: var(--soft-green);
     color: #155724; /* Verde escuro para texto (do bootstrap success text color) */
     border: 1px solid #badbcc; /* Borda sutil */
@@ -568,40 +573,87 @@ footer {
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); 
 }
 
-.tooltip {
+/* --- TOOLTIP STYLES --- */
+.tooltip { /* Container for the icon */
     position: relative;
     display: inline-block;
+    cursor: help;
+    margin-left: 5px; /* Space between label text and tooltip icon */
+    color: var(--primary-color); /* Icon color */
+    font-weight: bold; /* Icon font weight */
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: rgba(0, 0, 0, 0.85); 
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 10px; 
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px; 
+.tooltip .tooltiptext { /* Common styles for the tooltip box itself */
+    visibility: hidden; /* Hidden by default */
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    text-align: left; /* Align text to the left */
+    border-radius: 6px; /* Rounded corners */
+    padding: 10px; /* Inner spacing */
+    font-size: 13px; /* Font size for tooltip content */
+    line-height: 1.5; /* Line spacing */
+    white-space: normal; /* Allow text to wrap */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25); /* Shadow for depth */
+
+    /* Sizing */
+    width: auto; /* Adjust width to content */
+    min-width: 180px; /* Minimum width */
+    max-width: 280px; /* Maximum width */
+
+    /* Core positioning setup */
+    position: absolute; 
+    z-index: 101; /* Above other modal elements *within its own modal context* */
+
+    left: 50%; 
+    transform: translateX(-50%); /* Horizontal centering */
+
+    /* Animation for showing/hiding */
     opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 13px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: opacity 0.3s, visibility 0.3s;
 }
 
-.tooltip .tooltiptext::after {
+/* Styles for tooltip positioned ABOVE the icon (when .tooltiptext-above is added by JS) */
+.tooltip .tooltiptext.tooltiptext-above {
+    bottom: calc(100% + 10px); /* Position 10px above the icon */
+    top: auto; /* Ensure 'bottom' takes precedence */
+}
+
+.tooltip .tooltiptext.tooltiptext-above::after { /* Arrow for "above" tooltips */
     content: "";
     position: absolute;
-    top: 100%;
     left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
+    transform: translateX(-50%);
+    top: 100%; /* Arrow at the bottom of the tooltip body */
+    border-width: 6px;
     border-style: solid;
-    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+    border-color: #333 transparent transparent transparent; /* Arrow pointing downwards */
 }
+
+/* Styles for tooltip positioned BELOW the icon (when .tooltiptext-below is added by JS) */
+.tooltip .tooltiptext.tooltiptext-below {
+    top: calc(100% + 10px); /* Position 10px below the icon */
+    bottom: auto; /* Ensure 'top' takes precedence */
+}
+
+.tooltip .tooltiptext.tooltiptext-below::after { /* Arrow for "below" tooltips */
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100%; /* Arrow at the top of the tooltip body */
+    top: auto; /* Ensure 'bottom' takes precedence */
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent; /* Arrow pointing upwards */
+}
+
+/* Show tooltip on hover (triggers JS to add classes, and this makes it visible) */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+/* --- END OF TOOLTIP STYLES --- */
+
 
 input[type="number"].highlighted,
 input[type="text"].highlighted { 
@@ -700,3 +752,8 @@ input[type="text"].highlighted {
     border: 1px solid #1e7e34;
 }
 .calc-btn-apply:hover { background-color: #1e7e34; } 
+
+/* Ensure calculator modal is on top of other modals */
+#calculatorModal {
+    z-index: 1050; /* Higher than other modals (default 1000 for .modal) */
+}

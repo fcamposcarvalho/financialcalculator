@@ -1,0 +1,159 @@
+/* calculator_npv.css */
+
+.npv-modal {
+    max-width: 650px; /* Can adjust if content grows */
+    font-size: 1.05em; /* Base font increase for NPV modal */
+}
+
+.npv-modal h2 {
+    font-size: 1.5em; /* Adjust modal title size if needed */
+    margin-bottom: 20px;
+    text-align: center; /* Center modal title */
+    color: var(--primary-dark); /* Use primary dark color for title */
+}
+
+.npv-form-container .form-group {
+    margin-bottom: 18px; /* More space between groups */
+}
+
+.npv-form-container label {
+    font-size: 1.1em; /* Increase for labels (relative to .npv-modal font-size) */
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--primary-dark); /* Consistent color for labels */
+}
+
+.npv-form-container input[type="number"] {
+    font-size: 1em; /* Inputs follow base increase */
+    padding: 12px; /* More padding for larger inputs */
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+.npv-form-container input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(58, 124, 165, 0.2);
+}
+
+
+.npv-form-container h3 {
+    font-size: 1.2em; /* Increase for "Cash Flows" subtitle */
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: var(--primary-dark); /* Consistent color for subtitles */
+    text-align: center;
+}
+
+.npv-cashflows-table-container {
+    max-height: 220px; 
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+#npvCashFlowsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#npvCashFlowsTable th,
+#npvCashFlowsTable td {
+    padding: 10px; /* More padding in table cells */
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95em; /* Slight adjustment if table text becomes too large */
+}
+
+#npvCashFlowsTable th {
+    background-color: var(--light-gray);
+    color: var(--primary-dark);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-size: 1em; /* Table header follows increase */
+    text-align: center;
+}
+
+#npvCashFlowsTable td input[type="number"] {
+    width: 90%; 
+    padding: 8px; /* Padding for inputs in table */
+    font-size: 1em; /* Inputs in table follow increase */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+}
+#npvCashFlowsTable td input[type="number"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px rgba(58, 124, 165, 0.2);
+}
+
+
+#npvCashFlowsTable .npv-remove-cf-btn { /* Renamed class */
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 6px 10px; /* Padding for remove button */
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em; /* Font for remove button */
+    transition: background-color 0.3s;
+}
+#npvCashFlowsTable .npv-remove-cf-btn:hover { /* Renamed class */
+    background-color: #c82333; 
+}
+
+
+.npv-btn-add { /* Renamed class */
+    display: block;
+    margin: 0 auto 20px auto; 
+    width: auto;
+    padding: 12px 25px; 
+    font-size: 1em; 
+    background-color: var(--soft-green); 
+    color: var(--primary-dark); 
+    border: 1px solid #a6c9b3; 
+    border-radius: 5px; 
+    font-weight: 600; 
+    transition: background-color 0.3s, border-color 0.3s; 
+}
+
+.npv-btn-add:hover { /* Renamed class */
+    background-color: var(--soft-green-hover); 
+    border-color: #8dbf9d; 
+}
+
+.npv-button-group { /* Renamed class */
+    margin-top: 25px;
+    display: flex; 
+    justify-content: center; 
+}
+.npv-button-group .btn-primary { /* Renamed class */
+    padding: 12px 30px; /* Larger calculate button */
+    font-size: 1.05em; /* Font for calculate button */
+}
+
+
+#npvErrorMessage { /* Renamed ID */
+    margin-bottom: 20px; 
+    font-size: 1em; /* Font for error message */
+}
+
+#npvResultContainer { /* Renamed ID, inheriting from .result-container but with specific adjustments */
+    padding: 20px;
+    margin-top: 25px;
+}
+
+#npvResultContainer .result-title { /* Renamed ID */
+    font-size: 1.2em; /* Result title */
+    color: var(--primary-dark);
+}
+#npvResultContainer .result-value { /* Renamed ID */
+    font-size: 1.6em; /* NPV result value */
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.npv-modal.modal-content { 
+    overflow-y: auto;
+}
