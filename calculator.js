@@ -1,4 +1,4 @@
-// calculadora.js - Basic calculator implementation
+// calculator.js - Basic calculator implementation
 
 document.addEventListener('DOMContentLoaded', function() {
     // -------------------------------------------------------------------
@@ -687,13 +687,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    window.addEventListener('click', function(event) {
-        if (calculatorModal && event.target === calculatorModal) {
-            calculatorModal.style.display = "none";
-            activeInputField = null; 
-        }
-    });
     
     if (calculatorModal) {
         calculatorModal.addEventListener('keydown', handleKeyboardInput);

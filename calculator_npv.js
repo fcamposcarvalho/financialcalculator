@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cashFlowsTableBody = document.getElementById('npvCashFlowsTableBody');
     const addCashFlowRowBtn = document.getElementById('addNpvCashFlowRow');
     const calculateNpvBtn = document.getElementById('calculateNpvBtn');
+    const resetNpvBtn = document.getElementById('resetNpvBtn'); // New Reset Button
     
     const npvResultContainer = document.getElementById('npvResultContainer');
     const npvResultTitle = document.getElementById('npvResultTitle'); 
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const npvErrorMessage = document.getElementById('npvErrorMessage');
 
     let cfRowCounterNpv = 0;
+    let isNpvFirstOpenThisSession = true; // Flag for first open
 
     function showNpvError(message) {
         if (npvErrorMessage) {
@@ -72,10 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (typeof window.handleNumericInputKeydown === 'function' && typeof window.handleNumericInputDblClick === 'function') {
             [amountInput, quantityInput].forEach(input => {
-                input.removeEventListener('keydown', window.handleNumericInputKeydown); // Evitar duplicidade
+                input.removeEventListener('keydown', window.handleNumericInputKeydown); 
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
-                input.removeEventListener('dblclick', window.handleNumericInputDblClick); // Evitar duplicidade
-                input.addEventListener('dblclick', window.handleNumericInputDblClick);    // Adicionado dblclick
+                input.removeEventListener('dblclick', window.handleNumericInputDblClick); 
+                input.addEventListener('dblclick', window.handleNumericInputDblClick);    
                 input.title = "Pressione Enter, F1, Espaço ou duplo clique para acessar a calculadora";
             });
         } else {
@@ -125,12 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-
-    function openNpvModal() {
-        if (!npvModal) return;
+    function resetNpvToDefaults() {
         hideNpvError();
         if (npvResultContainer) npvResultContainer.style.display = 'none';
-        
+
         if (initialInvestmentInput) initialInvestmentInput.value = "-1000.00";
         if (overallDiscountRateInput) overallDiscountRateInput.value = "10.0";
         if (financingRateInput) financingRateInput.value = "0.00";
@@ -143,7 +143,22 @@ document.addEventListener('DOMContentLoaded', function() {
         addNpvCashFlowRow(200, 1); 
         addNpvCashFlowRow(300, 2); 
         addNpvCashFlowRow(500, 1); 
+    }
+
+    function openNpvModal() {
+        if (!npvModal) return;
         
+        if (isNpvFirstOpenThisSession) {
+            resetNpvToDefaults();
+            isNpvFirstOpenThisSession = false; // Set flag to false after first initialization
+        } else {
+             // On subsequent opens, just ensure errors/results are hidden if not reset by user
+            hideNpvError();
+            if (npvResultContainer && npvResultValue.textContent === "") { // Hide if no result currently shown
+                 npvResultContainer.style.display = 'none';
+            }
+        }
+
         if (npvModalContent) { 
             npvModalContent.style.position = ''; 
             npvModalContent.style.left = '';
@@ -165,12 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (npvBtn) npvBtn.addEventListener('click', openNpvModal);
     if (closeNpvModalBtn) closeNpvModalBtn.addEventListener('click', closeNpvModal);
     if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1)); 
+    if (resetNpvBtn) resetNpvBtn.addEventListener('click', resetNpvToDefaults); // Listener for new reset button
 
-    window.addEventListener('click', function(event) {
-        if (event.target === npvModal) {
-            closeNpvModal();
-        }
-    });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && npvModal && npvModal.style.display === 'flex') {
             closeNpvModal();
@@ -182,17 +193,23 @@ document.addEventListener('DOMContentLoaded', function() {
             hideNpvError();
             try {
                 const initialInvestment = parseFloat(initialInvestmentInput.value);
-                const overallDiscountRate = parseFloat(overallDiscountRateInput.value) / 100;
+                let overallDiscountRateVal = overallDiscountRateInput.value.trim();
+                if (overallDiscountRateVal === "") {
+                     throw new Error("Overall Discount Rate cannot be empty.");
+                }
+                const overallDiscountRate = parseFloat(overallDiscountRateVal) / 100;
+
+
                 let financingRate = parseFloat(financingRateInput.value);
                 if (isNaN(financingRate) || financingRateInput.value.trim() === "") financingRate = 0; else financingRate /= 100;
 
                 let reinvestmentRate = parseFloat(reinvestmentRateInput.value);
                 if (isNaN(reinvestmentRate) || reinvestmentRateInput.value.trim() === "") reinvestmentRate = 0; else reinvestmentRate /= 100;
 
-                if (isNaN(initialInvestment) || isNaN(overallDiscountRateInput.value)) {
+                if (isNaN(initialInvestment) || isNaN(overallDiscountRate)) { // Check parsed overallDiscountRate
                     throw new Error("Initial Investment and Overall Discount Rate must be valid numbers.");
                 }
-                 if (overallDiscountRate <= -1 && overallDiscountRateInput.value.trim() !== "") { 
+                 if (overallDiscountRate <= -1 ) { 
                     throw new Error("Overall Discount Rate must be greater than -100%.");
                 }
                 if (financingRate <= -1 && financingRateInput.value.trim() !== "" && financingRateInput.value !== "0.00" && financingRateInput.value !== "0") {
@@ -214,6 +231,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (isNaN(quantity) || quantity < 1) throw new Error(`Invalid quantity. Must be at least 1.`);
                     for (let i = 0; i < quantity; i++) expandedCashFlows.push(amount);
                 });
+                
+                if (expandedCashFlows.length === 0 && initialInvestment === 0) {
+                    throw new Error("No cash flows provided (CF0 is zero and no subsequent CFs).");
+                }
+
 
                 let npv = 0;
                 let resultTitleText = "NPV Result:"; 

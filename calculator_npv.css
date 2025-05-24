@@ -105,8 +105,8 @@
 
 
 .npv-btn-add { /* Renamed class */
-    display: block;
-    margin: 0 auto 20px auto; 
+    /* display: block; Removed */
+    /* margin: 0 auto 20px auto; Removed */
     width: auto;
     padding: 12px 25px; 
     font-size: 1em; 
@@ -127,10 +127,13 @@
     margin-top: 25px;
     display: flex; 
     justify-content: center; 
+    gap: 15px; /* Increased gap for multiple buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap */
 }
-.npv-button-group .btn-primary { /* Renamed class */
-    padding: 12px 30px; /* Larger calculate button */
-    font-size: 1.05em; /* Font for calculate button */
+.npv-button-group .btn-primary,
+.npv-button-group .btn-action { /* Apply similar styling to reset button */
+    padding: 12px 30px; 
+    font-size: 1.05em; 
 }
 
 

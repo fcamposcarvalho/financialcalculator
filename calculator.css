@@ -188,7 +188,7 @@ button {
     border-color: #a6c9b3;
 }
 
-.btn-action { /* Para Limpar */
+.btn-action { /* Para Limpar, Reset */
     background-color: var(--soft-orange);
     color: #721c24; /* Cor de texto de erro/alerta escura */
     border: 1px solid #f5c6cb; /* Borda sutil (usando a do .error como base) */

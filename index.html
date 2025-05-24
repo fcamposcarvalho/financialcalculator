@@ -13,7 +13,7 @@
         <header>
             <h1>Financial Calculator</h1>
 			<p>Calculate financial cash flow values with the <span class="destacado">"Value to Calculate:"</span> option.</p>
-			<p>Press <span class="destacado">Enter, F1, Space or Double Click</span> in the numeric fields to access the calculator.</p> <!-- MODIFICADO -->
+			<p>Press <span class="destacado">Enter, F1, Space or Double Click</span> in the numeric fields to access the calculator.</p>
         </header>
         
         <main>
@@ -216,10 +216,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <button id="addMirrCashFlowRow" class="btn-secondary mirr-btn-add">Add Cash Flow Row</button>
                     
                     <div class="button-group mirr-button-group">
+                        <button id="addMirrCashFlowRow" class="btn-secondary mirr-btn-add">Add Cash Flow Row</button>
                         <button id="calculateMirrBtn" class="btn-primary">Calculate MIRR</button>
+                        <button id="resetMirrBtn" class="btn-action">Reset</button>
                     </div>
 
                     <div id="mirrResultContainer" class="result-container" style="display: none; margin-top: 20px;">
@@ -277,10 +278,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <button id="addNpvCashFlowRow" class="btn-secondary npv-btn-add">Add Cash Flow Row</button>
                     
                     <div class="button-group npv-button-group">
+                        <button id="addNpvCashFlowRow" class="btn-secondary npv-btn-add">Add Cash Flow Row</button>
                         <button id="calculateNpvBtn" class="btn-primary">Calculate NPV</button>
+                        <button id="resetNpvBtn" class="btn-action">Reset</button>
                     </div>
 
                     <div id="npvResultContainer" class="result-container" style="display: none; margin-top: 20px;">

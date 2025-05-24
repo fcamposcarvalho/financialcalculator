@@ -105,8 +105,8 @@
 
 
 .mirr-btn-add {
-    display: block;
-    margin: 0 auto 20px auto; 
+    /* display: block; Removed */
+    /* margin: 0 auto 20px auto; Removed */
     width: auto;
     padding: 12px 25px; 
     font-size: 1em; 
@@ -127,8 +127,11 @@
     margin-top: 25px;
     display: flex; 
     justify-content: center; 
+    gap: 15px; /* Increased gap for multiple buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap */
 }
-.mirr-button-group .btn-primary {
+.mirr-button-group .btn-primary,
+.mirr-button-group .btn-action { /* Apply similar styling to reset button */
     padding: 12px 30px; 
     font-size: 1.05em; 
 }
