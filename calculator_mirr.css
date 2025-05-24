@@ -45,7 +45,7 @@
 }
 
 .mirr-cashflows-table-container {
-    max-height: 220px; 
+    max-height: 220px;
     overflow-y: auto;
     border: 1px solid var(--border-color);
     margin-bottom: 20px;
@@ -77,7 +77,7 @@
 }
 
 #mirrCashFlowsTable td input[type="number"] {
-    width: 90%; 
+    width: 90%;
     padding: 8px; /* Padding para inputs na tabela */
     font-size: 1em; /* Inputs na tabela acompanham o aumento */
     border: 1px solid var(--border-color);
@@ -100,64 +100,72 @@
     transition: background-color 0.3s;
 }
 #mirrCashFlowsTable .mirr-remove-cf-btn:hover {
-    background-color: #c82333; 
+    background-color: #c82333;
 }
 
 
 .mirr-btn-add {
-    /* display: block; Removed */
-    /* margin: 0 auto 20px auto; Removed */
-    width: auto;
-    padding: 12px 25px; 
-    font-size: 1em; 
-    background-color: var(--soft-green); 
-    color: var(--primary-dark); 
-    border: 1px solid #a6c9b3; 
-    border-radius: 5px; 
-    font-weight: 600; 
-    transition: background-color 0.3s, border-color 0.3s; 
+    /* width: auto; -- This will be effectively managed by .mirr-button-group > button */
+    padding: 12px 25px;
+    font-size: 1em;
+    background-color: var(--soft-green);
+    color: var(--primary-dark);
+    border: 1px solid #a6c9b3;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .mirr-btn-add:hover {
-    background-color: var(--soft-green-hover); 
-    border-color: #8dbf9d; 
+    background-color: var(--soft-green-hover);
+    border-color: #8dbf9d;
 }
 
 .mirr-button-group {
     margin-top: 25px;
-    display: flex; 
-    justify-content: center; 
-    gap: 15px; /* Increased gap for multiple buttons */
-    flex-wrap: wrap; /* Allow buttons to wrap */
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center;   /* Center buttons horizontally in the column */
+    gap: 22px;             /* Increased vertical space between buttons */
 }
+
+/* Common styling for all buttons within the group for width and layout */
+.mirr-button-group > button {
+    width: 100%; /* Buttons will take the width of their content or be constrained by max-width */
+    max-width: 320px; /* Maximum width for the buttons */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Styles for .btn-primary and .btn-action when inside .mirr-button-group */
+/* These define specific appearances (padding, font-size) for these button types */
 .mirr-button-group .btn-primary,
-.mirr-button-group .btn-action { /* Apply similar styling to reset button */
-    padding: 12px 30px; 
-    font-size: 1.05em; 
+.mirr-button-group .btn-action {
+    padding: 12px 30px; /* Keep original padding */
+    font-size: 1.05em;  /* Keep original font-size */
 }
 
 
 #mirrErrorMessage {
-    margin-bottom: 20px; 
-    font-size: 1em; 
+    margin-bottom: 20px;
+    font-size: 1em;
 }
 
-#mirrResultContainer { 
+#mirrResultContainer {
     padding: 20px;
     margin-top: 25px;
 }
 
 #mirrResultContainer .result-title {
-    font-size: 1.2em; 
+    font-size: 1.2em;
     color: var(--primary-dark);
 }
 #mirrResultContainer .result-value {
-    font-size: 1.6em; 
+    font-size: 1.6em;
     font-weight: bold;
     color: var(--primary-color);
 }
 
 
-.mirr-modal.modal-content { 
+.mirr-modal.modal-content {
     overflow-y: auto;
 }

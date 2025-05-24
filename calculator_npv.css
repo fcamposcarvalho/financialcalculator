@@ -45,7 +45,7 @@
 }
 
 .npv-cashflows-table-container {
-    max-height: 220px; 
+    max-height: 220px;
     overflow-y: auto;
     border: 1px solid var(--border-color);
     margin-bottom: 20px;
@@ -77,7 +77,7 @@
 }
 
 #npvCashFlowsTable td input[type="number"] {
-    width: 90%; 
+    width: 90%;
     padding: 8px; /* Padding for inputs in table */
     font-size: 1em; /* Inputs in table follow increase */
     border: 1px solid var(--border-color);
@@ -100,45 +100,52 @@
     transition: background-color 0.3s;
 }
 #npvCashFlowsTable .npv-remove-cf-btn:hover { /* Renamed class */
-    background-color: #c82333; 
+    background-color: #c82333;
 }
 
 
 .npv-btn-add { /* Renamed class */
-    /* display: block; Removed */
-    /* margin: 0 auto 20px auto; Removed */
-    width: auto;
-    padding: 12px 25px; 
-    font-size: 1em; 
-    background-color: var(--soft-green); 
-    color: var(--primary-dark); 
-    border: 1px solid #a6c9b3; 
-    border-radius: 5px; 
-    font-weight: 600; 
-    transition: background-color 0.3s, border-color 0.3s; 
+    /* width: auto; -- This will be effectively managed by .npv-button-group > button */
+    padding: 12px 25px;
+    font-size: 1em;
+    background-color: var(--soft-green);
+    color: var(--primary-dark);
+    border: 1px solid #a6c9b3;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .npv-btn-add:hover { /* Renamed class */
-    background-color: var(--soft-green-hover); 
-    border-color: #8dbf9d; 
+    background-color: var(--soft-green-hover);
+    border-color: #8dbf9d;
 }
 
 .npv-button-group { /* Renamed class */
     margin-top: 25px;
-    display: flex; 
-    justify-content: center; 
-    gap: 15px; /* Increased gap for multiple buttons */
-    flex-wrap: wrap; /* Allow buttons to wrap */
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center;   /* Center buttons horizontally */
+    gap: 22px;             /* Increased vertical space between buttons */
 }
+
+/* Common styling for all buttons within the group for width and layout */
+.npv-button-group > button {
+    width: 100%; /* Buttons will take the width of their content or be constrained by max-width */
+    max-width: 320px; /* Maximum width for the buttons */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Styles for .btn-primary and .btn-action when inside .npv-button-group */
 .npv-button-group .btn-primary,
 .npv-button-group .btn-action { /* Apply similar styling to reset button */
-    padding: 12px 30px; 
-    font-size: 1.05em; 
+    padding: 12px 30px; /* Keep original padding */
+    font-size: 1.05em;  /* Keep original font-size */
 }
 
 
 #npvErrorMessage { /* Renamed ID */
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
     font-size: 1em; /* Font for error message */
 }
 
@@ -157,6 +164,6 @@
     color: var(--primary-color);
 }
 
-.npv-modal.modal-content { 
+.npv-modal.modal-content {
     overflow-y: auto;
 }
