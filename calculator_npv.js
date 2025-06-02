@@ -1,19 +1,19 @@
 // calculator_npv.js
 document.addEventListener('DOMContentLoaded', function() {
-    const npvBtn = document.getElementById('npvBtn');
+    const adjNpvBtn = document.getElementById('adjNpvBtn');
     const npvModal = document.getElementById('npvModal');
     const closeNpvModalBtn = document.getElementById('closeNpvModal');
     const npvModalContent = npvModal ? npvModal.querySelector('.modal-content.npv-modal') : null;
 
     const initialInvestmentInput = document.getElementById('npvInitialInvestment');
-    const overallDiscountRateInput = document.getElementById('npvOverallDiscountRate');
+    const discountRateInput = document.getElementById('npvDiscountRate');
     const financingRateInput = document.getElementById('npvFinancingRate');
     const reinvestmentRateInput = document.getElementById('npvReinvestmentRate');
 
     const cashFlowsTableBody = document.getElementById('npvCashFlowsTableBody');
     const addCashFlowRowBtn = document.getElementById('addNpvCashFlowRow');
     const calculateNpvBtn = document.getElementById('calculateNpvBtn');
-    const resetNpvBtn = document.getElementById('resetNpvBtn'); // New Reset Button
+    const resetNpvBtn = document.getElementById('resetNpvBtn'); 
     
     const npvResultContainer = document.getElementById('npvResultContainer');
     const npvResultTitle = document.getElementById('npvResultTitle'); 
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const npvErrorMessage = document.getElementById('npvErrorMessage');
 
     let cfRowCounterNpv = 0;
-    let isNpvFirstOpenThisSession = true; // Flag for first open
+    let isNpvFirstOpenThisSession = true;
 
     function showNpvError(message) {
         if (npvErrorMessage) {
@@ -78,10 +78,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
                 input.removeEventListener('dblclick', window.handleNumericInputDblClick); 
                 input.addEventListener('dblclick', window.handleNumericInputDblClick);    
-                input.title = "Pressione Enter, F1, Espaço ou duplo clique para acessar a calculadora";
+                input.title = "Press Enter, F1, Space, or double-click to access the calculator";
             });
         } else {
-            console.warn('Funções globais para input numérico não definidas. A calculadora pode não abrir corretamente nos campos dinâmicos de NPV.');
+            console.warn('Global numeric input helper functions not defined. Calculator may not open correctly for dynamic NPV fields.');
         }
     }
 
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (npvResultContainer) npvResultContainer.style.display = 'none';
 
         if (initialInvestmentInput) initialInvestmentInput.value = "-1000.00";
-        if (overallDiscountRateInput) overallDiscountRateInput.value = "10.0";
+        if (discountRateInput) discountRateInput.value = "10.0";
         if (financingRateInput) financingRateInput.value = "0.00";
         if (reinvestmentRateInput) reinvestmentRateInput.value = "0.00";
         
@@ -150,11 +150,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isNpvFirstOpenThisSession) {
             resetNpvToDefaults();
-            isNpvFirstOpenThisSession = false; // Set flag to false after first initialization
+            isNpvFirstOpenThisSession = false; 
         } else {
-             // On subsequent opens, just ensure errors/results are hidden if not reset by user
             hideNpvError();
-            if (npvResultContainer && npvResultValue.textContent === "") { // Hide if no result currently shown
+            if (npvResultContainer && npvResultValue.textContent === "") {
                  npvResultContainer.style.display = 'none';
             }
         }
@@ -177,10 +176,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (npvModal) npvModal.style.display = 'none';
     }
 
-    if (npvBtn) npvBtn.addEventListener('click', openNpvModal);
+    if (adjNpvBtn) adjNpvBtn.addEventListener('click', openNpvModal);
     if (closeNpvModalBtn) closeNpvModalBtn.addEventListener('click', closeNpvModal);
     if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1)); 
-    if (resetNpvBtn) resetNpvBtn.addEventListener('click', resetNpvToDefaults); // Listener for new reset button
+    if (resetNpvBtn) resetNpvBtn.addEventListener('click', resetNpvToDefaults);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && npvModal && npvModal.style.display === 'flex') {
@@ -193,11 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
             hideNpvError();
             try {
                 const initialInvestment = parseFloat(initialInvestmentInput.value);
-                let overallDiscountRateVal = overallDiscountRateInput.value.trim();
-                if (overallDiscountRateVal === "") {
-                     throw new Error("Overall Discount Rate cannot be empty.");
+                let discountRateVal = discountRateInput.value.trim();
+                if (discountRateVal === "") {
+                     throw new Error("Discount Rate cannot be empty.");
                 }
-                const overallDiscountRate = parseFloat(overallDiscountRateVal) / 100;
+                const discountRate = parseFloat(discountRateVal) / 100;
 
 
                 let financingRate = parseFloat(financingRateInput.value);
@@ -206,11 +205,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 let reinvestmentRate = parseFloat(reinvestmentRateInput.value);
                 if (isNaN(reinvestmentRate) || reinvestmentRateInput.value.trim() === "") reinvestmentRate = 0; else reinvestmentRate /= 100;
 
-                if (isNaN(initialInvestment) || isNaN(overallDiscountRate)) { // Check parsed overallDiscountRate
-                    throw new Error("Initial Investment and Overall Discount Rate must be valid numbers.");
+                if (isNaN(initialInvestment) || isNaN(discountRate)) {
+                    throw new Error("Initial Investment and Discount Rate must be valid numbers.");
                 }
-                 if (overallDiscountRate <= -1 ) { 
-                    throw new Error("Overall Discount Rate must be greater than -100%.");
+                 if (discountRate <= -1 ) { 
+                    throw new Error("Discount Rate must be greater than -100%.");
                 }
                 if (financingRate <= -1 && financingRateInput.value.trim() !== "" && financingRateInput.value !== "0.00" && financingRateInput.value !== "0") {
                      throw new Error("Financing Rate must be greater than -100%.");
@@ -247,13 +246,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (useTraditionalNpv) {
                     npv = initialInvestment;
                     expandedCashFlows.forEach((cf, index) => {
-                        if (1 + overallDiscountRate === 0 && cf !== 0) throw new Error("Division by zero due to Overall Discount Rate of -100%.");
-                        npv += cf / Math.pow(1 + overallDiscountRate, index + 1);
+                        if (1 + discountRate === 0 && cf !== 0) throw new Error("Division by zero due to Discount Rate of -100%.");
+                        npv += cf / Math.pow(1 + discountRate, index + 1);
                     });
                     resultTitleText = "NPV Result:";
-                } else {
-                    const effectiveFinancingRate = finRateIsEffectivelyZero ? overallDiscountRate : financingRate;
-                    const effectiveReinvestmentRate = reinRateIsEffectivelyZero ? overallDiscountRate : reinvestmentRate;
+                } else { // Adjusted NPV calculation
+                    const effectiveFinancingRate = finRateIsEffectivelyZero ? discountRate : financingRate;
+                    const effectiveReinvestmentRate = reinRateIsEffectivelyZero ? discountRate : reinvestmentRate;
                     
                     let pvIntermediateOutflows = 0;
                     expandedCashFlows.forEach((cf, index) => {
@@ -271,17 +270,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    if (1 + overallDiscountRate === 0 && fvInflowsAtEnd !== 0) throw new Error("Division by zero due to Overall Discount Rate of -100% when discounting future value of inflows.");
-                    const pvOfFvInflows = numPeriods > 0 ? (fvInflowsAtEnd / Math.pow(1 + overallDiscountRate, numPeriods)) : 0;
+                    if (1 + discountRate === 0 && fvInflowsAtEnd !== 0) throw new Error("Division by zero due to Discount Rate of -100% when discounting future value of inflows.");
+                    const pvOfFvInflows = numPeriods > 0 ? (fvInflowsAtEnd / Math.pow(1 + discountRate, numPeriods)) : 0;
                     
                     npv = initialInvestment + pvIntermediateOutflows + pvOfFvInflows;
 
                     if (!finRateIsEffectivelyZero && !reinRateIsEffectivelyZero) {
-                        resultTitleText = "NPV (using Fin. & Reinv. Rates):";
+                        resultTitleText = "(Adj) NPV (using Fin. & Reinv. Rates):";
                     } else if (!finRateIsEffectivelyZero) {
-                        resultTitleText = "NPV (using Financing Rate):";
-                    } else if (!reinRateIsEffectivelyZero) {
-                        resultTitleText = "NPV (using Reinvestment Rate):";
+                        resultTitleText = "(Adj) NPV (using Financing Rate):";
+                    } else { // Covers !reinRateIsEffectivelyZero
+                        resultTitleText = "(Adj) NPV (using Reinvestment Rate):";
                     }
                 }
 

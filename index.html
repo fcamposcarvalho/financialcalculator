@@ -76,10 +76,10 @@
 					<button class="btn-primary" id="calculateBtn">Calculate</button>
 					<button class="btn-info" id="amortizationBtn">Amortization</button>
                     <button class="btn-tool" id="calculatorBtn">Calculator</button>
-                    <button class="btn-info" id="irrBtn">IRR</button> <!-- COR ALTERNADA -->
-                    <button class="btn-tool" id="mirrBtn">MIRR</button> <!-- COR ALTERNADA -->
-                    <button class="btn-info" id="npvBtn">(Adv)NPV</button> <!-- COR ALTERNADA -->
-					<button class="btn-tool" id="historyBtn">History</button> <!-- COR ALTERNADA E CLASSE -->
+                    <button class="btn-info" id="irrBtn">IRR</button>
+                    <button class="btn-tool" id="mirrBtn">MIRR</button>
+                    <button class="btn-info" id="adjNpvBtn">(Adj) NPV</button>
+					<button class="btn-tool" id="historyBtn">History</button> 
 					<button class="btn-action" id="clearBtn">Clear</button>
 				</div>
 
@@ -289,36 +289,45 @@
         <div id="npvModal" class="modal">
             <div class="modal-content npv-modal">
                 <span class="close" id="closeNpvModal">×</span>
-                <h2>Net Present Value (NPV)</h2>
+                <h2>Net Present Value ((Adj) NPV)</h2>
                 <div id="npvErrorMessage" class="error"></div>
                 <div class="npv-form-container">
                     <div class="form-group">
                         <label for="npvInitialInvestment">Initial Investment (CF0):
-                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value).</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value, e.g., -1000) or inflow (positive value). This is the cash flow at period 0.</span></span>
                         </label>
                         <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
-                        <label for="npvOverallDiscountRate">Overall Discount Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">The main rate used for final present value calculations and for traditional NPV. Also acts as a fallback if specific Financing or Reinvestment rates are zero. Must be greater than -100%.</span></span>
+                        <label for="npvDiscountRate">Discount Rate (%):
+                            <span class="tooltip">?<span class="tooltiptext">The minimum required rate of return or the opportunity cost of capital.
+- For Traditional NPV: This is the rate used to discount all future cash flows (CF1, CF2,...). This occurs when 'Financing Rate' and 'Reinvestment Rate' are zero.
+- For (Adj) NPV: This rate is used to discount to present value the future value of positive cash flows (after they have been reinvested at the 'Reinvestment Rate'). It also acts as the default rate for intermediate flows if specific 'Financing Rate' or 'Reinvestment Rate' are zero.
+Must be greater than -100%.</span></span>
                         </label>
-                        <input type="number" id="npvOverallDiscountRate" value="10.0" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="number" id="npvDiscountRate" value="10.0" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
                         <label for="npvFinancingRate">Financing Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">Rate for discounting intermediate negative cash flows (costs). If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The interest rate used to discount specifically the intermediate negative cash flows (costs, after CF0) to present value in the (Adj) NPV calculation.
+Reflects the cost of financing these outlays.
+If 0% or not specified, the main 'Discount Rate' will be used for these negative flows in the adjusted calculation.
+Must be greater than -100% (if not zero).</span></span>
                         </label>
                         <input type="number" id="npvFinancingRate" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
                         <label for="npvReinvestmentRate">Reinvestment Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">Rate for compounding intermediate positive cash flows (benefits) to their future value. If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The rate at which intermediate positive cash flows (benefits, after CF0) are assumed to be reinvested until the end of the project in the (Adj) NPV calculation.
+Reflects the return opportunity on generated profits.
+If 0% or not specified, the main 'Discount Rate' will be used to compound these positive flows in the adjusted calculation.
+Must be greater than -100% (if not zero).</span></span>
                         </label>
                         <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
-                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows (negative) occurring after the initial investment.</span></span>
+                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows (negative) occurring after the initial investment. For each amount, specify how many consecutive periods (Quantity) it repeats.</span></span>
                     </h3>
                     <div class="npv-cashflows-table-container">
                         <table id="npvCashFlowsTable">
@@ -336,7 +345,7 @@
 
                     <div class="button-group npv-button-group">
                         <button id="addNpvCashFlowRow" class="btn-secondary npv-btn-add">Add Cash Flow Row</button>
-                        <button id="calculateNpvBtn" class="btn-primary">Calculate NPV</button>
+                        <button id="calculateNpvBtn" class="btn-primary">Calculate (Adj) NPV</button>
                         <button id="resetNpvBtn" class="btn-action">Reset</button>
                     </div>
 
