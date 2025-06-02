@@ -14,7 +14,7 @@
         <header>
             <h1>Financial Calculator</h1>
 			<p>Calculate financial cash flow values with the <span class="destacado">"Value to Calculate:"</span> option.</p>
-			<p>Press <span class="destacado">Enter, F1, Space or Double Click</span> in the numeric fields to access the calculator.</p>
+			<p>Press <span class="destacado">Enter, F1 or Double Click</span> in the numeric fields to access the calculator.</p>
         </header>
 
         <main>
@@ -24,7 +24,7 @@
                 <div class="form-group">
                     <label for="periods">Periods (n):</label>
                     <div class="input-group">
-                        <input type="number" id="periods" min="0" value="12" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="periods" min="0" value="12" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="multiplyPeriods">12×</button>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                 <div class="form-group">
                     <label for="rate">Rate (i) %:</label>
                     <div class="input-group">
-                        <input type="number" id="rate" step="0.01" value="1.00" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="rate" step="0.01" value="1.00" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="divideRate">12÷</button>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                 <div class="form-group">
                     <label for="payment">Payment (PMT):</label>
                     <div class="input-group">
-                        <input type="number" id="payment" value="0.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="payment" value="0.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="togglePayment">+/-</button>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                 <div class="form-group">
                     <label for="presentValue">Present Value (PV):</label>
                     <div class="input-group">
-                        <input type="number" id="presentValue" value="1000.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="presentValue" value="1000.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="togglePV">+/-</button>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                 <div class="form-group">
                     <label for="futureValue">Future Value (FV):</label>
                     <div class="input-group">
-                        <input type="number" id="futureValue" value="0.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="futureValue" value="0.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                         <button class="btn-toggle" id="toggleFV">+/-</button>
                     </div>
                 </div>
@@ -195,19 +195,19 @@
                         <label for="mirrInitialInvestment">Initial Investment (CF0):
                             <span class="tooltip">?<span class="tooltiptext">The project's initial cash flow at period 0. Enter as a negative value for an investment (outflow) or positive for an initial income (inflow). This value is part of the MIRR calculation.</span></span>
                         </label>
-                        <input type="number" id="mirrInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="mirrInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="mirrFinancingRate">Financing Rate (% per period):
                             <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 5 for 5%) per period at which subsequent negative cash flows (costs, after CF0) are assumed to be financed. This rate is used to find their present value at period 0. If 0%, they are effectively summed without discounting interest. Ensure the period (annual, monthly) matches your cash flow periods.</span></span>
                         </label>
-                        <input type="number" id="mirrFinancingRate" value="5.0" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="mirrFinancingRate" value="5.0" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="mirrReinvestmentRate">Reinvestment Rate (% per period):
                             <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 7 for 7%) per period at which positive cash flows (including a positive CF0 and subsequent inflows) are assumed to be reinvested. This rate is used to find their future value at the end of the last cash flow period (period N). If 0%, they are effectively summed without compounding interest. Ensure the period matches your cash flow periods.</span></span>
                         </label>
-                        <input type="number" id="mirrReinvestmentRate" value="7.0" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="mirrReinvestmentRate" value="7.0" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
 
                     <h3>Cash Flows (after initial investment):
@@ -251,7 +251,7 @@
                         <label for="irrInitialInvestment">Initial Investment (CF0):
                             <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value, e.g., -1000) or inflow (positive value).</span></span>
                         </label>
-                        <input type="number" id="irrInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="irrInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
@@ -296,25 +296,25 @@
                         <label for="npvInitialInvestment">Initial Investment (CF0):
                             <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value).</span></span>
                         </label>
-                        <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvOverallDiscountRate">Overall Discount Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">The main rate used for final present value calculations and for traditional NPV. Also acts as a fallback if specific Financing or Reinvestment rates are zero. Must be greater than -100%.</span></span>
                         </label>
-                        <input type="number" id="npvOverallDiscountRate" value="10.0" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="npvOverallDiscountRate" value="10.0" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvFinancingRate">Financing Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">Rate for discounting intermediate negative cash flows (costs). If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
                         </label>
-                        <input type="number" id="npvFinancingRate" value="0.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="npvFinancingRate" value="0.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
                     <div class="form-group">
                         <label for="npvReinvestmentRate">Reinvestment Rate (%):
                             <span class="tooltip">?<span class="tooltiptext">Rate for compounding intermediate positive cash flows (benefits) to their future value. If 0, Overall Discount Rate is used for these flows in the adjusted calculation.</span></span>
                         </label>
-                        <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01" title="Press Enter, F1, Space or double-click to access the calculator" enterkeyhint="enter">
+                        <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01" title="Press Enter, F1 or double-click to access the calculator" enterkeyhint="enter">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
