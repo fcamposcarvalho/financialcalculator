@@ -1,21 +1,21 @@
 :root {
     --primary-color: #3a7ca5;
     --primary-dark: #2c5d7c;
-    --secondary-color: #f8f9fa; /* Fundo atual do btn-secondary */
+    --secondary-color: #f8f9fa; /* Current background of btn-secondary */
     --border-color: #dee2e6;
     --success-color: #28a745;
     --error-color: #dc3545;
     --text-color: #343a40;
     --light-gray: #f5f5f5;
 
-    /* Novas cores suaves sugeridas */
-    --soft-blue: #d1e7f3; /* Azul mais claro e suave */
+    /* New suggested soft colors */
+    --soft-blue: #d1e7f3; /* Lighter and softer blue */
     --soft-blue-hover: #badec9; /* Note: This was likely a typo and meant a darker blue, adjusted below in .btn-info:hover */
-    --soft-green: #d4edda; /* Verde claro (relacionado ao success) */
+    --soft-green: #d4edda; /* Light green (related to success) */
     --soft-green-hover: #c3e6cb;
-    --soft-orange: #ffe8d6; /* Laranja claro para Limpar/Atenção */
+    --soft-orange: #ffe8d6; /* Light orange for Clear/Attention */
     --soft-orange-hover: #fed7b3;
-    --soft-gray: #e9ecef; /* Cinza claro (alternativa para botões de info) */
+    --soft-gray: #e9ecef; /* Light gray (alternative for info buttons) */
     --soft-gray-hover: #d8dde1;
 }
 
@@ -57,6 +57,9 @@ h1 {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 550px; /* Reduced maximum width of the form */
+    margin-left: auto;  /* Centers the .calculator on the page */
+    margin-right: auto; /* Centers the .calculator on the page */
 }
 
 .destacado {
@@ -69,13 +72,13 @@ h1 {
     position: relative;
 }
 
-/* Ajuste para label para melhor alinhamento com o ícone de tooltip - MOVING THIS HIGHER FOR GENERAL LABEL STYLING */
-.form-group label, /* Aplica a todos os labels dentro de form-group */
-.npv-form-container label, /* Específico para NPV modal se necessário */
-.mirr-form-container label { /* Específico para MIRR modal se necessário */
+/* Label adjustment for better alignment with the tooltip icon - MOVING THIS HIGHER FOR GENERAL LABEL STYLING */
+.form-group label, /* Applies to all labels within form-group */
+.npv-form-container label, /* Specific to NPV modal if necessary */
+.mirr-form-container label { /* Specific to MIRR modal if necessary */
     display: flex; 
     align-items: center; 
-    /* Estilos originais de label abaixo */
+    /* Original label styles below */
     margin-bottom: 10px;
     font-weight: 600;
     color: var(--primary-dark);
@@ -122,7 +125,7 @@ input:focus, select:focus {
     box-shadow: 0 0 0 2px rgba(58, 124, 165, 0.2);
 }
 
-select { /* Estilos para o select nativo, caso o custom dropdown falhe ou seja removido */
+select { /* Styles for the native select, in case the custom dropdown fails or is removed */
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
@@ -133,11 +136,12 @@ select { /* Estilos para o select nativo, caso o custom dropdown falhe ou seja r
 }
 
 .button-group {
-    display: flex;
-    gap: 10px; /* Reduced gap slightly for more buttons */
+    display: grid; /* Changed to CSS Grid */
+    grid-template-columns: repeat(4, 1fr); /* Creates 4 equal-width columns */
+    gap: 10px; /* Maintains spacing between buttons */
     margin-top: 35px;
-    justify-content: center;
-    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    /* Removed flex properties (justify-content, flex-wrap) are no longer needed here
+       and max-width and auto margins were also removed as the grid will adjust to .calculator */
 }
 
 button {
@@ -158,40 +162,40 @@ button {
     background-color: var(--primary-dark);
 }
 
-.btn-secondary { /* Este será o estilo base para os botões que não são "Calcular" */
-    background-color: var(--secondary-color); /* Mantém o fundo quase branco */
+.btn-secondary { /* This will be the base style for buttons that are not "Calculate" */
+    background-color: var(--secondary-color); /* Maintains almost white background */
     color: var(--text-color);
     border: 1px solid var(--border-color);
 }
 .btn-secondary:hover {
-    background-color: #e9ecef; /* Um cinza um pouco mais escuro no hover */
+    background-color: #e9ecef; /* A slightly darker gray on hover */
 }
 
-/* Novos estilos para botões específicos com cores suaves */
-.btn-info { /* Para Amortização, Histórico, MIRR */
+/* New styles for specific buttons with soft colors */
+.btn-info { /* For Amortization, History, MIRR */
     background-color: var(--soft-blue);
-    color: var(--primary-dark); /* Texto mais escuro para contraste com fundo claro */
-    border: 1px solid #b4cad6; /* Borda sutil um pouco mais escura que o fundo */
+    color: var(--primary-dark); /* Darker text for contrast with light background */
+    border: 1px solid #b4cad6; /* Subtle border slightly darker than the background */
 }
 .btn-info:hover {
-    background-color: #b9d7e9; /* Azul um pouco mais escuro no hover */
+    background-color: #b9d7e9; /* Slightly darker blue on hover */
     border-color: #a0c2d6;
 }
 
-.btn-tool { /* Para Calculadora, NPV */
+.btn-tool { /* For Calculator, NPV */
     background-color: var(--soft-green);
-    color: #155724; /* Verde escuro para texto (do bootstrap success text color) */
-    border: 1px solid #badbcc; /* Borda sutil */
+    color: #155724; /* Dark green for text (from bootstrap success text color) */
+    border: 1px solid #badbcc; /* Subtle border */
 }
 .btn-tool:hover {
     background-color: var(--soft-green-hover);
     border-color: #a6c9b3;
 }
 
-.btn-action { /* Para Limpar, Reset */
+.btn-action { /* For Clear, Reset */
     background-color: var(--soft-orange);
-    color: #721c24; /* Cor de texto de erro/alerta escura */
-    border: 1px solid #f5c6cb; /* Borda sutil (usando a do .error como base) */
+    color: #721c24; /* Dark error/alert text color */
+    border: 1px solid #f5c6cb; /* Subtle border (based on .error) */
 }
 .btn-action:hover {
     background-color: var(--soft-orange-hover);
@@ -337,7 +341,7 @@ footer {
     font-size: 14px;
 }
 
-/* Tabela de amortização */
+/* Amortization table */
 .amortization-table {
     width: 100%;
     border-collapse: collapse;
@@ -395,9 +399,11 @@ footer {
     
     .calculator {
         padding: 20px;
+        max-width: 100%; /* Allows the calculator to use full width on small screens */
     }
     
     .button-group {
+        display: flex; /* Reverts to flexbox for single column layout */
         flex-direction: column; 
         align-items: stretch; 
     }
@@ -426,7 +432,7 @@ footer {
     }
 }
 
-/* Containers para resultados adicionais (já existentes) */
+/* Containers for additional results (already existing) */
 .interest-value-container {
     margin-top: 15px;
     display: none;
@@ -438,7 +444,7 @@ footer {
 }
 .total-payments-container.visible { display: block; }
 
-/* Layout para resultados (já existentes) */
+/* Layout for results (already existing) */
 .result-row {
     display: flex;
     justify-content: space-around;
@@ -470,7 +476,7 @@ footer {
 }
 
 
-/* ESTILOS MOVIDOS DO JS PARA CÁ (Dropdown Personalizado) */
+/* STYLES MOVED FROM JS HERE (Custom Dropdown) */
 .custom-dropdown {
     position: relative;
     width: 100%;
@@ -545,7 +551,7 @@ footer {
     color: var(--primary-dark); 
     font-weight: 600; 
 }
-/* FIM DOS ESTILOS DO DROPDOWN */
+/* END OF DROPDOWN STYLES */
 
 
 .calculator-modal { 
@@ -553,10 +559,10 @@ footer {
     padding-top: 15px; 
 }
 
-/* Estilo para o título dentro do modal da calculadora */
+/* Style for the title inside the calculator modal */
 #calculatorContent h2 {
     text-align: center;
-    font-size: 1.4em; /* Ajuste conforme necessário */
+    font-size: 1.4em; /* Adjust as needed */
     color: var(--primary-dark);
     margin-bottom: 15px;
 }

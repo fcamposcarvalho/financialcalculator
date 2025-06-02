@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const cashFlowsTableBody = document.getElementById('mirrCashFlowsTableBody');
     const addCashFlowRowBtn = document.getElementById('addMirrCashFlowRow');
     const calculateMirrBtn = document.getElementById('calculateMirrBtn');
-    const resetMirrBtn = document.getElementById('resetMirrBtn'); // New Reset Button
+    const resetMirrBtn = document.getElementById('resetMirrBtn');
     const mirrResultContainer = document.getElementById('mirrResultContainer');
     const mirrResultValue = document.getElementById('mirrResultValue');
     const mirrErrorMessage = document.getElementById('mirrErrorMessage');
 
     let cfRowCounter = 0;
-    let isMirrFirstOpenThisSession = true; // Flag for first open
+    let isMirrFirstOpenThisSession = true;
 
     function showMirrError(message) {
         if (mirrErrorMessage) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mirrErrorMessage.style.display = 'none';
         }
     }
-    
+
     function addCashFlowRow(amount = "", quantity = 1) {
         cfRowCounter++;
         const row = cashFlowsTableBody.insertRow();
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.className = 'mirr-cash-flow-amount';
         amountInput.value = amount;
         amountInput.placeholder = "e.g., 200 or -150";
-        amountInput.enterKeyHint = "enter"; 
+        amountInput.enterKeyHint = "enter";
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
-        quantityInput.enterKeyHint = "enter"; 
+        quantityInput.enterKeyHint = "enter";
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -70,14 +70,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (typeof window.handleNumericInputKeydown === 'function' && typeof window.handleNumericInputDblClick === 'function') {
             [amountInput, quantityInput].forEach(input => {
-                input.removeEventListener('keydown', window.handleNumericInputKeydown); 
+                input.removeEventListener('keydown', window.handleNumericInputKeydown);
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
-                input.removeEventListener('dblclick', window.handleNumericInputDblClick); 
-                input.addEventListener('dblclick', window.handleNumericInputDblClick);    
-                input.title = "Pressione Enter, F1, Espaço ou duplo clique para acessar a calculadora";
+                input.removeEventListener('dblclick', window.handleNumericInputDblClick);
+                input.addEventListener('dblclick', window.handleNumericInputDblClick);
+                input.title = "Press Enter, F1, Space or double-click to access the calculator"; // ATUALIZADO PARA INGLÊS
             });
         } else {
-            console.warn('Funções globais para input numérico não definidas. A calculadora pode não abrir corretamente nos campos dinâmicos de MIRR.');
+            console.warn('Global functions for numeric input not defined. The calculator may not open correctly in MIRR dynamic fields.');
         }
     }
 
@@ -88,36 +88,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if(initialInvestmentInput) initialInvestmentInput.value = "-1000.00";
         if(financingRateInput) financingRateInput.value = "5.0";
         if(reinvestmentRateInput) reinvestmentRateInput.value = "7.0";
-        
+
         while (cashFlowsTableBody.firstChild) {
             cashFlowsTableBody.removeChild(cashFlowsTableBody.firstChild);
         }
-        cfRowCounter = 0; 
-        addCashFlowRow(250, 3); 
-        addCashFlowRow(-50, 2); 
+        cfRowCounter = 0;
+        addCashFlowRow(250, 3);
+        addCashFlowRow(-50, 2);
     }
 
     function openMirrModal() {
         if (!mirrModal) return;
-        
+
         if (isMirrFirstOpenThisSession) {
             resetMirrToDefaults();
-            isMirrFirstOpenThisSession = false; // Set flag to false after first initialization
+            isMirrFirstOpenThisSession = false;
         } else {
-            // On subsequent opens, just ensure errors/results are hidden if not reset by user
             hideMirrError();
-            if (mirrResultContainer && mirrResultValue.textContent === "") { // Hide if no result currently shown
+            if (mirrResultContainer && mirrResultValue.textContent === "") {
                  mirrResultContainer.style.display = 'none';
             }
         }
 
-        if (mirrModalContent) { 
+        if (mirrModalContent) {
             mirrModalContent.style.position = '';
             mirrModalContent.style.left = '';
             mirrModalContent.style.top = '';
         }
 
-        mirrModal.style.display = 'flex'; 
+        mirrModal.style.display = 'flex';
     }
 
     function closeMirrModal() {
@@ -126,8 +125,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (mirrBtn) mirrBtn.addEventListener('click', openMirrModal);
     if (closeMirrModalBtn) closeMirrModalBtn.addEventListener('click', closeMirrModal);
-    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addCashFlowRow("", 1)); 
-    if (resetMirrBtn) resetMirrBtn.addEventListener('click', resetMirrToDefaults); // Listener for new reset button
+    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addCashFlowRow("", 1));
+    if (resetMirrBtn) resetMirrBtn.addEventListener('click', resetMirrToDefaults);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && mirrModal && mirrModal.style.display === 'flex') {
@@ -152,16 +151,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const cashFlowRows = cashFlowsTableBody.querySelectorAll('tr');
-                if (cashFlowRows.length === 0 && initialInvestment === 0) { // Adjusted condition
+                if (cashFlowRows.length === 0 && initialInvestment === 0) {
                     throw new Error("Please add at least one cash flow or provide an initial investment.");
                 }
-
 
                 let expandedCashFlows = [];
                 cashFlowRows.forEach(row => {
                     const amountInput = row.querySelector('.mirr-cash-flow-amount');
                     const quantityInput = row.querySelector('.mirr-cash-flow-quantity');
-                    
+
                     const amount = parseFloat(amountInput.value);
                     const quantity = parseInt(quantityInput.value, 10);
 
@@ -177,81 +175,71 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                // Allow calculation if only initial investment is provided and it's non-zero
                 if (expandedCashFlows.length === 0 && initialInvestment === 0) {
                     throw new Error("No effective cash flows to calculate MIRR after expanding quantities.");
                 }
 
-
-                const N = expandedCashFlows.length; 
+                const N = expandedCashFlows.length;
 
                 let pvOutflows = 0;
                 if (initialInvestment < 0) {
-                    pvOutflows += Math.abs(initialInvestment); 
+                    pvOutflows += Math.abs(initialInvestment);
                 }
-                
+
                 expandedCashFlows.forEach((cf, index) => {
-                    const t = index + 1; 
+                    const t = index + 1;
                     if (cf < 0) {
                         if (1 + financingRate === 0 && cf !== 0) throw new Error("Division by zero: Financing Rate is -100% with negative cash flow.");
                         pvOutflows += Math.abs(cf) / Math.pow(1 + financingRate, t);
                     }
                 });
-                
+
                 let fvInflows = 0;
-                if (initialInvestment > 0) { 
-                     // Initial investment is at t=0, so it compounds for N periods if it's positive and considered an inflow part of the project to be evaluated
+                if (initialInvestment > 0) {
                     fvInflows += initialInvestment * Math.pow(1 + reinvestmentRate, N);
                 }
 
                 expandedCashFlows.forEach((cf, index) => {
-                    const t = index + 1; 
+                    const t = index + 1;
                     if (cf > 0) {
                         fvInflows += cf * Math.pow(1 + reinvestmentRate, N - t);
                     }
                 });
-                
+
                 if (N === 0 && initialInvestment === 0) {
                      throw new Error("Cannot calculate MIRR: No cash flows at all (N=0 and CF0=0).");
                 }
-                if (N === 0 && initialInvestment !== 0) { 
-                     // This case implies only an initial investment and no subsequent cash flows.
-                     // If CF0 < 0, PVoutflows = |CF0|, FVinflows = 0. MIRR would be -100%
-                     // If CF0 > 0, PVoutflows = 0, FVinflows = CF0. MIRR undefined.
-                     // Let's provide a specific message or result.
-                     if (initialInvestment < 0) { // Only a negative initial investment
+                if (N === 0 && initialInvestment !== 0) {
+                     if (initialInvestment < 0) {
                         mirrResultValue.textContent = "-100.000000%";
                         mirrResultContainer.style.display = 'block';
                         return;
-                     } else { // Only a positive initial investment
+                     } else {
                         throw new Error("Cannot calculate MIRR: Only a positive initial investment and no subsequent cash flows (N=0).");
                      }
                 }
-
 
                 if (pvOutflows === 0) {
                     if (fvInflows > 0 && N > 0) throw new Error("Cannot calculate MIRR: No outflows (PV of outflows is zero) but there are inflows over N periods.");
                     if (fvInflows > 0 && N === 0) throw new Error("Cannot calculate MIRR: No outflows (PV of outflows is zero) but there are inflows (likely initial investment was positive, N=0).");
                     else if (fvInflows === 0 && N > 0) throw new Error("Cannot calculate MIRR: Both PV of outflows and FV of inflows are zero with N > 0.");
-                    // Case N=0, PVout=0, FVin=0 already handled by (N=0 and CF0=0)
-                    mirrResultValue.textContent = "N/A"; // Or specific error
+                    mirrResultValue.textContent = "N/A";
                     mirrResultContainer.style.display = 'block';
                     return;
                 }
-                if (fvInflows < 0 && pvOutflows > 0) { 
+                if (fvInflows < 0 && pvOutflows > 0) {
                      throw new Error("Cannot calculate MIRR: FV of inflows is negative. Check cash flow signs and reinvestment rate.");
                 }
-                 if (fvInflows === 0 && pvOutflows > 0 && N > 0) { // Ensure N > 0 for -100% interpretation
+                 if (fvInflows === 0 && pvOutflows > 0 && N > 0) {
                      mirrResultValue.textContent = "-100.000000%";
                      mirrResultContainer.style.display = 'block';
                      return;
                  }
 
-
                 const mirr = Math.pow(fvInflows / pvOutflows, 1 / N) - 1;
 
                 if (!isFinite(mirr)) {
-                     if (fvInflows === 0 && pvOutflows === 0 && N === 0) { // Handled above
+                     if (fvInflows === 0 && pvOutflows === 0 && N === 0) {
                          throw new Error("Cannot calculate MIRR: No cash flows at all.");
                      }
                     throw new Error("Could not calculate a finite MIRR. Check inputs, especially if PV of outflows is zero or very small, or N is zero with positive FV.");
@@ -270,15 +258,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mirrModal && mirrModalContent) {
         let isMirrDragging = false;
         let mirrDragOffsetX, mirrDragOffsetY;
-        
+
         mirrModalContent.style.cursor = 'grab';
         mirrModalContent.addEventListener('mousedown', function(e) {
             const targetTagName = e.target.tagName.toLowerCase();
             const isInteractiveElement = ['button', 'input', 'select', 'textarea'].includes(targetTagName) ||
                                          e.target.classList.contains('close') ||
-                                         e.target.closest('#mirrCashFlowsTable') || 
+                                         e.target.closest('#mirrCashFlowsTable') ||
                                          e.target.closest('.mirr-btn-add') ||
-                                         e.target.closest('.mirr-button-group'); 
+                                         e.target.closest('.mirr-button-group');
 
             if (isInteractiveElement) return;
 
@@ -288,13 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 mirrModalContent.style.position = 'absolute';
                 mirrModalContent.style.left = rect.left + 'px';
                 mirrModalContent.style.top = rect.top + 'px';
-                mirrModalContent.style.margin = '0'; 
+                mirrModalContent.style.margin = '0';
             }
-            
+
             mirrDragOffsetX = e.clientX - mirrModalContent.offsetLeft;
             mirrDragOffsetY = e.clientY - mirrModalContent.offsetTop;
             mirrModalContent.style.cursor = 'grabbing';
-            document.body.style.userSelect = 'none'; 
+            document.body.style.userSelect = 'none';
 
             document.addEventListener('mousemove', onMirrMouseMove);
             document.addEventListener('mouseup', onMirrMouseUp);
@@ -302,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function onMirrMouseMove(e) {
             if (!isMirrDragging) return;
-            e.preventDefault(); 
+            e.preventDefault();
             let newLeft = e.clientX - mirrDragOffsetX;
             let newTop = e.clientY - mirrDragOffsetY;
 
@@ -322,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isMirrDragging) return;
             isMirrDragging = false;
             mirrModalContent.style.cursor = 'grab';
-            document.body.style.userSelect = ''; 
+            document.body.style.userSelect = '';
             document.removeEventListener('mousemove', onMirrMouseMove);
             document.removeEventListener('mouseup', onMirrMouseUp);
         }
