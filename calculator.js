@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- Listener for KEYDOWN on numeric input fields (Enter, F1) ---
+    // --- Listener for KEYDOWN on numeric input fields (F1) ---
     // This function is exposed globally for other scripts (MIRR, NPV, IRR) to use.
     window.handleNumericInputKeydown = function(event) {
         // Allow navigation, deletion, and standard editing keys without opening calculator
@@ -678,14 +678,15 @@ document.addEventListener('DOMContentLoaded', function() {
             'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
             'Delete', 'Backspace', 'Tab', 'Home', 'End',
             'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'ContextMenu', 
-            'PageUp', 'PageDown', 'Insert', 'F5', 'F12' 
+            'PageUp', 'PageDown', 'Insert', 'F5', 'F12', 'Enter' 
         ];
+        // Allow specific F keys (not F1 for opening calculator)
         if (allowedNonFunctionKeys.includes(event.key) || (event.key.startsWith('F') && event.key !== 'F1')) {
             return; // Do not open calculator for these keys
         }
-        // Remove space as a trigger: event.key === ' '
-        if (event.key === 'Enter' || event.key === 'F1') {
-            event.preventDefault(); // Prevent default action (e.g., form submission on Enter)
+
+        if (event.key === 'F1') {
+            event.preventDefault(); // Prevent default action (e.g., browser help on F1)
             event.stopPropagation(); // Stop event from bubbling up
             
             const inputField = event.target; // The input field that triggered the event
@@ -717,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input.removeEventListener('dblclick', window.handleNumericInputDblClick);
             input.addEventListener('dblclick', window.handleNumericInputDblClick);
             
-            input.title = "Press Enter, F1 or double-click to access the calculator"; // UPDATED TO ENGLISH & REMOVED SPACE
+            input.title = "Press F1 or double-click to access the calculator"; 
             
             input.removeEventListener('focus', highlightInput);
             input.removeEventListener('blur', unhighlightInput);
@@ -760,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 input.addEventListener('keydown', window.handleNumericInputKeydown);
                                 input.removeEventListener('dblclick', window.handleNumericInputDblClick);
                                 input.addEventListener('dblclick', window.handleNumericInputDblClick);
-                                input.title = "Press Enter, F1 or double-click to access the calculator"; // UPDATED TO ENGLISH & REMOVED SPACE
+                                input.title = "Press F1 or double-click to access the calculator";
 
                                 input.removeEventListener('focus', highlightInput);
                                 input.removeEventListener('blur', unhighlightInput);
