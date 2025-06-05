@@ -41,10 +41,13 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    padding: 20px 0;
+    padding: 20px 0; /* Padding applied vertically */
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 550px; /* Same as .calculator's max-width */
+    margin-left: auto;  /* Centers the header */
+    margin-right: auto; /* Centers the header */
 }
 
 h1 {
@@ -57,7 +60,7 @@ h1 {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 550px; /* Reduced maximum width of the form */
+    max-width: 550px; /* Maximum width of the form */
     margin-left: auto;  /* Centers the .calculator on the page */
     margin-right: auto; /* Centers the .calculator on the page */
 }
@@ -339,6 +342,13 @@ footer {
     text-align: center;
     color: #6c757d;
     font-size: 14px;
+    padding: 20px 0; /* Added padding like the header */
+    background-color: white; /* Optional: match header background */
+    border-radius: 10px; /* Optional: match header radius */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Optional: subtle shadow */
+    max-width: 550px; /* Same as .calculator's max-width */
+    margin-left: auto;  /* Centers the footer */
+    margin-right: auto; /* Centers the footer */
 }
 
 /* Amortization table */
@@ -397,6 +407,12 @@ footer {
         padding: 15px;
     }
     
+    header, footer { /* Ensure header and footer adapt on smaller screens too */
+        max-width: 100%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
     .calculator {
         padding: 20px;
         max-width: 100%; /* Allows the calculator to use full width on small screens */
