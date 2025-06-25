@@ -594,37 +594,66 @@ document.addEventListener('DOMContentLoaded', function() {
         return n;
     }
 
-    function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 10000, tolerance = 1e-6) {
+     function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 10000, tolerance = 1e-6) {
         if (rate === 0) { 
-            if (pmt === 0) return (pv + fv === 0) ? 0 : Infinity; 
-            return -(pv + fv) / pmt;
+            if (pmt === 0) return (pv + fv === 0) ? 0 : null; 
+            if (pmt !== 0) return -(pv + fv) / pmt;
+            return null;
         }
-    
+
+        // Determina se a função FV(n) é crescente ou decrescente em relação a n.
+        const trend_term = pmt + pv * rate;
+        const isIncreasing = (rate > 0) ? (trend_term < 0) : (trend_term > 0);
+
+        // Calcula os valores nos limites do intervalo de busca [0, maxN]
+        const fv_at_n0 = calculateFutureValue(0, rate, pmt, pv);
+        const fv_at_nMax = calculateFutureValue(maxN, rate, pmt, pv);
+
+        // Verifica se uma solução é matematicamente possível dentro do intervalo.
+        if (isIncreasing) {
+            if (fv < fv_at_n0 || fv > fv_at_nMax) return null;
+        } else { // se for decrescente
+            if (fv > fv_at_n0 || fv < fv_at_nMax) return null;
+        }
+
         let low = 0;
         let high = maxN;
-        let n = maxN / 2;
-    
+
         for (let iter = 0; iter < 100; iter++) { 
+            let n = (low + high) / 2;
             const fv_calculated = calculateFutureValue(n, rate, pmt, pv);
-    
-            if (Math.abs(fv_calculated - fv) < tolerance) {
-                return n;
-            }
-    
-            // Heuristic for search direction, might need refinement for all edge cases
-            if ( (pmt + pv*rate) * Math.sign(rate) >= 0 ) { // If trend is to grow (or stay same if rate makes pmt+pv*rate=0)
-                 if (fv_calculated < fv) low = n; else high = n;
-            } else { // If trend is to shrink
-                 if (fv_calculated > fv) low = n; else high = n;
+            
+            if (isIncreasing) {
+                if (fv_calculated < fv) {
+                    low = n;
+                } else {
+                    high = n;
+                }
+            } else { // Decrescente
+                if (fv_calculated > fv) {
+                    low = n;
+                } else {
+                    high = n;
+                }
             }
             
-            n = (low + high) / 2;
-            if (high - low < tolerance || n === low || n === high) break; // Added check to prevent infinite loop if n doesn't change
+            // Interrompe o loop se a convergência for alcançada.
+            if (high - low < tolerance) break;
         }
-        // console.warn("NPER binary search did not converge or found no solution within range.");
-        return null; 
+        
+        // Após o loop, 'low' e 'high' definem um intervalo muito pequeno contendo a raiz.
+        const final_n = (low + high) / 2;
+        const final_fv = calculateFutureValue(final_n, rate, pmt, pv);
+
+        // A tolerância anterior (ex: 1e-5) era muito restrita para valores grandes de FV.
+        // Uma tolerância absoluta de 0.01 (um centavo) é mais prática para cálculos financeiros.
+        if (Math.abs(final_fv - fv) < 0.01) { 
+            return final_n;
+        }
+        
+        return null; // Retorna nulo se nenhuma solução for encontrada com a precisão desejada.
     }
-    
+
     function calculateRate(n, pmt, pv, fv) { // Returns rate in %
         const cacheKey = `I_${n}_${pmt}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
