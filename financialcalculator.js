@@ -557,6 +557,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return pmt;
     }
     
+// financialcalculator.js
+
+// ... (código anterior do arquivo)
+
     function calculatePeriods(i, pmt, pv, fv) { // NPER
         const cacheKey = `N_${i}_${pmt}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
@@ -568,16 +572,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 return 0; 
             }
             n = -(pv + fv) / pmt;
-        } else {
+        } else { // i is not 0
             if (pmt === 0) {
-                if (pv === 0 && fv === 0) return 0;
-                if (pv === 0 || fv === 0 || (pv > 0 && fv < 0) || (pv < 0 && fv > 0)) {
-                     if ((-pv !== 0 && fv / -pv <= 0) || (-pv === 0 && fv !==0) ) throw new Error("With zero PMT, FV / -PV must be positive for log calculation.");
-                     n = (-pv === 0 && fv === 0) ? 0 : Math.log(fv / -pv) / Math.log(1 + i);
-                } else { 
-                    if ( (pv !==0 && -fv / pv <= 0) || (pv === 0 && -fv !== 0) ) throw new Error("With zero PMT, -FV / PV must be positive for log calculation.");
-                     n = (pv === 0 && -fv === 0) ? 0 : Math.log(-fv / pv) / Math.log(1 + i);
+                // --- INÍCIO DA MODIFICAÇÃO ---
+                if (pv === 0) {
+                    throw new Error("With zero PMT, Present Value (PV) cannot be zero.");
                 }
+                const ratio = -fv / pv;
+                if (ratio <= 0) {
+                    // Mensagem de erro melhorada, explicando a convenção de sinais.
+                    throw new Error("With zero PMT, Present Value (PV) and Future Value (FV) must have opposite signs.");
+                }
+                if (1 + i <= 0) {
+                    throw new Error("Rate cannot be -100% or less for this calculation.");
+                }
+                n = Math.log(ratio) / Math.log(1 + i);
+                // --- FIM DA MODIFICAÇÃO ---
             } else {
                 const term1_val = pmt + fv * i;
                 const term2_val = pmt + pv * i;
@@ -590,11 +600,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (n < 0 || !isFinite(n)) {
             return calculatePeriodsBinarySearch(i, pmt, pv, fv);
         }
-        calculationCache[cacheKey] = n;
+        cacheKey[cacheKey] = n;
         return n;
     }
 
-     function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 10000, tolerance = 1e-6) {
+    function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 10000, tolerance = 1e-6) {
         if (rate === 0) { 
             if (pmt === 0) return (pv + fv === 0) ? 0 : null; 
             if (pmt !== 0) return -(pv + fv) / pmt;
@@ -654,6 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return null; // Retorna nulo se nenhuma solução for encontrada com a precisão desejada.
     }
 
+ // financialcalculator.js
+
+// ... (código anterior do arquivo)
+
     function calculateRate(n, pmt, pv, fv) { // Returns rate in %
         const cacheKey = `I_${n}_${pmt}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
@@ -661,20 +675,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (n <= 0) throw new Error("NPER must be positive to calculate RATE.");
 
         if (pmt === 0) {
-            if (pv === 0 && fv === 0) return 0; 
-            if (pv + fv === 0 && pv !==0 ) return 0; // e.g. pv=100, fv=-100 => rate can be anything if n=0, or 0 if n>0. Assume 0 for simplicity with n>0
-            if (pv === 0 && fv !== 0) throw new Error("PV cannot be zero with zero PMT and non-zero FV to calculate RATE.");
-            if (pv === 0 && fv === 0) return 0; // Already covered, but for clarity
-            
+            // --- INÍCIO DA MODIFICAÇÃO ---
+            if (pv === 0) {
+                throw new Error("With zero PMT, Present Value (PV) cannot be zero to calculate Rate.");
+            }
+            // Adiciona a verificação de sinais opostos, que é a causa do erro.
+            if (Math.sign(pv) === Math.sign(fv)) {
+                throw new Error("With zero PMT, Present Value (PV) and Future Value (FV) must have opposite signs.");
+            }
+            // --- FIM DA MODIFICAÇÃO ---
+
             let base = -fv / pv;
-            if (base < 0 && n % 2 === 0) { 
-                throw new Error("Cannot calculate real rate: even root of negative number required.");
-            }
-            if (base < 0 && n % 2 !== 0 && (Math.pow(Math.abs(base), 1/n) * -1) <= -1 ){
-                // (1+i) = negative_root. If negative_root <= -1, then i <= -2 (-200%), often problematic.
-                // This implies a very high negative rate. Newton-Raphson might handle better or also struggle.
-            }
-             if (base === 0 && fv === 0) return -100; // If fv is 0 and pv is not, rate is -100%
+            // A verificação de raiz par de número negativo se torna desnecessária com a validação de sinais acima,
+            // pois 'base' será sempre positiva.
+
+            // Caso especial: se fv é 0, a taxa que zera o valor é -100%.
+            if (base === 0 && fv === 0) return -100; 
 
             const rate = (Math.pow(base, 1 / n) - 1) * 100;
             calculationCache[cacheKey] = rate;
@@ -686,11 +702,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const TOLERANCE = 1e-7; 
 
         for (let iter = 0; iter < MAX_ITER; iter++) {
-            if (rateGuess <= -1 + 1e-9) rateGuess = -1 + 1e-9; // Prevent (1+rateGuess) from being <=0
+            if (rateGuess <= -1 + 1e-9) rateGuess = -1 + 1e-9; 
 
             const guessFactor = Math.pow(1 + rateGuess, n);
             let fValue;
-            if (Math.abs(rateGuess) < 1e-9) { // Effectively rateGuess is zero
+            if (Math.abs(rateGuess) < 1e-9) { 
                  fValue = pv + pmt * n + fv;
             } else {
                  fValue = pv * guessFactor + pmt * (guessFactor - 1) / rateGuess + fv;
@@ -702,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             let fDerivative;
-            if (Math.abs(rateGuess) < 1e-9) { // Derivative at rateGuess = 0
+            if (Math.abs(rateGuess) < 1e-9) { 
                  fDerivative = n * pv + pmt * n * (n - 1) / 2; 
                  if (n===1) fDerivative = pv; 
             } else {
