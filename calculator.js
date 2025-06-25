@@ -584,12 +584,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             let valueToApply = currentInput;
-            // Attempt to parse and format to 2 decimal places if it's a number
             const numericValue = parseFloat(currentInput.replace(',', '.')); // Handle comma as decimal
             if (!isNaN(numericValue)) {
-                // Check if the original input was an integer or had specific precision
-                // For simplicity, always format to 2 decimal places for financial inputs
-                valueToApply = numericValue.toFixed(2);
+                // --- INÍCIO DA MODIFICAÇÃO ---
+
+                // Lista de IDs dos campos que devem receber 6 casas decimais.
+                const rateFieldIds = [
+                    'rate',
+                    'mirrFinancingRate',
+                    'mirrReinvestmentRate',
+                    'npvDiscountRate',
+                    'npvFinancingRate',
+                    'npvReinvestmentRate'
+                ];
+
+                // Verifica o tipo de campo para aplicar a formatação correta.
+                if (rateFieldIds.includes(activeInputField.id)) {
+                    // Aplica 6 casas decimais para os campos de taxa.
+                    valueToApply = numericValue.toFixed(6);
+                } else if (activeInputField.id === 'periods') {
+                    // Arredonda para o inteiro mais próximo para o campo de períodos.
+                    valueToApply = Math.round(numericValue);
+                }
+                 else {
+                    // Mantém 2 casas decimais para todos os outros campos (valores, etc.).
+                    valueToApply = numericValue.toFixed(2);
+                }
+                // --- FIM DA MODIFICAÇÃO ---
             }
 
             activeInputField.value = valueToApply;
