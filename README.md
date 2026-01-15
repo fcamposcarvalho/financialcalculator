@@ -2,7 +2,7 @@
 
 An advanced cash flow calculator to perform financial calculations such as present value (PV), future value (FV), payment (PMT), interest rates, and periods.
 
-![Financial Calculator](https://github.com/fcamposcarvalho/calculadorafinanceira/raw/main/financialcalculator.png)
+![Financial Calculator](https://github.com/fcamposcarvalho/financialcalculator/raw/main/financialcalculator.png)
 
 ## Features
 
