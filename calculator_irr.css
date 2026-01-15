@@ -98,7 +98,7 @@
     transition: background-color 0.3s;
 }
 #irrCashFlowsTable .irr-remove-cf-btn:hover {
-    background-color: #c82333; /* Darker red */
+    background-color: #c82333; /* Vermelho mais escuro */
 }
 
 .irr-btn-add {
@@ -160,9 +160,9 @@
 #irrWarningMessage {
     font-size: 0.9em; 
     margin-top: 10px; 
-    color: #856404; /* Bootstrap warning text color */
-    background-color: #fff3cd; /* Bootstrap warning background color */
-    border: 1px solid #ffeeba; /* Bootstrap warning border color */
+    color: #856404; /* Cor de texto de aviso do Bootstrap */
+    background-color: #fff3cd; /* Cor de fundo de aviso do Bootstrap */
+    border: 1px solid #ffeeba; /* Cor da borda de aviso do Bootstrap */
     padding: 10px; 
     border-radius: 5px; 
     display:none; /* Hidden by default */

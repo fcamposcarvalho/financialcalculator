@@ -1,15 +1,15 @@
 /* calculator_npv.css */
 
 .npv-modal {
-    max-width: 650px; /* Can adjust if content grows */
-    font-size: 1.05em; /* Base font increase for NPV modal */
+    max-width: 650px; /* Can be adjusted if content grows */
+    font-size: 1.05em; /* Aumento da fonte base para o modal NPV */
 }
 
 .npv-modal h2 {
-    font-size: 1.5em; /* Adjust modal title size if needed */
+    font-size: 1.5em; /* Adjust the size do modal title if necessary */
     margin-bottom: 20px;
-    text-align: center; /* Center modal title */
-    color: var(--primary-dark); /* Use primary dark color for title */
+    text-align: center; /* Centers o modal title */
+    color: var(--primary-dark); /* Uses primary dark color for title */
 }
 
 .npv-form-container .form-group {
@@ -17,15 +17,15 @@
 }
 
 .npv-form-container label {
-    font-size: 1.1em; /* Increase for labels (relative to .npv-modal font-size) */
+    font-size: 1.1em; /* Increase for the labels (relative to .npv-modal font-size) */
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--primary-dark); /* Consistent color for labels */
+    color: var(--primary-dark); /* Consistent color for the labels */
 }
 
 .npv-form-container input[type="number"] {
-    font-size: 1em; /* Inputs follow base increase */
-    padding: 12px; /* More padding for larger inputs */
+    font-size: 1em; /* Inputs seguem o aumento base */
+    padding: 12px; /* Mais preenchimento para inputs maiores */
     border: 1px solid var(--border-color);
     border-radius: 5px;
 }
@@ -59,10 +59,10 @@
 
 #npvCashFlowsTable th,
 #npvCashFlowsTable td {
-    padding: 10px; /* More padding in table cells */
+    padding: 10px; /* Mais preenchimento in cells da tabela */
     text-align: left;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.95em; /* Slight adjustment if table text becomes too large */
+    font-size: 0.95em; /* Leve ajuste se o texto da tabela ficar muito grande */
 }
 
 #npvCashFlowsTable th {
@@ -72,14 +72,14 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    font-size: 1em; /* Table header follows increase */
+    font-size: 1em; /* Table header follows the increase */
     text-align: center;
 }
 
 #npvCashFlowsTable td input[type="number"] {
     width: 90%;
-    padding: 8px; /* Padding for inputs in table */
-    font-size: 1em; /* Inputs in table follow increase */
+    padding: 8px; /* Preenchimento para inputs na tabela */
+    font-size: 1em; /* Inputs na tabela seguem o aumento */
     border: 1px solid var(--border-color);
     border-radius: 3px;
 }
@@ -89,23 +89,23 @@
 }
 
 
-#npvCashFlowsTable .npv-remove-cf-btn { /* Renamed class */
+#npvCashFlowsTable .npv-remove-cf-btn { /* Classe renomeada */
     background-color: var(--error-color);
     color: white;
     border: none;
-    padding: 6px 10px; /* Padding for remove button */
+    padding: 6px 10px; /* Preenchimento para o remove button */
     border-radius: 3px;
     cursor: pointer;
-    font-size: 0.9em; /* Font for remove button */
+    font-size: 0.9em; /* Fonte para o remove button */
     transition: background-color 0.3s;
 }
-#npvCashFlowsTable .npv-remove-cf-btn:hover { /* Renamed class */
+#npvCashFlowsTable .npv-remove-cf-btn:hover { /* Classe renomeada */
     background-color: #c82333;
 }
 
 
-.npv-btn-add { /* Renamed class */
-    /* width: auto; -- This will be effectively managed by .npv-button-group > button */
+.npv-btn-add { /* Classe renomeada */
+    /* width: auto; -- Will be managed efetivamente por .npv-button-group > button */
     padding: 12px 25px;
     font-size: 1em;
     background-color: var(--soft-green);
@@ -116,50 +116,50 @@
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-.npv-btn-add:hover { /* Renamed class */
+.npv-btn-add:hover { /* Classe renomeada */
     background-color: var(--soft-green-hover);
     border-color: #8dbf9d;
 }
 
-.npv-button-group { /* Renamed class */
+.npv-button-group { /* Classe renomeada */
     margin-top: 25px;
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: center;   /* Center buttons horizontally */
-    gap: 22px;             /* Increased vertical space between buttons */
+    flex-direction: column; /* Stacks buttons vertically */
+    align-items: center;   /* Centers buttons horizontally */
+    gap: 22px;             /* Aumenta o vertical space between buttons */
 }
 
 /* Common styling for all buttons within the group for width and layout */
 .npv-button-group > button {
-    width: 100%; /* Buttons will take the width of their content or be constrained by max-width */
+    width: 100%; /* Buttons will take up width of their content or will be limited by max-width */
     max-width: 320px; /* Maximum width for the buttons */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box; /* Inclui preenchimento e borda na largura e altura total do elemento */
 }
 
-/* Styles for .btn-primary and .btn-action when inside .npv-button-group */
+/* Estilos para .btn-primary e .btn-action quando dentro de .npv-button-group */
 .npv-button-group .btn-primary,
-.npv-button-group .btn-action { /* Apply similar styling to reset button */
-    padding: 12px 30px; /* Keep original padding */
-    font-size: 1.05em;  /* Keep original font-size */
+.npv-button-group .btn-action { /* Applies similar styling to reset button */
+    padding: 12px 30px; /* Keeps the original padding */
+    font-size: 1.05em;  /* Keeps the original font-size */
 }
 
 
-#npvErrorMessage { /* Renamed ID */
+#npvErrorMessage { /* ID renomeado */
     margin-bottom: 20px;
-    font-size: 1em; /* Font for error message */
+    font-size: 1em; /* Fonte para a mensagem de erro */
 }
 
-#npvResultContainer { /* Renamed ID, inheriting from .result-container but with specific adjustments */
+#npvResultContainer { /* ID renamed, inheriting from .result-container but with specific adjustments */
     padding: 20px;
     margin-top: 25px;
 }
 
-#npvResultContainer .result-title { /* Renamed ID */
+#npvResultContainer .result-title { /* ID renomeado */
     font-size: 1.2em; /* Result title */
     color: var(--primary-dark);
 }
-#npvResultContainer .result-value { /* Renamed ID */
-    font-size: 1.6em; /* NPV result value */
+#npvResultContainer .result-value { /* ID renomeado */
+    font-size: 1.6em; /* Valor do resultado NPV */
     font-weight: bold;
     color: var(--primary-color);
 }

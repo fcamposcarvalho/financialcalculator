@@ -1,14 +1,66 @@
 // financialcalculator.js
 
-// Function to correctly calculate total interest
-function calcularTotalJuros(n, i, pmt, pv) {
-    if (i === 0) {
+// financialcalculator.js -> Substitua a função existente por esta
+
+/**
+ * Converte uma string de valor para número, lidando de forma inteligente com os formatos
+ * brasileiro (1.000,50) e internacional (1,000.50) usando uma regra de detecção.
+ * @param {string} valueString A string a ser convertida.
+ * @returns {number} O número convertido.
+ */
+function parseFinancialInput(valueString) {
+    if (typeof valueString !== 'string' || valueString.trim() === '') {
         return 0;
     }
+    const cleanString = valueString.trim();
+    let sanitizedString = cleanString; // Inicializa a variável aqui
+
+    // Heurística de detecção: verifica se há um ponto decimal no formato internacional.
+    // A condição é: existe um ponto, e o número de caracteres após ele NÃO é 3,
+    // E esse ponto aparece depois da última vírgula (para tratar casos como 1,234.56).
+    const lastDotIndex = cleanString.lastIndexOf('.');
+    const lastCommaIndex = cleanString.lastIndexOf(',');
+    const isInternationalDecimal = lastDotIndex > -1 &&
+        (cleanString.length - lastDotIndex - 1) !== 3 &&
+        lastDotIndex > lastCommaIndex;
+
+    if (isInternationalDecimal) {
+        // Formato internacional detectado. Remove as vírgulas (milhar).
+        // Ex: "1,234,567.89" -> "1234567.89"
+        sanitizedString = cleanString.replace(/,/g, '');
+    } else {
+        // Assume formato brasileiro (ou inteiro com pontos de milhar).
+        // Remove os pontos (milhar) e troca a vírgula (decimal) por ponto.
+        // Ex: "1.234.567,89" -> "1234567.89"
+        // Ex: "200.000.000" -> "200000000"
+        sanitizedString = cleanString.replace(/\./g, '').replace(',', '.');
+    }
+
+    return parseFloat(sanitizedString) || 0;
+}
+
+/**
+ * Formats a number to US Dollar (USD) currency format.
+ * @param {number} value The number to format.
+ * @returns {string} The formatted currency string.
+ */
+
+function formatCurrency(value) {
+    if (isNaN(value) || value === null) return "$ 0.00";
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+}
+// --- FIM DAS FUNÇÕES HELPER ---
+
+
+// Function to correctly calculate total interest for Price Table
+function calculateTotalInterest(n, i, pmt, pv) {
+    if (i === 0) {
+        return Math.abs(pmt * n) - Math.abs(pv);
+    }
     const principal = Math.abs(pv);
-    let saldo = principal; 
+    let saldo = principal;
     let totalJurosCalculado = 0;
-    
+
     for (let periodo = 1; periodo <= n; periodo++) {
         const jurosPeriodo = saldo * i;
         totalJurosCalculado += jurosPeriodo;
@@ -18,9 +70,9 @@ function calcularTotalJuros(n, i, pmt, pv) {
     return Math.abs(totalJurosCalculado);
 }
 
-// Initial setup
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
+// Configuração inicial
+document.addEventListener('DOMContentLoaded', function () {
+    // Elementos do DOM
     const periodsInput = document.getElementById('periods');
     const rateInput = document.getElementById('rate');
     const paymentInput = document.getElementById('payment');
@@ -28,68 +80,70 @@ document.addEventListener('DOMContentLoaded', function() {
     const futureValueInput = document.getElementById('futureValue');
     const calculateFieldSelect = document.getElementById('calculateField');
     const calculateBtn = document.getElementById('calculateBtn');
-    const amortizationBtn = document.getElementById('amortizationBtn');
+    const amortizationPriceBtn = document.getElementById('amortizationPriceBtn');
+    const amortizationSacBtn = document.getElementById('amortizationSacBtn');
     const historyBtn = document.getElementById('historyBtn');
     const clearBtn = document.getElementById('clearBtn');
     const resultContainer = document.getElementById('resultContainer');
     const resultValue = document.getElementById('resultValue');
-    const interestValueElement = document.getElementById('interestValue'); 
-    const totalPaymentsElement = document.getElementById('totalPayments'); 
+    const interestValueElement = document.getElementById('interestValue');
+    const totalPaymentsElement = document.getElementById('totalPayments');
     const errorMessage = document.getElementById('errorMessage');
     const togglePaymentBtn = document.getElementById('togglePayment');
     const togglePVBtn = document.getElementById('togglePV');
     const toggleFVBtn = document.getElementById('toggleFV');
     const multiplyPeriodsBtn = document.getElementById('multiplyPeriods');
-    const divideRateBtn = document.getElementById('divideRate');
-    
+    const nominalRateBtn = document.getElementById('nominalRateBtn');
+    const effectiveRateBtn = document.getElementById('effectiveRateBtn');
+
     createCustomDropdown();
-    
+
     const historyModal = document.getElementById('historyModal');
     const closeModalBtn = document.getElementById('closeModal');
     const historyContent = document.getElementById('historyContent');
-    
+
     const amortizationModal = document.getElementById('amortizationModal');
     const closeAmortizationModalBtn = document.getElementById('closeAmortizationModal');
     const amortizationContent = document.getElementById('amortizationContent');
-    const amortizationModalContentEl = amortizationModal ? amortizationModal.querySelector('.modal-content') : null; // Para o drag
+    const amortizationModalTitle = document.getElementById('amortizationModalTitle');
+    const amortizationModalContentEl = amortizationModal ? amortizationModal.querySelector('.modal-content') : null;
 
 
     let calculationHistory = [];
     const MAX_HISTORY = 10;
     const calculationCache = {};
     let adjustingSignals = false;
-    
+
     function createCustomDropdown() {
         const originalSelect = document.getElementById('calculateField');
         if (!originalSelect) return;
-        
+
         const selectedValue = originalSelect.value;
         originalSelect.style.display = 'none';
-        
+
         const customDropdown = document.createElement('div');
         customDropdown.className = 'custom-dropdown';
-        
+
         const dropdownButton = document.createElement('div');
         dropdownButton.className = 'dropdown-button';
-        dropdownButton.setAttribute('tabindex', '0'); 
-        
+        dropdownButton.setAttribute('tabindex', '0');
+
         let selectedText = '';
         for (let i = 0; i < originalSelect.options.length; i++) {
             if (originalSelect.options[i].value === selectedValue) {
-                selectedText = originalSelect.options[i].text; 
+                selectedText = originalSelect.options[i].text;
                 break;
             }
         }
         dropdownButton.textContent = selectedText;
-        
+
         const dropdownIcon = document.createElement('span');
         dropdownIcon.className = 'dropdown-icon';
-        dropdownIcon.innerHTML = '▼'; 
+        dropdownIcon.innerHTML = '▼';
         dropdownButton.appendChild(dropdownIcon);
-        
+
         const dropdownList = document.createElement('div');
         dropdownList.className = 'dropdown-list';
-        // dropdownList.style.display = 'none'; // Controlado pela classe 'visible' agora
 
         for (let i = 0; i < originalSelect.options.length; i++) {
             const option = originalSelect.options[i];
@@ -99,48 +153,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownItem.classList.add('selected');
             }
             dropdownItem.setAttribute('data-value', option.value);
-            dropdownItem.textContent = option.text; 
-            
-            dropdownItem.addEventListener('click', function(e) {
+            dropdownItem.textContent = option.text;
+
+            dropdownItem.addEventListener('click', function (e) {
                 e.stopPropagation();
                 originalSelect.value = option.value;
                 const event = new Event('change', { bubbles: true });
                 originalSelect.dispatchEvent(event);
                 dropdownButton.textContent = option.text;
-                dropdownButton.appendChild(dropdownIcon); 
+                dropdownButton.appendChild(dropdownIcon);
                 dropdownList.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('selected'));
                 dropdownItem.classList.add('selected');
-                dropdownList.classList.remove('visible'); // Toggle visibility
+                dropdownList.classList.remove('visible');
                 localStorage.setItem('lastCalculateField', option.value);
             });
             dropdownList.appendChild(dropdownItem);
         }
-        
-        dropdownButton.addEventListener('click', function(e) {
+
+        dropdownButton.addEventListener('click', function (e) {
             e.stopPropagation();
-            dropdownList.classList.toggle('visible'); // Toggle visibility
+            dropdownList.classList.toggle('visible');
         });
-        
+
         document.addEventListener('click', () => { dropdownList.classList.remove('visible'); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdownList.classList.remove('visible'); });
-        
+
         customDropdown.appendChild(dropdownButton);
         customDropdown.appendChild(dropdownList);
         originalSelect.parentNode.insertBefore(customDropdown, originalSelect.nextSibling);
     }
-    
+
     if (calculateFieldSelect) {
-        calculateFieldSelect.addEventListener('change', function(event) {
-            // console.log("Calculate field changed via original select:", calculateFieldSelect.value);
-        });
         if (localStorage.getItem('lastCalculateField')) {
             calculateFieldSelect.value = localStorage.getItem('lastCalculateField');
             const customDropdownButton = calculateFieldSelect.parentNode.querySelector('.dropdown-button');
             const customDropdownList = calculateFieldSelect.parentNode.querySelector('.dropdown-list');
             if (customDropdownButton && customDropdownList) {
-                 for (let i = 0; i < calculateFieldSelect.options.length; i++) {
+                for (let i = 0; i < calculateFieldSelect.options.length; i++) {
                     if (calculateFieldSelect.options[i].value === calculateFieldSelect.value) {
-                        customDropdownButton.firstChild.textContent = calculateFieldSelect.options[i].text; 
+                        customDropdownButton.firstChild.textContent = calculateFieldSelect.options[i].text;
                         customDropdownList.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('selected'));
                         const selectedItem = customDropdownList.querySelector(`.dropdown-item[data-value="${calculateFieldSelect.value}"]`);
                         if (selectedItem) selectedItem.classList.add('selected');
@@ -150,28 +201,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     if (togglePaymentBtn) togglePaymentBtn.addEventListener('click', () => invertSign('payment'));
     if (togglePVBtn) togglePVBtn.addEventListener('click', () => invertSign('presentValue'));
     if (toggleFVBtn) toggleFVBtn.addEventListener('click', () => invertSign('futureValue'));
     if (multiplyPeriodsBtn) multiplyPeriodsBtn.addEventListener('click', multiplyPeriods);
-    if (divideRateBtn) divideRateBtn.addEventListener('click', divideRate);
+    if (nominalRateBtn) nominalRateBtn.addEventListener('click', calculateNominalRate);
+    if (effectiveRateBtn) effectiveRateBtn.addEventListener('click', calculateEffectiveRate);
     if (calculateBtn) calculateBtn.addEventListener('click', calculate);
-    if (amortizationBtn) amortizationBtn.addEventListener('click', showAmortizationTable);
+    if (amortizationPriceBtn) amortizationPriceBtn.addEventListener('click', showPriceAmortizationTable);
+    if (amortizationSacBtn) amortizationSacBtn.addEventListener('click', showSacAmortizationTable);
     if (historyBtn) historyBtn.addEventListener('click', showHistory);
     if (clearBtn) clearBtn.addEventListener('click', clearFields);
-    
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => { if(historyModal) historyModal.style.display = "none"; });
-    if (closeAmortizationModalBtn) closeAmortizationModalBtn.addEventListener('click', () => { if(amortizationModal) amortizationModal.style.display = "none"; });
-    
-    window.addEventListener('click', function(event) {
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => { if (historyModal) historyModal.style.display = "none"; });
+    if (closeAmortizationModalBtn) closeAmortizationModalBtn.addEventListener('click', () => { if (amortizationModal) amortizationModal.style.display = "none"; });
+
+    window.addEventListener('click', function (event) {
         if (historyModal && event.target === historyModal) historyModal.style.display = "none";
         if (amortizationModal && event.target === amortizationModal) amortizationModal.style.display = "none";
     });
-    
+
     if (paymentInput) paymentInput.addEventListener('input', adjustSignals);
     if (presentValueInput) presentValueInput.addEventListener('input', adjustSignals);
-
 
     function multiplyPeriods() {
         try {
@@ -181,16 +233,31 @@ document.addEventListener('DOMContentLoaded', function() {
             showError("Error multiplying periods: " + error.message);
         }
     }
-    
-    function divideRate() {
+
+    function calculateNominalRate() {
         try {
-            const rateValue = parseFloat(rateInput.value) || 0;
+            const rateValue = parseFinancialInput(rateInput.value);
             rateInput.value = (rateValue / 12).toFixed(8);
         } catch (error) {
-            showError("Error dividing rate: " + error.message);
+            showError("Error dividing the rate: " + error.message);
         }
     }
-    
+
+    function calculateEffectiveRate() {
+        try {
+            const annualRatePercent = parseFinancialInput(rateInput.value);
+            if (annualRatePercent <= -100) {
+                showError("The annual rate must be greater than -100% to calculate the effective rate.");
+                return;
+            }
+            const annualRateDecimal = annualRatePercent / 100;
+            const monthlyEffectiveRate = Math.pow(1 + annualRateDecimal, 1 / 12) - 1;
+            rateInput.value = (monthlyEffectiveRate * 100).toFixed(8);
+        } catch (error) {
+            showError("Error calculating the effective rate: " + error.message);
+        }
+    }
+
     function invertSign(field) {
         adjustingSignals = true;
         let inputElement;
@@ -199,73 +266,68 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (field === 'futureValue') inputElement = futureValueInput;
 
         if (inputElement) {
-            let val = parseFloat(inputElement.value) || 0;
+            let val = parseFinancialInput(inputElement.value);
             inputElement.value = (-val).toFixed(2);
         }
         setTimeout(() => { adjustingSignals = false; }, 100);
     }
-    
+
     function adjustSignals() {
         if (adjustingSignals) return;
         adjustingSignals = true;
         adjustingSignals = false;
     }
-    
+
     function clearFields() {
-        if(periodsInput) periodsInput.value = "12";
-        if(rateInput) rateInput.value = "1.0"; 
-        if(paymentInput) paymentInput.value = "0.00";
-        if(presentValueInput) presentValueInput.value = "1000.00";
-        if(futureValueInput) futureValueInput.value = "0.00";
-        if(resultContainer) resultContainer.classList.remove('visible');
+        if (periodsInput) periodsInput.value = "12";
+        if (rateInput) rateInput.value = "1.00";
+        if (paymentInput) paymentInput.value = "0.00";
+        if (presentValueInput) presentValueInput.value = "1000.00";
+        if (futureValueInput) futureValueInput.value = "0.00";
+        if (resultContainer) resultContainer.classList.remove('visible');
         hideError();
-        
+
         if (interestValueElement) interestValueElement.textContent = '';
         if (totalPaymentsElement) totalPaymentsElement.textContent = '';
     }
-    
-    function formatCurrency(value) {
-        if (isNaN(value) || value === null) return "0.00"; 
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-    }
-    
+
     function formatRate(value) {
-         if (isNaN(value) || value === null) return "0.00000000";
+        if (isNaN(value) || value === null) return "0,00000000";
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 }).format(value);
     }
-    
+
     function showError(message) {
-        if(errorMessage) {
+        if (errorMessage) {
             errorMessage.textContent = message;
             errorMessage.classList.add('visible');
         }
     }
-    
+
     function hideError() {
-        if(errorMessage) {
+        if (errorMessage) {
             errorMessage.textContent = '';
             errorMessage.classList.remove('visible');
         }
     }
-    
+
     function addToHistory(type, calculatedValue, originalValue, n, i, pmt, pv, fv, interestAmount, totalPayments) {
         const record = { type, calculatedValue, originalValue, n, i, pmt, pv, fv, interestAmount, totalPayments, date: new Date().toLocaleString('en-US') };
         calculationHistory.unshift(record);
         if (calculationHistory.length > MAX_HISTORY) calculationHistory.pop();
     }
-    
+
     function showHistory() {
         if (!historyContent || !historyModal) return;
 
         const historyModalContentEl = historyModal.querySelector('.modal-content');
-        if (historyModalContentEl) { // Reset position for centering
+        if (historyModalContentEl) {
             historyModalContentEl.style.position = '';
             historyModalContentEl.style.left = '';
             historyModalContentEl.style.top = '';
         }
 
         if (calculationHistory.length === 0) {
-            historyContent.innerHTML = '<div class="empty-history">No calculations in history.</div>';
+            historyContent.innerHTML = '<div class="empty-history">Nenhum cálculo no histórico.</div>';
         } else {
             historyContent.innerHTML = '';
             calculationHistory.forEach((calc, index) => {
@@ -282,158 +344,245 @@ document.addEventListener('DOMContentLoaded', function() {
                 historyContent.appendChild(historyItem);
             });
         }
-        historyModal.style.display = "flex"; // MODIFICADO para flex
+        historyModal.style.display = "flex";
     }
-    
-    function showAmortizationTable() {
+
+    function showPriceAmortizationTable() {
         if (!amortizationContent || !amortizationModal || !amortizationModalContentEl) return;
+
+        if (amortizationModalTitle) amortizationModalTitle.textContent = "Amortization Schedule (PRICE)";
+
         try {
             hideError();
             const n = parseInt(periodsInput.value) || 0;
-            const i = (parseFloat(rateInput.value) || 0) / 100;
-            let pmtVal = parseFloat(paymentInput.value) || 0;
-            const pv = parseFloat(presentValueInput.value) || 0;
-            const fv = parseFloat(futureValueInput.value) || 0;
+            const i = parseFinancialInput(rateInput.value) / 100;
+            const pv = parseFinancialInput(presentValueInput.value);
+            const fv = parseFinancialInput(futureValueInput.value);
+            const pmtFromInput = parseFinancialInput(paymentInput.value);
 
+            // REMOVIDO: A verificação "if (pv <= 0)" foi removida daqui.
             if (n <= 0) throw new Error("The number of periods must be greater than zero.");
-            if (i <= 0 && pmtVal !== 0) throw new Error("The rate must be greater than zero for amortization with payments.");
-            if (i === 0 && pmtVal === 0 && pv === -fv) {
-                 amortizationContent.innerHTML = '<div class="empty-amortization">With zero rate and no payments, amortization is direct. The final balance will be equal to the future value.</div>';
-                 if (amortizationModalContentEl) { // Reset position
-                    amortizationModalContentEl.style.position = '';
-                    amortizationModalContentEl.style.left = '';
-                    amortizationModalContentEl.style.top = '';
-                 }
-                 amortizationModal.style.display = "flex"; // MODIFICADO para flex
-                 return;
-            }
-             if (i === 0 && pmtVal === 0 && pv !== -fv) {
-                throw new Error("With zero rate and payment, PV must be the opposite of FV for a valid amortization.");
+
+            const pmtCorreto = parseFloat(calculatePayment(n, i, pv, fv).toFixed(2));
+
+            let pmtParaTabela;
+
+            if (pmtFromInput === 0 || Math.abs(pmtCorreto - pmtFromInput) > 0.01) {
+                pmtParaTabela = pmtCorreto;
+            } else {
+                pmtParaTabela = pmtFromInput;
             }
 
-            const amortizationData = calculateAmortizationTable(n, i, pmtVal, pv, fv);
-            
+            const amortizationData = calculatePriceAmortizationTable(n, i, pmtParaTabela, pv, fv);
+
             if (amortizationData.length === 0) {
-                amortizationContent.innerHTML = '<div class="empty-amortization">Could not generate the table with the provided values. Check if PMT is sufficient to cover interest.</div>';
+                amortizationContent.innerHTML = '<div class="empty-amortization">Could not generate table with the provided values. Check the data.</div>';
             } else {
-                const totalPrincipal = amortizationData.reduce((sum, row) => sum + row.principalPayment, 0);
-                const totalInterest = amortizationData.reduce((sum, row) => sum + row.interestPayment, 0);
-                const totalPayment = amortizationData.reduce((sum, row) => sum + row.payment, 0);
-                
-                let tableHTML = `
-                    <div class="amortization-summary">
-                        <p>Total Payments: ${formatCurrency(totalPayment)}</p>
-                        <p>Total Principal Amortized: ${formatCurrency(totalPrincipal)}</p>
-                        <p>Total Interest Paid/Received: ${formatCurrency(totalInterest)}</p>
-                    </div>
-                    <table class="amortization-table">
-                        <thead><tr><th>Period</th><th>Payment</th><th>Interest</th><th>Cum. Interest</th><th>Principal</th><th>Cum. Principal</th><th>Ending Balance</th></tr></thead>
-                        <tbody>`;
-                amortizationData.forEach(row => {
-                    tableHTML += `<tr>
-                        <td>${row.period}</td><td>${formatCurrency(row.payment)}</td><td>${formatCurrency(row.interestPayment)}</td>
-                        <td>${formatCurrency(row.cumulativeInterest)}</td><td>${formatCurrency(row.principalPayment)}</td>
-                        <td>${formatCurrency(row.cumulativePrincipal)}</td><td>${formatCurrency(row.endingBalance)}</td>
-                    </tr>`;
-                });
-                tableHTML += `<tr><td>Total</td><td>${formatCurrency(totalPayment)}</td><td>${formatCurrency(totalInterest)}</td><td>-</td><td>${formatCurrency(totalPrincipal)}</td><td>-</td><td>-</td></tr></tbody></table>`;
-                amortizationContent.innerHTML = tableHTML;
+                displayAmortizationData(amortizationData);
             }
-            // Resetar posição para centralização via flexbox antes de exibir
+
             if (amortizationModalContentEl) {
                 amortizationModalContentEl.style.position = '';
                 amortizationModalContentEl.style.left = '';
                 amortizationModalContentEl.style.top = '';
             }
-            amortizationModal.style.display = "flex"; // MODIFICADO para flex
+            amortizationModal.style.display = "flex";
         } catch (error) {
-            showError("Amortization: " + error.message);
+            showError("Amortization (PRICE): " + error.message);
         }
     }
-    
-    function calculateAmortizationTable(n, i, pmt, pv, fv) {
-        let pmtCalculado = pmt;
-        if (pmtCalculado === 0 && pv !== 0 && fv !== 0 && i > 0) {
-            if (i !== 0) {
-                 pmtCalculado = calculatePayment(n, i, pv, fv);
-            } else if (pv + fv !== 0) { 
-                pmtCalculado = -(pv + fv) / n; 
-            }
+
+    function showSacAmortizationTable() {
+        if (!amortizationContent || !amortizationModal || !amortizationModalContentEl) return;
+
+        const fv = parseFinancialInput(futureValueInput.value);
+        if (fv !== 0) { // Lida com FV positivo ou negativo
+            if (amortizationModalTitle) amortizationModalTitle.textContent = "Amortization Schedule (SAC with Residual Value)";
+        } else {
+            if (amortizationModalTitle) amortizationModalTitle.textContent = "Amortization Schedule (SAC)";
         }
 
+        try {
+            hideError();
+            const n = parseInt(periodsInput.value) || 0;
+            const i = parseFinancialInput(rateInput.value) / 100;
+            const pv = parseFinancialInput(presentValueInput.value);
+            // A leitura do FV já foi feita acima para o título
+
+            // REMOVIDO: A verificação "if (pv <= 0)" foi removida daqui.
+            if (n <= 0) throw new Error("The number of periods must be greater than zero.");
+            if (i < 0) throw new Error("The interest rate cannot be negative.");
+
+            const amortizationData = calculateSacAmortizationTable(n, i, pv, fv);
+
+            if (amortizationData.length === 0) {
+                amortizationContent.innerHTML = '<div class="empty-amortization">Could not generate SAC table with the provided values.</div>';
+            } else {
+                displayAmortizationData(amortizationData);
+            }
+
+            if (amortizationModalContentEl) {
+                amortizationModalContentEl.style.position = '';
+                amortizationModalContentEl.style.left = '';
+                amortizationModalContentEl.style.top = '';
+            }
+            amortizationModal.style.display = "flex";
+        } catch (error) {
+            showError("Amortization (SAC): " + error.message);
+        }
+    }
+
+    function displayAmortizationData(amortizationData) {
+        // CORREÇÃO APLICADA AQUI: Os totais agora são sempre a soma exata das colunas da tabela,
+        // refletindo o ajuste da última parcela e garantindo consistência total.
+        const totalPrincipal = amortizationData.reduce((sum, row) => sum + row.principalPayment, 0);
+        const totalInterest = amortizationData.reduce((sum, row) => sum + row.interestPayment, 0);
+        const totalPayment = amortizationData.reduce((sum, row) => sum + row.payment, 0); // Esta é a linha crucial.
+
+        let tableHTML = `
+			<div class="amortization-summary">
+				<p>Total Payments: ${formatCurrency(totalPayment)}</p>
+				<p>Total Principal Amortized: ${formatCurrency(totalPrincipal)}</p>
+				<p>Total Interest Paid: ${formatCurrency(totalInterest)}</p>
+			</div>
+			<!-- ADICIONADO: O container para a rolagem -->
+			<div class="amortization-table-container">
+				<table class="amortization-table">
+					<thead><tr><th>Period</th><th>Payment (PMT)</th><th>Interest</th><th>Cum. Interest</th><th>Principal</th><th>Cum. Principal</th><th>Balance</th></tr></thead>
+					<tbody>`;
+        amortizationData.forEach(row => {
+            tableHTML += `<tr>
+				<td>${row.period}</td><td>${formatCurrency(row.payment)}</td><td>${formatCurrency(row.interestPayment)}</td>
+				<td>${formatCurrency(row.cumulativeInterest)}</td><td>${formatCurrency(row.principalPayment)}</td>
+				<td>${formatCurrency(row.cumulativePrincipal)}</td><td>${formatCurrency(row.endingBalance)}</td>
+			</tr>`;
+        });
+        tableHTML += `<tr><td><strong>Total</strong></td><td><strong>${formatCurrency(totalPayment)}</strong></td><td><strong>${formatCurrency(totalInterest)}</strong></td><td>-</td><td><strong>${formatCurrency(totalPrincipal)}</strong></td><td>-</td><td>-</td></tr></tbody>
+				</table>
+			</div> <!-- ADICIONADO: Fechamento do container -->`;
+        amortizationContent.innerHTML = tableHTML;
+    }
+
+    function calculatePriceAmortizationTable(n, i, pmt, pv, fv) {
         const table = [];
-        let currentBalance = pv;
+        let currentBalance = Math.abs(pv);
+        const paymentAmount = Math.abs(pmt); // O PMT padrão, arredondado
+        const futureValueAmount = Math.abs(fv);
+
         let cumulativeInterest = 0;
         let cumulativePrincipal = 0;
 
         for (let period = 1; period <= n; period++) {
             const interestForPeriod = currentBalance * i;
             let principalPaymentPart;
-            if (i === 0) { 
-                principalPaymentPart = -pmtCalculado;
+            let currentPayment = paymentAmount; // Assume o pagamento padrão
+
+            // LÓGICA CORRIGIDA: Ajusta a amortização E o pagamento da última parcela
+            if (period === n) {
+                principalPaymentPart = currentBalance - futureValueAmount;
+                currentPayment = principalPaymentPart + interestForPeriod; // Recalcula o último pagamento
             } else {
-                 principalPaymentPart = -pmtCalculado - interestForPeriod;
+                principalPaymentPart = paymentAmount - interestForPeriod;
             }
 
-            const displayPmt = Math.abs(pmtCalculado);
-            const displayInterest = Math.abs(interestForPeriod);
-            const displayPrincipal = Math.abs(principalPaymentPart);
+            currentBalance -= principalPaymentPart;
+            cumulativeInterest += interestForPeriod;
+            cumulativePrincipal += principalPaymentPart;
 
-            cumulativeInterest += displayInterest;
-            cumulativePrincipal += displayPrincipal;
-            
-            currentBalance += interestForPeriod + pmtCalculado;
+            // Garante que o saldo final seja cravado no valor futuro
+            if (period === n) {
+                currentBalance = futureValueAmount;
+            }
 
             table.push({
                 period: period,
-                payment: displayPmt,
-                interestPayment: displayInterest,
+                payment: currentPayment, // Insere o pagamento correto (potencialmente ajustado)
+                interestPayment: interestForPeriod,
                 cumulativeInterest: cumulativeInterest,
-                principalPayment: displayPrincipal,
+                principalPayment: principalPaymentPart,
                 cumulativePrincipal: cumulativePrincipal,
-                endingBalance: currentBalance 
+                endingBalance: currentBalance
             });
         }
         return table;
     }
-    
+
+    function calculateSacAmortizationTable(n, i, pv, fv) {
+        const table = [];
+        const principalAmount = Math.abs(pv);
+        const futureValueAmount = Math.abs(fv);
+
+        if (n <= 0) return table;
+
+        let amountToAmortize = principalAmount - futureValueAmount;
+        // Arredonda a amortização base para evitar propagação de erros
+        const constantAmortization = parseFloat((amountToAmortize / n).toFixed(2));
+
+        let currentBalance = principalAmount;
+        let cumulativeInterest = 0;
+        let cumulativePrincipal = 0;
+
+        for (let period = 1; period <= n; period++) {
+            const interestForPeriod = currentBalance * i;
+            let principalPaymentForPeriod = constantAmortization;
+
+            // LÓGICA CORRIGIDA: Ajusta a amortização da última parcela
+            if (period === n) {
+                principalPaymentForPeriod = currentBalance - futureValueAmount;
+            }
+
+            const paymentForPeriod = principalPaymentForPeriod + interestForPeriod;
+
+            currentBalance -= principalPaymentForPeriod;
+            cumulativeInterest += interestForPeriod;
+            cumulativePrincipal += principalPaymentForPeriod;
+
+            if (period === n) {
+                currentBalance = futureValueAmount;
+            }
+
+            table.push({
+                period: period,
+                payment: paymentForPeriod,
+                interestPayment: interestForPeriod,
+                cumulativeInterest: cumulativeInterest,
+                principalPayment: principalPaymentForPeriod,
+                cumulativePrincipal: cumulativePrincipal,
+                endingBalance: currentBalance
+            });
+        }
+        return table;
+    }
+
     function getLabelForField(field) {
-        const labels = { periods: 'Periods (n)', rate: 'Rate (i)', payment: 'Payment (PMT)', presentValue: 'Present Value (PV)', futureValue: 'Future Value (FV)'};
+        const labels = { periods: 'Periods (n)', rate: 'Rate (i)', payment: 'Payment (PMT)', presentValue: 'Present Value (PV)', futureValue: 'Future Value (FV)' };
         return labels[field] || field;
     }
-    
-    function adjustSignalsBeforeCalculation() {
-        return {
-            pmt: parseFloat(paymentInput.value) || 0,
-            pv: parseFloat(presentValueInput.value) || 0,
-            fv: parseFloat(futureValueInput.value) || 0
-        };
-    }
-    
+
     function calculate() {
         hideError();
         try {
             const n_val = parseInt(periodsInput.value) || 0;
-            const i_val = (parseFloat(rateInput.value) || 0) / 100;
-            const pmt_val = parseFloat(paymentInput.value) || 0;
-            const pv_val = parseFloat(presentValueInput.value) || 0;
-            const fv_val = parseFloat(futureValueInput.value) || 0;
+            const i_val = parseFinancialInput(rateInput.value) / 100;
+            const pmt_val = parseFinancialInput(paymentInput.value);
+            const pv_val = parseFinancialInput(presentValueInput.value);
+            const fv_val = parseFinancialInput(futureValueInput.value);
             const fieldToCalculate = calculateFieldSelect.value;
-            
+
             validateInput(n_val, i_val, pmt_val, pv_val, fv_val, fieldToCalculate);
-            
+
             let result;
             let originalValueInput;
-            
+
             switch (fieldToCalculate) {
                 case 'periods':
                     originalValueInput = n_val;
                     result = calculatePeriods(i_val, pmt_val, pv_val, fv_val);
-                    if (result !== null) periodsInput.value = Math.round(result);
+                    if (result !== null) periodsInput.value = Math.ceil(result);
                     break;
                 case 'rate':
-                    originalValueInput = parseFloat(rateInput.value);
-                    result = calculateRate(n_val, pmt_val, pv_val, fv_val); 
+                    originalValueInput = parseFinancialInput(rateInput.value);
+                    result = calculateRate(n_val, pmt_val, pv_val, fv_val);
                     if (result !== null) rateInput.value = result.toFixed(8);
                     break;
                 case 'payment':
@@ -454,62 +603,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 default:
                     throw new Error("Unknown calculation field.");
             }
-            
+
             if (result !== null && isFinite(result)) {
                 resultValue.textContent = fieldToCalculate === 'rate' ? formatRate(result) + "%" : formatCurrency(result);
-                
+
                 const finalN = parseInt(periodsInput.value) || 0;
-                const finalRatePercent = parseFloat(rateInput.value) || 0;
+                const finalRatePercent = parseFinancialInput(rateInput.value);
                 const finalI = finalRatePercent / 100;
-                const finalPmt = parseFloat(paymentInput.value) || 0;
-                const finalPv = parseFloat(presentValueInput.value) || 0;
+                const finalPmt = parseFinancialInput(paymentInput.value);
+                const finalPv = parseFinancialInput(presentValueInput.value);
+                const finalFv = parseFinancialInput(futureValueInput.value);
 
                 let interestAmount = 0;
                 let totalPrincipalPayments = 0;
-                
+
                 totalPrincipalPayments = Math.abs(finalPmt * finalN);
-                interestAmount = calcularTotalJuros(finalN, finalI, finalPmt, finalPv);
+                interestAmount = calculateTotalInterest(finalN, finalI, finalPmt, finalPv);
 
                 if (interestValueElement) interestValueElement.textContent = formatCurrency(interestAmount);
                 if (totalPaymentsElement) totalPaymentsElement.textContent = formatCurrency(totalPrincipalPayments);
-                
+
                 resultContainer.classList.add('visible');
-                
-                addToHistory(fieldToCalculate, result, originalValueInput, finalN, finalRatePercent, finalPmt, finalPv, parseFloat(futureValueInput.value), interestAmount, totalPrincipalPayments);
+
+                addToHistory(fieldToCalculate, result, originalValueInput, finalN, finalRatePercent, finalPmt, finalPv, finalFv, interestAmount, totalPrincipalPayments);
             } else if (result === null || !isFinite(result)) {
                 showError("Could not calculate the value or the result is invalid.");
-                if(resultValue) resultValue.textContent = "-";
-                 if (interestValueElement) interestValueElement.textContent = '-';
+                if (resultValue) resultValue.textContent = "-";
+                if (interestValueElement) interestValueElement.textContent = '-';
                 if (totalPaymentsElement) totalPaymentsElement.textContent = '-';
             }
-            
+
         } catch (error) {
             showError(error.message);
-            if(resultContainer) resultContainer.classList.remove('visible');
+            if (resultContainer) resultContainer.classList.remove('visible');
         }
     }
-    
+
     function validateInput(n, i, pmt, pv, fv, fieldToCalculate) {
         if (fieldToCalculate !== 'periods' && (n <= 0 || !Number.isInteger(n))) {
             throw new Error("The number of periods (n) must be a positive integer.");
         }
-        // No validation for negative rate here, allow for theoretical calculations.
-
         if (fieldToCalculate === 'periods') {
-            if (i === 0) { 
-                if (pmt === 0) { 
+            if (i === 0) {
+                if (pmt === 0) {
                     if (pv === 0 && fv === 0) throw new Error("All values are zero, cannot calculate periods.");
-                    if (pv + fv !== 0) throw new Error("With zero rate and PMT, PV must be the opposite of FV to calculate periods.");
-                } else { 
+                    if (pv + fv !== 0) throw new Error("With zero rate and PMT, PV must be opposite of FV to calculate periods.");
+                } else {
                     if (pv + fv === 0 && pmt !== 0) { /*ok, N=0*/ }
                     else if (pmt > 0 && pv + fv > 0) throw new Error("Sign conflict: with positive PMT (inflow), PV+FV (net outflow) cannot be positive.");
                     else if (pmt < 0 && pv + fv < 0) throw new Error("Sign conflict: with negative PMT (outflow), PV+FV (net inflow) cannot be negative.");
                 }
-            } // No extensive validation for i != 0 as numerical methods can handle more cases.
+            }
         }
         return true;
     }
-    
+
     function calculatePresentValue(n, i, pmt, fv) {
         const cacheKey = `PV_${n}_${i}_${pmt}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
@@ -523,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
         calculationCache[cacheKey] = pv;
         return pv;
     }
-    
+
     function calculateFutureValue(n, i, pmt, pv) {
         const cacheKey = `FV_${n}_${i}_${pmt}_${pv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
@@ -537,197 +685,164 @@ document.addEventListener('DOMContentLoaded', function() {
         calculationCache[cacheKey] = fv;
         return fv;
     }
-    
+
     function calculatePayment(n, i, pv, fv) {
         const cacheKey = `PMT_${n}_${i}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
         let pmt;
         if (i === 0) {
-            if (n === 0) throw new Error("NPER cannot be zero to calculate PMT with zero rate.");
+            if (n === 0) throw new Error("NPER não pode ser zero para calcular PMT com taxa zero.");
             pmt = - (pv + fv) / n;
         } else {
             const factor = Math.pow(1 + i, n);
-            if (factor - 1 === 0 && i !== 0) { 
-                 if (n===0) throw new Error("NPER cannot be zero to calculate PMT with non-zero rate if it leads to division by zero.");
-                 throw new Error("Invalid configuration for PMT calculation (division by zero in factor).");
+            if (factor - 1 === 0 && i !== 0) {
+                if (n === 0) throw new Error("NPER não pode ser zero para calcular PMT com taxa diferente de zero se isso levar a divisão por zero.");
+                throw new Error("Configuração inválida para cálculo de PMT (divisão por zero no fator).");
             }
-             pmt = - (fv * i + pv * i * factor) / (factor - 1);
+            pmt = - (fv * i + pv * i * factor) / (factor - 1);
         }
         calculationCache[cacheKey] = pmt;
         return pmt;
     }
-    
-// financialcalculator.js
 
-// ... (código anterior do arquivo)
-
-    function calculatePeriods(i, pmt, pv, fv) { // NPER
+    function calculatePeriods(i, pmt, pv, fv) {
         const cacheKey = `N_${i}_${pmt}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
 
         let n;
         if (i === 0) {
             if (pmt === 0) {
-                if (pv + fv !== 0) throw new Error("With zero rate and PMT, PV must be the opposite of FV.");
-                return 0; 
+                if (pv + fv !== 0) throw new Error("Com taxa e PMT zero, o PV deve ser o oposto do FV.");
+                return 0;
             }
             n = -(pv + fv) / pmt;
-        } else { // i is not 0
+        } else {
             if (pmt === 0) {
-                // --- INÍCIO DA MODIFICAÇÃO ---
                 if (pv === 0) {
-                    throw new Error("With zero PMT, Present Value (PV) cannot be zero.");
+                    throw new Error("Com PMT zero, o Valor Presente (PV) não pode ser zero.");
                 }
                 const ratio = -fv / pv;
                 if (ratio <= 0) {
-                    // Mensagem de erro melhorada, explicando a convenção de sinais.
-                    throw new Error("With zero PMT, Present Value (PV) and Future Value (FV) must have opposite signs.");
+                    throw new Error("Com PMT zero, o Valor Presente (PV) e o Valor Futuro (FV) devem ter sinais opostos.");
                 }
                 if (1 + i <= 0) {
-                    throw new Error("Rate cannot be -100% or less for this calculation.");
+                    throw new Error("A taxa não pode ser -100% ou menor para este cálculo.");
                 }
                 n = Math.log(ratio) / Math.log(1 + i);
-                // --- FIM DA MODIFICAÇÃO ---
             } else {
                 const term1_val = pmt + fv * i;
                 const term2_val = pmt + pv * i;
-                if (term2_val === 0 || (term1_val / term2_val <= 0) || (term1_val === 0 && term2_val === 0) ) {
-                    return calculatePeriodsBinarySearch(i, pmt, pv, fv); 
+                if (term2_val === 0 || (term1_val / term2_val <= 0) || (term1_val === 0 && term2_val === 0)) {
+                    return calculatePeriodsBinarySearch(i, pmt, pv, fv);
                 }
-                 n = Math.log(term1_val / term2_val) / Math.log(1 + i);
+                n = Math.log(term1_val / term2_val) / Math.log(1 + i);
             }
         }
         if (n < 0 || !isFinite(n)) {
             return calculatePeriodsBinarySearch(i, pmt, pv, fv);
         }
-        cacheKey[cacheKey] = n;
+        calculationCache[cacheKey] = n;
         return n;
     }
 
-    function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 10000, tolerance = 1e-6) {
-        if (rate === 0) { 
-            if (pmt === 0) return (pv + fv === 0) ? 0 : null; 
+    function calculatePeriodsBinarySearch(rate, pmt, pv, fv, maxN = 1200, tolerance = 1e-6) {
+        if (rate === 0) {
+            if (pmt === 0) return (pv + fv === 0) ? 0 : null;
             if (pmt !== 0) return -(pv + fv) / pmt;
             return null;
         }
 
-        // Determina se a função FV(n) é crescente ou decrescente em relação a n.
         const trend_term = pmt + pv * rate;
         const isIncreasing = (rate > 0) ? (trend_term < 0) : (trend_term > 0);
 
-        // Calcula os valores nos limites do intervalo de busca [0, maxN]
         const fv_at_n0 = calculateFutureValue(0, rate, pmt, pv);
         const fv_at_nMax = calculateFutureValue(maxN, rate, pmt, pv);
 
-        // Verifica se uma solução é matematicamente possível dentro do intervalo.
         if (isIncreasing) {
             if (fv < fv_at_n0 || fv > fv_at_nMax) return null;
-        } else { // se for decrescente
+        } else {
             if (fv > fv_at_n0 || fv < fv_at_nMax) return null;
         }
 
         let low = 0;
         let high = maxN;
 
-        for (let iter = 0; iter < 100; iter++) { 
+        for (let iter = 0; iter < 100; iter++) {
             let n = (low + high) / 2;
             const fv_calculated = calculateFutureValue(n, rate, pmt, pv);
-            
+
             if (isIncreasing) {
-                if (fv_calculated < fv) {
-                    low = n;
-                } else {
-                    high = n;
-                }
-            } else { // Decrescente
-                if (fv_calculated > fv) {
-                    low = n;
-                } else {
-                    high = n;
-                }
+                if (fv_calculated < fv) { low = n; } else { high = n; }
+            } else {
+                if (fv_calculated > fv) { low = n; } else { high = n; }
             }
-            
-            // Interrompe o loop se a convergência for alcançada.
+
             if (high - low < tolerance) break;
         }
-        
-        // Após o loop, 'low' e 'high' definem um intervalo muito pequeno contendo a raiz.
+
         const final_n = (low + high) / 2;
         const final_fv = calculateFutureValue(final_n, rate, pmt, pv);
 
-        // A tolerância anterior (ex: 1e-5) era muito restrita para valores grandes de FV.
-        // Uma tolerância absoluta de 0.01 (um centavo) é mais prática para cálculos financeiros.
-        if (Math.abs(final_fv - fv) < 0.01) { 
+        if (Math.abs(final_fv - fv) < 0.01) {
             return final_n;
         }
-        
-        return null; // Retorna nulo se nenhuma solução for encontrada com a precisão desejada.
+
+        return null;
     }
 
- // financialcalculator.js
-
-// ... (código anterior do arquivo)
-
-    function calculateRate(n, pmt, pv, fv) { // Returns rate in %
+    function calculateRate(n, pmt, pv, fv) {
         const cacheKey = `I_${n}_${pmt}_${pv}_${fv}`;
         if (calculationCache[cacheKey] !== undefined) return calculationCache[cacheKey];
 
-        if (n <= 0) throw new Error("NPER must be positive to calculate RATE.");
+        if (n <= 0) throw new Error("O NPER deve ser positivo para calcular a TAXA.");
 
         if (pmt === 0) {
-            // --- INÍCIO DA MODIFICAÇÃO ---
             if (pv === 0) {
-                throw new Error("With zero PMT, Present Value (PV) cannot be zero to calculate Rate.");
+                throw new Error("Com PMT zero, o Valor Presente (PV) não pode ser zero para calcular a Taxa.");
             }
-            // Adiciona a verificação de sinais opostos, que é a causa do erro.
             if (Math.sign(pv) === Math.sign(fv)) {
-                throw new Error("With zero PMT, Present Value (PV) and Future Value (FV) must have opposite signs.");
+                throw new Error("Com PMT zero, o Valor Presente (PV) e o Valor Futuro (FV) devem ter sinais opostos.");
             }
-            // --- FIM DA MODIFICAÇÃO ---
 
             let base = -fv / pv;
-            // A verificação de raiz par de número negativo se torna desnecessária com a validação de sinais acima,
-            // pois 'base' será sempre positiva.
-
-            // Caso especial: se fv é 0, a taxa que zera o valor é -100%.
-            if (base === 0 && fv === 0) return -100; 
+            if (base <= 0) return null;
 
             const rate = (Math.pow(base, 1 / n) - 1) * 100;
             calculationCache[cacheKey] = rate;
             return rate;
         }
 
-        let rateGuess = 0.1; 
+        let rateGuess = 0.1;
         const MAX_ITER = 100;
-        const TOLERANCE = 1e-7; 
+        const TOLERANCE = 1e-7;
 
         for (let iter = 0; iter < MAX_ITER; iter++) {
-            if (rateGuess <= -1 + 1e-9) rateGuess = -1 + 1e-9; 
+            if (rateGuess <= -1 + 1e-9) rateGuess = -1 + 1e-9;
 
             const guessFactor = Math.pow(1 + rateGuess, n);
             let fValue;
-            if (Math.abs(rateGuess) < 1e-9) { 
-                 fValue = pv + pmt * n + fv;
+            if (Math.abs(rateGuess) < 1e-9) {
+                fValue = pv + pmt * n + fv;
             } else {
-                 fValue = pv * guessFactor + pmt * (guessFactor - 1) / rateGuess + fv;
+                fValue = pv * guessFactor + pmt * (guessFactor - 1) / rateGuess + fv;
             }
-            
-            if (Math.abs(fValue) < TOLERANCE) { 
+
+            if (Math.abs(fValue) < TOLERANCE) {
                 calculationCache[cacheKey] = rateGuess * 100;
                 return rateGuess * 100;
             }
 
             let fDerivative;
-            if (Math.abs(rateGuess) < 1e-9) { 
-                 fDerivative = n * pv + pmt * n * (n - 1) / 2; 
-                 if (n===1) fDerivative = pv; 
+            if (Math.abs(rateGuess) < 1e-9) {
+                fDerivative = n * pv + pmt * n * (n - 1) / 2;
+                if (n === 1) fDerivative = pv;
             } else {
-                 fDerivative = n * pv * Math.pow(1 + rateGuess, n - 1) +
-                                pmt * (n * rateGuess * Math.pow(1 + rateGuess, n - 1) - (guessFactor - 1)) / Math.pow(rateGuess, 2);
+                fDerivative = n * pv * Math.pow(1 + rateGuess, n - 1) +
+                    pmt * (n * rateGuess * Math.pow(1 + rateGuess, n - 1) - (guessFactor - 1)) / Math.pow(rateGuess, 2);
             }
 
             if (Math.abs(fDerivative) < 1e-10) {
-                break; 
+                break;
             }
 
             const newRateGuess = rateGuess - fValue / fDerivative;
@@ -738,27 +853,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             rateGuess = newRateGuess;
 
-            if (rateGuess < -0.999) rateGuess = -0.999; 
-            if (rateGuess > 10) rateGuess = 10; 
+            if (rateGuess < -0.999) rateGuess = -0.999;
+            if (rateGuess > 10) rateGuess = 10;
         }
-        throw new Error("Could not converge to an interest rate. Check input values or try different initial guess if possible.");
+        return null;
     }
 
-    // --- LÓGICA DE ARRASTAR PARA O MODAL DE AMORTIZAÇÃO ---
     if (amortizationModal && amortizationModalContentEl) {
         let isAmortizationDragging = false;
         let amortizationDragOffsetX, amortizationDragOffsetY;
 
-        amortizationModalContentEl.style.cursor = 'grab'; 
+        amortizationModalContentEl.style.cursor = 'grab';
 
-        amortizationModalContentEl.addEventListener('mousedown', function(e) {
+        amortizationModalContentEl.addEventListener('mousedown', function (e) {
             const targetTagName = e.target.tagName.toLowerCase();
             const isInteractiveElement = ['button', 'input', 'select', 'textarea', 'table', 'td', 'th', 'tr', 'tbody', 'thead'].includes(targetTagName) ||
-                                         e.target.classList.contains('close') ||
-                                         e.target.closest('.amortization-table') || 
-                                         e.target.closest('.amortization-summary');  
+                e.target.classList.contains('close') ||
+                e.target.closest('.amortization-table') ||
+                e.target.closest('.amortization-summary');
 
-            if (isInteractiveElement) return; 
+            if (isInteractiveElement) return;
 
             isAmortizationDragging = true;
 
@@ -767,13 +881,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 amortizationModalContentEl.style.position = 'absolute';
                 amortizationModalContentEl.style.left = rect.left + 'px';
                 amortizationModalContentEl.style.top = rect.top + 'px';
-                amortizationModalContentEl.style.margin = '0'; 
+                amortizationModalContentEl.style.margin = '0';
             }
-            
+
             amortizationDragOffsetX = e.clientX - amortizationModalContentEl.offsetLeft;
             amortizationDragOffsetY = e.clientY - amortizationModalContentEl.offsetTop;
             amortizationModalContentEl.style.cursor = 'grabbing';
-            document.body.style.userSelect = 'none'; 
+            document.body.style.userSelect = 'none';
 
             document.addEventListener('mousemove', onAmortizationMouseMove);
             document.addEventListener('mouseup', onAmortizationMouseUp);
@@ -801,11 +915,88 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isAmortizationDragging) return;
             isAmortizationDragging = false;
             amortizationModalContentEl.style.cursor = 'grab';
-            document.body.style.userSelect = ''; 
+            document.body.style.userSelect = '';
             document.removeEventListener('mousemove', onAmortizationMouseMove);
             document.removeEventListener('mouseup', onAmortizationMouseUp);
         }
     }
-    // --- FIM DA LÓGICA DE ARRASTAR PARA O MODAL DE AMORTIZAÇÃO ---
+});
 
+// --- LÓGICA OTIMIZADA PARA TOOLTIPS CUSTOMIZADAS (BASEADA EM CLIQUE) ---
+document.addEventListener('DOMContentLoaded', function () {
+    let activeTooltip = null;
+
+    // SUBSTITUA SUA FUNÇÃO 'showTooltip' POR ESTA VERSÃO COMPLETA
+    function showTooltip(triggerElement) {
+        const message = triggerElement.getAttribute('data-tooltip-message');
+        if (!message) return;
+
+        const tooltipElement = document.createElement('div');
+        tooltipElement.className = 'custom-tooltip-popup';
+        tooltipElement.textContent = message;
+        document.body.appendChild(tooltipElement);
+
+        const rect = triggerElement.getBoundingClientRect();
+        const screenPadding = 10; // Uma margem de segurança das bordas da tela
+
+        // --- LÓGICA DE POSICIONAMENTO INTELIGENTE ---
+
+        // 1. Posicionamento Vertical (Primeiro, para sabermos a altura)
+        let topPos = rect.top - tooltipElement.offsetHeight - 10; // Tenta posicionar 10px acima
+        if (topPos < screenPadding) {
+            topPos = rect.bottom + 10; // Se não couber, posiciona 10px abaixo
+        }
+        tooltipElement.style.top = `${topPos}px`;
+
+        // 2. Posicionamento Horizontal (com verificação de bordas)
+        let leftPos = rect.left + (rect.width / 2) - (tooltipElement.offsetWidth / 2); // Tenta centralizar
+
+        // VERIFICA SE ESTÁ VAZANDO PELA ESQUERDA
+        if (leftPos < screenPadding) {
+            leftPos = screenPadding;
+        }
+
+        // VERIFICA SE ESTÁ VAZANDO PELA DIREITA
+        const rightEdge = leftPos + tooltipElement.offsetWidth;
+        if (rightEdge > window.innerWidth - screenPadding) {
+            leftPos = window.innerWidth - tooltipElement.offsetWidth - screenPadding;
+        }
+
+        tooltipElement.style.left = `${leftPos}px`;
+
+        // --------------------------------------------------
+
+        setTimeout(() => tooltipElement.classList.add('visible'), 10);
+
+        activeTooltip = tooltipElement;
+    }
+
+    // Função para esconder a tooltip ativa (NÃO PRECISA MUDAR)
+    function hideTooltip() {
+        if (activeTooltip) {
+            activeTooltip.classList.remove('visible');
+            setTimeout(() => {
+                if (activeTooltip) activeTooltip.remove();
+                activeTooltip = null;
+            }, 300);
+        }
+    }
+
+    // Lógica de cliques (NÃO PRECISA MUDAR)
+    document.querySelectorAll('.tooltip-trigger-icon').forEach(icon => {
+        icon.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (activeTooltip) {
+                hideTooltip();
+            } else {
+                showTooltip(icon);
+            }
+        });
+    });
+
+    document.addEventListener('click', function () {
+        if (activeTooltip) {
+            hideTooltip();
+        }
+    });
 });

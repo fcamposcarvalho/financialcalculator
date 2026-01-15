@@ -1,31 +1,31 @@
 /* calculadora_mirr.css */
 
 .mirr-modal {
-    max-width: 650px; /* Pode aumentar um pouco se o conteúdo crescer */
+    max-width: 650px; /* Can increase a bit if content grows */
     font-size: 1.05em; /* Aumento base da fonte para o modal MIRR */
 }
 
 .mirr-modal h2 {
-    font-size: 1.5em; /* Ajuste o tamanho do título do modal se necessário */
+    font-size: 1.5em; /* Adjust the size do modal title if necessary */
     margin-bottom: 20px;
-    text-align: center; /* Centraliza o título do modal */
-    color: var(--primary-dark); /* Usa cor primária escura para o título */
+    text-align: center; /* Centers o modal title */
+    color: var(--primary-dark); /* Uses primary color dark for the title */
 }
 
 .mirr-form-container .form-group {
-    margin-bottom: 18px; /* Mais espaço entre os grupos */
+    margin-bottom: 18px; /* More space between groups */
 }
 
 .mirr-form-container label {
-    font-size: 1.1em; /* Aumento para labels (relativo ao font-size do .mirr-modal) */
+    font-size: 1.1em; /* Increase for labels (relativo ao font-size do .mirr-modal) */
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--primary-dark); /* Cor consistente para labels */
+    color: var(--primary-dark); /* Consistent color para labels */
 }
 
 .mirr-form-container input[type="number"] {
     font-size: 1em; /* Inputs acompanham o aumento base */
-    padding: 12px; /* Mais padding para inputs maiores */
+    padding: 12px; /* More padding para inputs maiores */
     border: 1px solid var(--border-color);
     border-radius: 5px;
 }
@@ -37,10 +37,10 @@
 
 
 .mirr-form-container h3 {
-    font-size: 1.2em; /* Aumento para o subtítulo "Cash Flows" */
+    font-size: 1.2em; /* Increase for "Cash Flows" subtitle */
     margin-top: 25px;
     margin-bottom: 10px;
-    color: var(--primary-dark); /* Cor consistente para subtítulos */
+    color: var(--primary-dark); /* Consistent color for subtitles */
     text-align: center;
 }
 
@@ -59,7 +59,7 @@
 
 #mirrCashFlowsTable th,
 #mirrCashFlowsTable td {
-    padding: 10px; /* Mais padding nas células da tabela */
+    padding: 10px; /* More padding in cells da tabela */
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.95em; /* Leve ajuste se o texto da tabela ficar muito grande */
@@ -78,7 +78,7 @@
 
 #mirrCashFlowsTable td input[type="number"] {
     width: 90%;
-    padding: 8px; /* Padding para inputs na tabela */
+    padding: 8px; /* Padding for inputs na tabela */
     font-size: 1em; /* Inputs na tabela acompanham o aumento */
     border: 1px solid var(--border-color);
     border-radius: 3px;
@@ -93,10 +93,10 @@
     background-color: var(--error-color);
     color: white;
     border: none;
-    padding: 6px 10px; /* Padding para o botão de remover */
+    padding: 6px 10px; /* Padding for o remove button */
     border-radius: 3px;
     cursor: pointer;
-    font-size: 0.9em; /* Fonte do botão de remover */
+    font-size: 0.9em; /* Fonte do remove button */
     transition: background-color 0.3s;
 }
 #mirrCashFlowsTable .mirr-remove-cf-btn:hover {
@@ -105,7 +105,7 @@
 
 
 .mirr-btn-add {
-    /* width: auto; -- This will be effectively managed by .mirr-button-group > button */
+    /* width: auto; -- Will be managed efetivamente por .mirr-button-group > button */
     padding: 12px 25px;
     font-size: 1em;
     background-color: var(--soft-green);
@@ -124,24 +124,24 @@
 .mirr-button-group {
     margin-top: 25px;
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: center;   /* Center buttons horizontally in the column */
-    gap: 22px;             /* Increased vertical space between buttons */
+    flex-direction: column; /* Stacks buttons vertically */
+    align-items: center;   /* Centers buttons horizontally in column */
+    gap: 22px;             /* Aumento do vertical space between buttons */
 }
 
 /* Common styling for all buttons within the group for width and layout */
 .mirr-button-group > button {
-    width: 100%; /* Buttons will take the width of their content or be constrained by max-width */
+    width: 100%; /* Buttons will take up width of their content or be limited by max-width */
     max-width: 320px; /* Maximum width for the buttons */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box; /* Inclui padding e borda na largura e altura total do elemento */
 }
 
-/* Styles for .btn-primary and .btn-action when inside .mirr-button-group */
-/* These define specific appearances (padding, font-size) for these button types */
+/* Estilos para .btn-primary e .btn-action quando dentro de .mirr-button-group */
+/* Define specific appearances (padding, font-size) for these button types */
 .mirr-button-group .btn-primary,
 .mirr-button-group .btn-action {
-    padding: 12px 30px; /* Keep original padding */
-    font-size: 1.05em;  /* Keep original font-size */
+    padding: 12px 30px; /* Keeps the padding original */
+    font-size: 1.05em;  /* Keeps the original font-size */
 }
 
 
@@ -164,7 +164,6 @@
     font-weight: bold;
     color: var(--primary-color);
 }
-
 
 .mirr-modal.modal-content {
     overflow-y: auto;

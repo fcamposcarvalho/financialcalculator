@@ -1,21 +1,18 @@
 :root {
     --primary-color: #3a7ca5;
     --primary-dark: #2c5d7c;
-    --secondary-color: #f8f9fa; /* Current background of btn-secondary */
+    --secondary-color: #f8f9fa;
     --border-color: #dee2e6;
     --success-color: #28a745;
     --error-color: #dc3545;
     --text-color: #343a40;
     --light-gray: #f5f5f5;
-
-    /* New suggested soft colors */
-    --soft-blue: #d1e7f3; /* Lighter and softer blue */
-    --soft-blue-hover: #badec9; /* Note: This was likely a typo and meant a darker blue, adjusted below in .btn-info:hover */
-    --soft-green: #d4edda; /* Light green (related to success) */
+    --soft-blue: #d1e7f3;
+    --soft-green: #d4edda;
     --soft-green-hover: #c3e6cb;
-    --soft-orange: #ffe8d6; /* Light orange for Clear/Attention */
+    --soft-orange: #ffe8d6;
     --soft-orange-hover: #fed7b3;
-    --soft-gray: #e9ecef; /* Light gray (alternative for info buttons) */
+    --soft-gray: #e9ecef;
     --soft-gray-hover: #d8dde1;
 }
 
@@ -41,13 +38,13 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    padding: 20px 0; /* Padding applied vertically */
+    padding: 20px 0;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 550px; /* Same as .calculator's max-width */
-    margin-left: auto;  /* Centers the header */
-    margin-right: auto; /* Centers the header */
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 h1 {
@@ -60,9 +57,9 @@ h1 {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 550px; /* Maximum width of the form */
-    margin-left: auto;  /* Centers the .calculator on the page */
-    margin-right: auto; /* Centers the .calculator on the page */
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .destacado {
@@ -75,13 +72,11 @@ h1 {
     position: relative;
 }
 
-/* Label adjustment for better alignment with the tooltip icon - MOVING THIS HIGHER FOR GENERAL LABEL STYLING */
-.form-group label, /* Applies to all labels within form-group */
-.npv-form-container label, /* Specific to NPV modal if necessary */
-.mirr-form-container label { /* Specific to MIRR modal if necessary */
+.form-group label,
+.npv-form-container label,
+.mirr-form-container label {
     display: flex; 
     align-items: center; 
-    /* Original label styles below */
     margin-bottom: 10px;
     font-weight: 600;
     color: var(--primary-dark);
@@ -102,16 +97,32 @@ h1 {
     color: white;
     border: none;
     padding: 10px 15px;
-    margin-left: 10px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
+    /* Margin will be controlled by group when there is more than one button */
+    margin-left: 10px;
 }
 
 .btn-toggle:hover {
     background-color: var(--primary-dark);
 }
+
+/* --- NEW STYLES FOR RATE BUTTON GROUP --- */
+.rate-button-group {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Spacing between buttons */
+    margin-left: 10px; /* Margem do grupo todo */
+}
+
+/* Removes individual button margin when inside the group */
+.rate-button-group .btn-toggle {
+    margin-left: 0;
+}
+/* --- FIM DOS NOVOS ESTILOS --- */
+
 
 input, select {
     width: 100%;
@@ -128,7 +139,7 @@ input:focus, select:focus {
     box-shadow: 0 0 0 2px rgba(58, 124, 165, 0.2);
 }
 
-select { /* Styles for the native select, in case the custom dropdown fails or is removed */
+select {
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
@@ -139,20 +150,20 @@ select { /* Styles for the native select, in case the custom dropdown fails or i
 }
 
 .button-group {
-    display: grid; /* Changed to CSS Grid */
-    grid-template-columns: repeat(4, 1fr); /* Creates 4 equal-width columns */
-    gap: 10px; /* Maintains spacing between buttons */
+    display: grid;
+    /* CHANGE: Makes the grid responsive. It will try to create columns with at least 130px. */
+    /* If 3 dont fit, it will adjust to 2 or 1 automatically, avoiding overflow. */
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
     margin-top: 35px;
-    /* Removed flex properties (justify-content, flex-wrap) are no longer needed here
-       and max-width and auto margins were also removed as the grid will adjust to .calculator */
 }
 
 button {
-    padding: 14px 20px; /* Adjusted padding for potentially smaller buttons */
+    padding: 14px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* Slightly smaller base font for buttons */
+    font-size: 16px; /* <-- Leve ajuste para mais conforto visual */
     font-weight: 600;
     transition: all 0.3s;
 }
@@ -165,47 +176,46 @@ button {
     background-color: var(--primary-dark);
 }
 
-.btn-secondary { /* This will be the base style for buttons that are not "Calculate" */
-    background-color: var(--secondary-color); /* Maintains almost white background */
+.btn-secondary {
+    background-color: var(--secondary-color);
     color: var(--text-color);
     border: 1px solid var(--border-color);
 }
 .btn-secondary:hover {
-    background-color: #e9ecef; /* A slightly darker gray on hover */
+    background-color: #e9ecef;
 }
 
-/* New styles for specific buttons with soft colors */
-.btn-info { /* For Amortization, History, MIRR */
+.btn-info {
     background-color: var(--soft-blue);
-    color: var(--primary-dark); /* Darker text for contrast with light background */
-    border: 1px solid #b4cad6; /* Subtle border slightly darker than the background */
+    color: var(--primary-dark);
+    border: 1px solid #b4cad6;
 }
 .btn-info:hover {
-    background-color: #b9d7e9; /* Slightly darker blue on hover */
+    background-color: #b9d7e9;
     border-color: #a0c2d6;
 }
 
-.btn-tool { /* For Calculator, NPV */
+.btn-tool {
     background-color: var(--soft-green);
-    color: #155724; /* Dark green for text (from bootstrap success text color) */
-    border: 1px solid #badbcc; /* Subtle border */
+    color: #155724;
+    border: 1px solid #badbcc;
 }
 .btn-tool:hover {
     background-color: var(--soft-green-hover);
     border-color: #a6c9b3;
 }
 
-.btn-action { /* For Clear, Reset */
+.btn-action {
     background-color: var(--soft-orange);
-    color: #721c24; /* Dark error/alert text color */
-    border: 1px solid #f5c6cb; /* Subtle border (based on .error) */
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 .btn-action:hover {
     background-color: var(--soft-orange-hover);
     border-color: #f1b0b7;
 }
 
-.btn-log { /* For History if it needs to be different from .btn-info */
+.btn-log {
     background-color: var(--soft-gray);
     color: var(--text-color);
     border: 1px solid #ced4da;
@@ -257,9 +267,8 @@ button {
     display: block;
 }
 
-/* Modal base style adjustments for centering */
 .modal {
-    display: none; /* Will be 'flex' when active */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -267,17 +276,10 @@ button {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
-    /* Added for flex centering: */
-    align-items: flex-start; /* Align content to the top */
-    justify-content: center; /* Center content horizontally */
-    overflow-y: auto; /* Allow modal itself to scroll if content is too tall */
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
 }
-
-/* Add this class via JS when showing a modal */
-.modal.visible { /* Not strictly needed if JS sets display: flex directly */
-    display: flex;
-}
-
 
 .modal-content {
     background-color: white;
@@ -286,7 +288,7 @@ button {
     padding: 20px;
     border-radius: 10px;
     width: 80%;
-    max-width: 800px; /* Default max-width */
+    max-width: 800px;
     max-height: 90vh; 
     overflow-y: auto; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -342,16 +344,15 @@ footer {
     text-align: center;
     color: #6c757d;
     font-size: 14px;
-    padding: 10px 0; /* Added padding like the header */
-    background-color: white; /* Optional: match header background */
-    border-radius: 10px; /* Optional: match header radius */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Optional: subtle shadow */
-    max-width: 550px; /* Same as .calculator's max-width */
-    margin-left: auto;  /* Centers the footer */
-    margin-right: auto; /* Centers the footer */
+    padding: 10px 0;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Amortization table */
 .amortization-table {
     width: 100%;
     border-collapse: collapse;
@@ -407,7 +408,7 @@ footer {
         padding: 15px;
     }
     
-    header, footer { /* Ensure header and footer adapt on smaller screens too */
+    header, footer {
         max-width: 100%;
         padding-left: 15px;
         padding-right: 15px;
@@ -415,20 +416,11 @@ footer {
 
     .calculator {
         padding: 20px;
-        max-width: 100%; /* Allows the calculator to use full width on small screens */
+        max-width: 100%;
     }
     
     .button-group {
-        display: flex; /* Reverts to flexbox for single column layout */
-        flex-direction: column; 
-        align-items: stretch; 
-    }
-    .button-group button {
-        width: 100%; 
-        margin-bottom: 10px; 
-    }
-    .button-group button:last-child {
-        margin-bottom: 0;
+        grid-template-columns: 1fr;
     }
     
     .modal-content {
@@ -448,19 +440,6 @@ footer {
     }
 }
 
-/* Containers for additional results (already existing) */
-.interest-value-container {
-    margin-top: 15px;
-    display: none;
-}
-.interest-value-container.visible { display: block; }
-.total-payments-container {
-    margin-top: 15px;
-    display: none;
-}
-.total-payments-container.visible { display: block; }
-
-/* Layout for results (already existing) */
 .result-row {
     display: flex;
     justify-content: space-around;
@@ -491,8 +470,6 @@ footer {
     }
 }
 
-
-/* STYLES MOVED FROM JS HERE (Custom Dropdown) */
 .custom-dropdown {
     position: relative;
     width: 100%;
@@ -567,7 +544,6 @@ footer {
     color: var(--primary-dark); 
     font-weight: 600; 
 }
-/* END OF DROPDOWN STYLES */
 
 
 .calculator-modal { 
@@ -575,10 +551,9 @@ footer {
     padding-top: 15px; 
 }
 
-/* Style for the title inside the calculator modal */
 #calculatorContent h2 {
     text-align: center;
-    font-size: 1.4em; /* Adjust as needed */
+    font-size: 1.4em;
     color: var(--primary-dark);
     margin-bottom: 15px;
 }
@@ -595,87 +570,74 @@ footer {
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); 
 }
 
-/* --- TOOLTIP STYLES --- */
-.tooltip { /* Container for the icon */
+.tooltip {
     position: relative;
     display: inline-block;
     cursor: help;
-    margin-left: 5px; /* Space between label text and tooltip icon */
-    color: var(--primary-color); /* Icon color */
-    font-weight: bold; /* Icon font weight */
+    margin-left: 5px;
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
-.tooltip .tooltiptext { /* Common styles for the tooltip box itself */
-    visibility: hidden; /* Hidden by default */
-    background-color: #333; /* Dark background */
-    color: #fff; /* Light text */
-    text-align: left; /* Align text to the left */
-    border-radius: 6px; /* Rounded corners */
-    padding: 10px; /* Inner spacing */
-    font-size: 13px; /* Font size for tooltip content */
-    line-height: 1.5; /* Line spacing */
-    white-space: normal; /* Allow text to wrap */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25); /* Shadow for depth */
-
-    /* Sizing */
-    width: auto; /* Adjust width to content */
-    min-width: 180px; /* Minimum width */
-    max-width: 280px; /* Maximum width */
-
-    /* Core positioning setup */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: normal;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    width: auto;
+    min-width: 180px;
+    max-width: 280px;
     position: absolute; 
-    z-index: 101; /* Above other modal elements *within its own modal context* */
-
+    z-index: 101;
     left: 50%; 
-    transform: translateX(-50%); /* Horizontal centering */
-
-    /* Animation for showing/hiding */
+    transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.3s, visibility 0.3s;
 }
 
-/* Styles for tooltip positioned ABOVE the icon (when .tooltiptext-above is added by JS) */
 .tooltip .tooltiptext.tooltiptext-above {
-    bottom: calc(100% + 10px); /* Position 10px above the icon */
-    top: auto; /* Ensure 'bottom' takes precedence */
+    bottom: calc(100% + 10px);
+    top: auto;
 }
 
-.tooltip .tooltiptext.tooltiptext-above::after { /* Arrow for "above" tooltips */
+.tooltip .tooltiptext.tooltiptext-above::after {
     content: "";
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: 100%; /* Arrow at the bottom of the tooltip body */
+    top: 100%;
     border-width: 6px;
     border-style: solid;
-    border-color: #333 transparent transparent transparent; /* Arrow pointing downwards */
+    border-color: #333 transparent transparent transparent;
 }
 
-/* Styles for tooltip positioned BELOW the icon (when .tooltiptext-below is added by JS) */
 .tooltip .tooltiptext.tooltiptext-below {
-    top: calc(100% + 10px); /* Position 10px below the icon */
-    bottom: auto; /* Ensure 'top' takes precedence */
+    top: calc(100% + 10px);
+    bottom: auto;
 }
 
-.tooltip .tooltiptext.tooltiptext-below::after { /* Arrow for "below" tooltips */
+.tooltip .tooltiptext.tooltiptext-below::after {
     content: "";
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 100%; /* Arrow at the top of the tooltip body */
-    top: auto; /* Ensure 'bottom' takes precedence */
+    bottom: 100%;
+    top: auto;
     border-width: 6px;
     border-style: solid;
-    border-color: transparent transparent #333 transparent; /* Arrow pointing upwards */
+    border-color: transparent transparent #333 transparent;
 }
 
-/* Show tooltip on hover (triggers JS to add classes, and this makes it visible) */
 .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
 }
-/* --- END OF TOOLTIP STYLES --- */
-
 
 input[type="number"].highlighted,
 input[type="text"].highlighted { 
@@ -775,7 +737,193 @@ input[type="text"].highlighted {
 }
 .calc-btn-apply:hover { background-color: #1e7e34; } 
 
-/* Ensure calculator modal is on top of other modals */
 #calculatorModal {
-    z-index: 1050; /* Higher than other modals (default 1000 for .modal) */
+    z-index: 1050;
+}
+
+/* Adicione estas regras ao final do seu arquivo calculadora.css */
+
+/* --- Estilos para o Seletor de Modo ALG/RPN --- */
+.calc-mode-selector {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: var(--soft-gray);
+    padding: 4px;
+}
+
+.calc-mode-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.calc-mode-btn.active {
+    background-color: white;
+    color: var(--primary-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* --- Estilos para o Visor RPN --- */
+#calcDisplayContainer {
+    margin-bottom: 15px;
+}
+
+.calc-display-rpn {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-family: 'Consolas', 'Menlo', 'Courier New', monospace;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.rpn-stack-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    color: #6c757d; /* Cinza suave para registros T, Z, Y */
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.rpn-stack-row.main {
+    color: var(--text-color); /* Cor principal para o registro X */
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.rpn-reg {
+    color: var(--primary-color);
+    font-weight: normal;
+    font-size: 0.8em;
+    margin-right: 10px;
+}
+
+.rpn-stack-row.main .rpn-reg {
+    font-size: 0.7em;
+}
+
+/* Esconder o visor ALG quando em modo RPN */
+.calculator-modal.rpn-mode #algDisplay {
+    display: none;
+}
+
+/* Mostrar o visor RPN quando em modo RPN */
+.calculator-modal.rpn-mode #rpnDisplay {
+    display: flex; /* Usamos flex por causa do flex-direction: column */
+}
+
+/* Hide RPN display by default (when not in rpn-mode) */
+.calculator-modal:not(.rpn-mode) #rpnDisplay {
+    display: none;
+}
+
+/* --- Estilos para Tooltip Customizada Mobile --- */
+.custom-tooltip-popup {
+    position: fixed; /* Fica fixo na tela */
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px 15px;
+    z-index: 2000; /* Garante que fique acima de tudo */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Does not interfere with clicks */
+    font-size: 14px;
+    max-width: 80%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.custom-tooltip-popup.visible {
+    opacity: 1;
+}
+
+/* --- Styles for Button with Tooltip Icon (FIXED) --- */
+/* --- Styles for Button with Icon (CENTERED ALIGNMENT) --- */
+
+/* ADICIONE esta nova regra */
+/* --- Styles for Button with Icon (CENTERED ALIGNMENT) --- */
+
+/* This rule ensures ALL buttons in the grid center the same way */
+.button-group > button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* This rule adds spacing ONLY to the button that has an icon */
+.btn-with-icon {
+    gap: 8px;
+}
+
+/* Style for the '?' icon itself (no changes here) */
+.tooltip-trigger-icon {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    font-family: 'Segoe UI', sans-serif;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    cursor: help;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.tooltip-trigger-icon:hover {
+    background-color: var(--primary-dark);
+}
+
+/* --- Estilo para destacar o label principal --- */
+.form-group .label-highlight {
+    font-weight: 700; /* Makes font bolder than the default 600 of other labels */
+}
+
+/* --- Styles for Tooltips Inserted in RPN Buttons --- */
+.rpn-special-btn {
+    position: relative; /* Keeps reference for the icon */
+    
+    /* Estas 3 linhas garantem que o texto principal fique perfeitamente centralizado */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tooltip-icon-inset {
+    position: absolute; /* Positions the icon as a floating layer */
+    top: 4px;
+    right: 4px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    font-size: 10px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+.rpn-special-btn:hover .tooltip-icon-inset {
+    opacity: 1;
+}
+
+/* --- Style for Responsive Amortization Table --- */
+.amortization-table-container {
+    overflow-x: auto; /* THE MAGIC HAPPENS HERE: Adds horizontal scroll if necessary */
+    -webkit-overflow-scrolling: touch; /* Improves scrolling experience on iPhones/iPads */
+    margin: 0 -20px; /* Compensa o padding do modal para a rolagem ir de ponta a ponta */
+    padding: 0 20px; /* Adiciona o padding de volta dentro do container */
 }

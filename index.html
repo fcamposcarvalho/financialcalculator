@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,12 +10,13 @@
     <link rel="stylesheet" href="calculator_npv.css">
     <link rel="stylesheet" href="calculator_irr.css">
 </head>
+
 <body>
     <div class="container">
         <header>
             <h1>Financial Calculator</h1>
-			<p>Calculate cash flow values with the <span class="destacado">"Value to Calculate:"</span> option.</p>
-			<p>Press <span class="destacado">Double Click</span> in the numeric fields to access the calculator.</p>
+            <p>Calculate cash flow values using the <span class="destacado">"Value to Calculate:"</span> option.</p>
+            <p>Press <span class="destacado">Double Click</span> on numeric fields to access the calculator.</p>
         </header>
 
         <main>
@@ -24,7 +26,8 @@
                 <div class="form-group">
                     <label for="periods">Periods (n):</label>
                     <div class="input-group">
-                        <input type="number" id="periods" min="0" value="12" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="number" id="periods" min="0" value="12"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                         <button class="btn-toggle" id="multiplyPeriods">12×</button>
                     </div>
                 </div>
@@ -32,37 +35,47 @@
                 <div class="form-group">
                     <label for="rate">Rate (i) %:</label>
                     <div class="input-group">
-                        <input type="number" id="rate" step="0.01" value="1.00" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
-                        <button class="btn-toggle" id="divideRate">12÷</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="payment">Payment (PMT):</label>
-                    <div class="input-group">
-                        <input type="number" id="payment" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
-                        <button class="btn-toggle" id="togglePayment">+/-</button>
+                        <input type="text" inputmode="decimal" id="rate" value="1.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
+                        <div class="rate-button-group">
+                            <button class="btn-toggle" id="effectiveRateBtn"
+                                title="Calculates equivalent/effective monthly rate (compound interest). Standard for investments.">Eff.
+                                Rate</button>
+                            <button class="btn-toggle" id="nominalRateBtn"
+                                title="Calculates nominal monthly rate (divides annual rate by 12). Standard for loans.">12÷</button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="presentValue">Present Value (PV):</label>
                     <div class="input-group">
-                        <input type="number" id="presentValue" value="1000.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="presentValue" value="1000.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                         <button class="btn-toggle" id="togglePV">+/-</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment">Payment (PMT):</label>
+                    <div class="input-group">
+                        <input type="text" inputmode="decimal" id="payment" value="0.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
+                        <button class="btn-toggle" id="togglePayment">+/-</button>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="futureValue">Future Value (FV):</label>
                     <div class="input-group">
-                        <input type="number" id="futureValue" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="futureValue" value="0.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                         <button class="btn-toggle" id="toggleFV">+/-</button>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="calculateField">Value to Calculate:</label>
+                    <label for="calculateField" class="label-highlight">Value to Calculate:</label>
                     <select id="calculateField">
                         <option value="periods">Periods (n)</option>
                         <option value="rate">Rate (i)</option>
@@ -72,33 +85,38 @@
                     </select>
                 </div>
 
-				<div class="button-group">
-					<button class="btn-primary" id="calculateBtn">Calculate</button>
-					<button class="btn-info" id="amortizationBtn">Amortization</button>
+                <div class="button-group">
+                    <button class="btn-primary" id="calculateBtn">Calculate</button>
+                    <button class="btn-info" id="amortizationPriceBtn">Amortization (PRICE)</button>
+                    <button class="btn-info btn-with-icon" id="amortizationSacBtn">
+                        <span>Amortization (SAC)</span>
+                        <span class="tooltip-trigger-icon"
+                            data-tooltip-message="If a 'Future Value FV' is provided, this value will be the residual balance at the end of the term.">?</span>
+                    </button>
                     <button class="btn-tool" id="calculatorBtn">Calculator</button>
                     <button class="btn-info" id="irrBtn">IRR</button>
                     <button class="btn-tool" id="mirrBtn">MIRR</button>
-                    <button class="btn-info" id="adjNpvBtn">(Adj) NPV</button>
-					<button class="btn-tool" id="historyBtn">History</button> 
-					<button class="btn-action" id="clearBtn">Clear</button>
-				</div>
+                    <button class="btn-info" id="adjNpvBtn">NPV (Adjusted)</button>
+                    <button class="btn-tool" id="historyBtn">History</button>
+                    <button class="btn-action" id="clearBtn">Clear</button>
+                </div>
 
-				<div class="result-container" id="resultContainer">
-					<div class="result-row three-columns">
-						<div class="result-column">
-							<div class="result-title">Result:</div>
-							<div class="result-value" id="resultValue"></div>
-						</div>
-						<div class="result-column">
-							<div class="result-title">Total Payments:</div>
-							<div class="result-value" id="totalPayments"></div>
-						</div>
-						<div class="result-column">
-							<div class="result-title">Total Interest:</div>
-							<div class="result-value" id="interestValue"></div>
-						</div>
-					</div>
-				</div>
+                <div class="result-container" id="resultContainer">
+                    <div class="result-row three-columns">
+                        <div class="result-column">
+                            <div class="result-title">Result:</div>
+                            <div class="result-value" id="resultValue"></div>
+                        </div>
+                        <div class="result-column">
+                            <div class="result-title">Total Payments:</div>
+                            <div class="result-value" id="totalPayments"></div>
+                        </div>
+                        <div class="result-column">
+                            <div class="result-title">Total Interest:</div>
+                            <div class="result-value" id="interestValue"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -110,75 +128,114 @@
             </div>
         </div>
 
-		<div id="amortizationModal" class="modal">
-			<div class="modal-content">
-				<span class="close" id="closeAmortizationModal">×</span>
-				<h2>Amortization Table</h2>
-				<div id="amortizationContent"></div>
-			</div>
-		</div>
+        <div id="amortizationModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeAmortizationModal">×</span>
+                <h2 id="amortizationModalTitle">Amortization Schedule</h2>
+                <div id="amortizationContent"></div>
+            </div>
+        </div>
 
         <div id="calculatorModal" class="modal">
             <div class="modal-content calculator-modal">
                 <span class="close" id="closeCalculatorModal">×</span>
                 <div id="calculatorContent">
                     <h2>Calculator</h2>
-                    <div class="basic-calculator">
-                        <div class="calc-display">
+
+                    <div class="calc-mode-selector">
+                        <button id="algBtn" class="calc-mode-btn active" title="Mode: Algebraic">ALG</button>
+                        <button id="rpnBtn" class="calc-mode-btn" title="Mode: Reverse Polish Notation">RPN</button>
+                    </div>
+
+                    <div id="calcDisplayContainer">
+                        <div class="calc-display" id="algDisplay">
                             <input type="text" id="calcDisplay" readonly>
                         </div>
-                        <div class="calc-buttons">
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-clear" data-action="clear">C</button>
-                                <button class="calc-btn calc-btn-op" data-action="backspace">⌫</button>
-                                <button class="calc-btn calc-btn-op" data-action="clearEntry">CE</button>
-                                <button class="calc-btn calc-btn-equal" data-action="equals">=</button>
+
+                        <div class="calc-display-rpn" id="rpnDisplay" style="display: none;">
+                            <div class="rpn-stack-row"><span class="rpn-reg">T:</span><span id="stackT">0</span></div>
+                            <div class="rpn-stack-row"><span class="rpn-reg">Z:</span><span id="stackZ">0</span></div>
+                            <div class="rpn-stack-row"><span class="rpn-reg">Y:</span><span id="stackY">0</span></div>
+                            <div class="rpn-stack-row main"><span class="rpn-reg">X:</span><span id="stackX">0</span>
                             </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-op" data-action="openParenthesis">(</button>
-                                <button class="calc-btn calc-btn-op" data-action="closeParenthesis">)</button>
-                                <button class="calc-btn calc-btn-op" data-action="percent">%</button>
-                                <button class="calc-btn calc-btn-op" data-action="divide">÷</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-num">7</button>
-                                <button class="calc-btn calc-btn-num">8</button>
-                                <button class="calc-btn calc-btn-num">9</button>
-                                <button class="calc-btn calc-btn-op" data-action="multiply">×</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-num">4</button>
-                                <button class="calc-btn calc-btn-num">5</button>
-                                <button class="calc-btn calc-btn-num">6</button>
-                                <button class="calc-btn calc-btn-op" data-action="subtract">−</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-num">1</button>
-                                <button class="calc-btn calc-btn-num">2</button>
-                                <button class="calc-btn calc-btn-num">3</button>
-                                <button class="calc-btn calc-btn-op" data-action="add">+</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-num">0</button>
-                                <button class="calc-btn calc-btn-num" data-action="decimal">.</button>
-                                <button class="calc-btn calc-btn-op" data-action="inverse">1/x</button>
-                                <button class="calc-btn calc-btn-op" data-action="negate">±</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-op" data-action="sqrt">√</button>
-                                <button class="calc-btn calc-btn-op" data-action="power">x^y</button>
-                                <button class="calc-btn calc-btn-op" data-action="log">log</button>
-                                <button class="calc-btn calc-btn-op" data-action="ln">ln</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-const" data-action="pi">π</button>
-                                <button class="calc-btn calc-btn-const" data-action="euler">e</button>
-                                <button class="calc-btn calc-btn-const" data-action="phi">φ</button>
-                                <button class="calc-btn calc-btn-op" data-action="exp">e^x</button>
-                            </div>
-                            <div class="calc-row">
-                                <button class="calc-btn calc-btn-apply" data-action="apply">Apply</button>
-                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calc-buttons">
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-clear" data-action="clear">C</button>
+                            <button class="calc-btn calc-btn-op" data-action="backspace">⌫</button>
+                            <button id="ceClxBtn" class="calc-btn calc-btn-op" data-action="clearEntry">CE</button>
+                            <button id="equalsEnterBtn" class="calc-btn calc-btn-equal" data-action="equals">=</button>
+                        </div>
+                        <div class="calc-row">
+                            <button id="parenSwapBtn" class="calc-btn calc-btn-op"
+                                data-action="openParenthesis">(</button>
+                            <button id="parenRollBtn" class="calc-btn calc-btn-op"
+                                data-action="closeParenthesis">)</button>
+                            <button class="calc-btn calc-btn-op" data-action="percent">%</button>
+                            <button class="calc-btn calc-btn-op" data-action="divide">÷</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-num">7</button>
+                            <button class="calc-btn calc-btn-num">8</button>
+                            <button class="calc-btn calc-btn-num">9</button>
+                            <button class="calc-btn calc-btn-op" data-action="multiply">×</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-num">4</button>
+                            <button class="calc-btn calc-btn-num">5</button>
+                            <button class="calc-btn calc-btn-num">6</button>
+                            <button class="calc-btn calc-btn-op" data-action="subtract">−</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-num">1</button>
+                            <button class="calc-btn calc-btn-num">2</button>
+                            <button class="calc-btn calc-btn-num">3</button>
+                            <button class="calc-btn calc-btn-op" data-action="add">+</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-num">0</button>
+                            <button class="calc-btn calc-btn-num" data-action="decimal">.</button>
+                            <button class="calc-btn calc-btn-op" data-action="inverse">1/x</button>
+                            <button class="calc-btn calc-btn-op" data-action="negate">±</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-op" data-action="sqrt">√</button>
+                            <button class="calc-btn calc-btn-op" data-action="power">x^y</button>
+                            <button class="calc-btn calc-btn-op" data-action="log">log</button>
+                            <button class="calc-btn calc-btn-op" data-action="ln">ln</button>
+                        </div>
+                        <div class="calc-row rpn-only-row">
+                            <button class="calc-btn rpn-special-btn" data-action="weightedAverage">
+                                <span>x̄w</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="Weighted Average. Input: [value] ENTER [weight] x̄w. Click x↔y to see count">?</span>
+                            </button>
+                            <button class="calc-btn rpn-special-btn" data-action="dateDiff">
+                                <span>ΔDYS</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="Days difference. [First date] ENTER [Second date] ΔDYS. Use format: dd.mmyyyy">?</span>
+                            </button>
+                            <button class="calc-btn rpn-special-btn" data-action="percentDiff">
+                                <span>Δ%</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="Percent change. Input: [old value] ENTER [new value] Δ%">?</span>
+                            </button>
+                            <button class="calc-btn rpn-special-btn" data-action="equivRate">
+                                <span>eq rate</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="Equivalent Rate. Input: [i%] ENTER [n or 1/n] eq rate">?</span>
+                            </button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-const" data-action="pi">π</button>
+                            <button class="calc-btn calc-btn-const" data-action="euler">e</button>
+                            <button class="calc-btn calc-btn-const" data-action="phi">φ</button>
+                            <button class="calc-btn calc-btn-op" data-action="exp">e^x</button>
+                        </div>
+                        <div class="calc-row">
+                            <button class="calc-btn calc-btn-apply" data-action="apply">Apply</button>
                         </div>
                     </div>
                 </div>
@@ -193,31 +250,48 @@
                 <div class="mirr-form-container">
                     <div class="form-group">
                         <label for="mirrInitialInvestment">Initial Investment (CF0):
-                            <span class="tooltip">?<span class="tooltiptext">The project's initial cash flow at period 0. Enter as a negative value for an investment (outflow) or positive for an initial income (inflow). This value is part of the MIRR calculation.</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The initial cash flow of the project at
+                                    period 0. Enter as a negative value for an investment (outflow) or positive for an
+                                    initial revenue (inflow). This value is part of the MIRR calculation.</span></span>
                         </label>
-                        <input type="number" id="mirrInitialInvestment" value="-1000.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="mirrInitialInvestment" value="-1000.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
-                        <label for="mirrFinancingRate">Financing Rate (% per period):
-                            <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 5 for 5%) per period at which subsequent negative cash flows (costs, after CF0) are assumed to be financed. This rate is used to find their present value at period 0. If 0%, they are effectively summed without discounting interest. Ensure the period (annual, monthly) matches your cash flow periods.</span></span>
+                        <label for="mirrFinancingRate">Financing Rate (%):
+                            <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 5 for 5%) per
+                                    period at which subsequent negative cash flows (costs, after CF0) are assumed to be
+                                    financed. This rate is used to find their present value at period 0. If 0%, they are
+                                    effectively summed without interest discount. Ensure the period (annual, monthly)
+                                    matches your cash flow periods.</span></span>
                         </label>
-                        <input type="number" id="mirrFinancingRate" value="5.0" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="mirrFinancingRate" value="5.0"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
-                        <label for="mirrReinvestmentRate">Reinvestment Rate (% per period):
-                            <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 7 for 7%) per period at which positive cash flows (including a positive CF0 and subsequent inflows) are assumed to be reinvested. This rate is used to find their future value at the end of the last cash flow period (period N). If 0%, they are effectively summed without compounding interest. Ensure the period matches your cash flow periods.</span></span>
+                        <label for="mirrReinvestmentRate">Reinvestment Rate (%):
+                            <span class="tooltip">?<span class="tooltiptext">The interest rate (e.g., 7 for 7%) per
+                                    period at which positive cash flows (including a positive CF0 and subsequent
+                                    inflows) are assumed to be reinvested. This rate is used to find their future value
+                                    at the end of the last cash flow period (period N). If 0%, they are effectively
+                                    summed without compounding. Ensure the period matches your cash flow
+                                    periods.</span></span>
                         </label>
-                        <input type="number" id="mirrReinvestmentRate" value="7.0" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="mirrReinvestmentRate" value="7.0"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
 
                     <h3>Cash Flows (after initial investment):
-                        <span class="tooltip">?<span class="tooltiptext">Define the series of expected cash flows (CF1, CF2, ...) occurring after the initial investment. For each distinct cash flow amount, specify how many consecutive periods (Quantity) it repeats. Negative values for outflows, positive for inflows.</span></span>
+                        <span class="tooltip">?<span class="tooltiptext">Define the series of expected cash flows (CF1,
+                                CF2, ...) occurring after the initial investment. For each distinct cash flow value,
+                                specify how many consecutive periods (Quantity) it repeats. Negative values for
+                                outflows, positive for inflows.</span></span>
                     </h3>
                     <div class="mirr-cashflows-table-container">
                         <table id="mirrCashFlowsTable">
                             <thead>
                                 <tr>
-                                    <th>Amount</th>
+                                    <th>Value</th>
                                     <th>Quantity (repetitions)</th>
                                     <th>Action</th>
                                 </tr>
@@ -240,7 +314,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="irrModal" class="modal">
             <div class="modal-content irr-modal">
                 <span class="close" id="closeIrrModal">×</span>
@@ -249,19 +323,23 @@
                 <div class="irr-form-container">
                     <div class="form-group">
                         <label for="irrInitialInvestment">Initial Investment (CF0):
-                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value, e.g., -1000) or inflow (positive value).</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project
+                                    (usually a negative value, e.g., -1000) or inflow (positive value).</span></span>
                         </label>
-                        <input type="number" id="irrInitialInvestment" value="-1000.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="irrInitialInvestment" value="-1000.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
-                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows (negative) occurring after the initial investment. For each amount, specify how many consecutive periods (Quantity) it repeats.</span></span>
+                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows
+                                (negative) occurring after the initial investment. For each value, specify how many
+                                consecutive periods (Quantity) it repeats.</span></span>
                     </h3>
                     <div class="irr-cashflows-table-container">
                         <table id="irrCashFlowsTable">
                             <thead>
                                 <tr>
-                                    <th>Amount</th>
+                                    <th>Value</th>
                                     <th>Quantity (repetitions)</th>
                                     <th>Action</th>
                                 </tr>
@@ -280,7 +358,9 @@
                     <div id="irrResultContainer" class="result-container" style="display: none; margin-top: 20px;">
                         <div class="result-title">IRR Result:</div>
                         <div class="result-value" id="irrResultValue"></div>
-                        <div id="irrWarningMessage" class="warning" style="font-size: 0.9em; margin-top: 10px; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 5px; display:none;"></div>
+                        <div id="irrWarningMessage" class="warning"
+                            style="font-size: 0.9em; margin-top: 10px; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 5px; display:none;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,46 +374,65 @@
                 <div class="npv-form-container">
                     <div class="form-group">
                         <label for="npvInitialInvestment">Initial Investment (CF0):
-                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project (usually a negative value, e.g., -1000) or inflow (positive value). This is the cash flow at period 0.</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The initial cash outflow for the project
+                                    (usually a negative value, e.g., -1000) or inflow (positive value). This is the cash
+                                    flow at period 0.</span></span>
                         </label>
-                        <input type="number" id="npvInitialInvestment" value="-1000.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="npvInitialInvestment" value="-1000.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
                         <label for="npvDiscountRate">Discount Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">The minimum required rate of return or the opportunity cost of capital.
-- For Traditional NPV: This is the rate used to discount all future cash flows (CF1, CF2,...). This occurs when 'Financing Rate' and 'Reinvestment Rate' are zero.
-- For (Adj) NPV: This rate is used to discount to present value the future value of positive cash flows (after they have been reinvested at the 'Reinvestment Rate'). It also acts as the default rate for intermediate flows if specific 'Financing Rate' or 'Reinvestment Rate' are zero.
-Must be greater than -100%.</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The minimum required rate of return or
+                                    opportunity cost of capital.
+                                    - For Traditional NPV: This is the rate used to discount all future cash flows (CF1,
+                                    CF2,...). This occurs when 'Financing Rate' and 'Reinvestment Rate' are zero.
+                                    - For Adjusted NPV: This rate is used to discount to present value the future value
+                                    of positive cash flows (after being reinvested at the 'Reinvestment Rate'). It also
+                                    acts as the default rate for intermediate flows if specific 'Financing Rate' or
+                                    'Reinvestment Rate' are zero.
+                                    Must be greater than -100%.</span></span>
                         </label>
-                        <input type="number" id="npvDiscountRate" value="10.0" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="npvDiscountRate" value="10.0"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
                         <label for="npvFinancingRate">Financing Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">The interest rate used to discount specifically the intermediate negative cash flows (costs, after CF0) to present value in the (Adj) NPV calculation.
-Reflects the cost of financing these outlays.
-If 0% or not specified, the main 'Discount Rate' will be used for these negative flows in the adjusted calculation.
-Must be greater than -100% (if not zero).</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The interest rate used to specifically
+                                    discount intermediate negative cash flows (costs, after CF0) to present value in the
+                                    Adjusted NPV calculation.
+                                    Reflects the cost of financing these outlays.
+                                    If 0% or not specified, the main 'Discount Rate' will be used for these negative
+                                    flows in the adjusted calculation.
+                                    Must be greater than -100% (if not zero).</span></span>
                         </label>
-                        <input type="number" id="npvFinancingRate" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="npvFinancingRate" value="0.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
                     <div class="form-group">
                         <label for="npvReinvestmentRate">Reinvestment Rate (%):
-                            <span class="tooltip">?<span class="tooltiptext">The rate at which intermediate positive cash flows (benefits, after CF0) are assumed to be reinvested until the end of the project in the (Adj) NPV calculation.
-Reflects the return opportunity on generated profits.
-If 0% or not specified, the main 'Discount Rate' will be used to compound these positive flows in the adjusted calculation.
-Must be greater than -100% (if not zero).</span></span>
+                            <span class="tooltip">?<span class="tooltiptext">The rate at which intermediate positive
+                                    cash flows (benefits, after CF0) are assumed to be reinvested until the end of the
+                                    project in the Adjusted NPV calculation.
+                                    Reflects the return opportunity on generated profits.
+                                    If 0% or not specified, the main 'Discount Rate' will be used to compound these
+                                    positive flows in the adjusted calculation.
+                                    Must be greater than -100% (if not zero).</span></span>
                         </label>
-                        <input type="number" id="npvReinvestmentRate" value="0.00" step="0.01" title="Press F1 or double-click to access the calculator" enterkeyhint="numeric">
+                        <input type="text" inputmode="decimal" id="npvReinvestmentRate" value="0.00"
+                            title="Press F1 or double click to access the calculator" enterkeyhint="numeric">
                     </div>
 
                     <h3>Cash Flows (CF1, CF2, ...):
-                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows (negative) occurring after the initial investment. For each amount, specify how many consecutive periods (Quantity) it repeats.</span></span>
+                        <span class="tooltip">?<span class="tooltiptext">Future cash inflows (positive) or outflows
+                                (negative) occurring after the initial investment. For each value, specify how many
+                                consecutive periods (Quantity) it repeats.</span></span>
                     </h3>
                     <div class="npv-cashflows-table-container">
                         <table id="npvCashFlowsTable">
                             <thead>
                                 <tr>
-                                    <th>Amount</th>
+                                    <th>Value</th>
                                     <th>Quantity (repetitions)</th>
                                     <th>Action</th>
                                 </tr>
@@ -345,7 +444,7 @@ Must be greater than -100% (if not zero).</span></span>
 
                     <div class="button-group npv-button-group">
                         <button id="addNpvCashFlowRow" class="btn-secondary npv-btn-add">Add Cash Flow Row</button>
-                        <button id="calculateNpvBtn" class="btn-primary">Calculate (Adj) NPV</button>
+                        <button id="calculateNpvBtn" class="btn-primary">Calculate NPV (Adjusted)</button>
                         <button id="resetNpvBtn" class="btn-action">Reset</button>
                     </div>
 
@@ -359,7 +458,8 @@ Must be greater than -100% (if not zero).</span></span>
 
         <footer>
             <p>© 2024-2025 Cash Flow Calculator. All rights reserved.</p>
-            <p>Created by Francisco Campos de Carvalho, email: fcamposcarvalho@yahoo.com.br, Bachelor in Mathematics and Post-Graduate in Information Systems.</p>
+            <p>Created by Francisco Campos de Carvalho, email: fcamposcarvalho@yahoo.com.br, Bachelor in Mathematics and
+                Postgraduate in Information Systems.</p>
         </footer>
     </div>
 
@@ -369,4 +469,5 @@ Must be greater than -100% (if not zero).</span></span>
     <script src="calculator_irr.js"></script>
     <script src="calculator_npv.js"></script>
 </body>
+
 </html>
