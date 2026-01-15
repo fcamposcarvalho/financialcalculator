@@ -38,13 +38,13 @@ An advanced cash flow calculator to perform financial calculations such as prese
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/fcamposcarvalho/calculadorafinanceira.git
+git clone https://github.com/fcamposcarvalho/financialcalculator.git
 ```
 2. Open the `index.html` file in any modern browser
 
 ### Online Usage
 
-Access the calculator directly at: [https://fcamposcarvalho.github.io/calculadorafinanceira](https://fcamposcarvalho.github.io/calculadorafinanceira)
+Access the calculator directly at: [https://fcamposcarvalho.github.io/financialcalculator](https://fcamposcarvalho.github.io/financialcalculator)
 
 ### Integration in Other Sites
 
