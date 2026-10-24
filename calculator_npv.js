@@ -1,7 +1,7 @@
 // calculator_npv.js
-document.addEventListener('DOMContentLoaded', function () {
-    // As funções parseFinancialInput e formatCurrency agora são globais
-    // e estão disponíveis para este script.
+document.addEventListener('DOMContentLoaded', function() {
+    // parseFinancialInput and formatCurrency are global
+    // and available to this script.
 
     const adjNpvBtn = document.getElementById('adjNpvBtn');
     const npvModal = document.getElementById('npvModal');
@@ -16,10 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const cashFlowsTableBody = document.getElementById('npvCashFlowsTableBody');
     const addCashFlowRowBtn = document.getElementById('addNpvCashFlowRow');
     const calculateNpvBtn = document.getElementById('calculateNpvBtn');
-    const resetNpvBtn = document.getElementById('resetNpvBtn');
-
+    const resetNpvBtn = document.getElementById('resetNpvBtn'); 
+    
     const npvResultContainer = document.getElementById('npvResultContainer');
-    const npvResultTitle = document.getElementById('npvResultTitle');
+    const npvResultTitle = document.getElementById('npvResultTitle'); 
     const npvResultValue = document.getElementById('npvResultValue');
     const npvErrorMessage = document.getElementById('npvErrorMessage');
 
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             npvErrorMessage.style.display = 'none';
         }
     }
-
+    
     function addNpvCashFlowRow(amount = "", quantity = 1) {
         cfRowCounterNpv++;
         const row = cashFlowsTableBody.insertRow();
@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', function () {
         amountInput.inputMode = 'decimal';
         amountInput.className = 'npv-cash-flow-amount';
         amountInput.value = amount;
-        amountInput.placeholder = "e.g.: 200 or -150";
-        amountInput.enterKeyHint = "enter";
+        amountInput.placeholder = "e.g. 200 or -150";
+        amountInput.enterKeyHint = "enter"; 
         cellAmount.appendChild(amountInput);
 
         const cellQuantity = row.insertCell();
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
         quantityInput.value = quantity;
         quantityInput.min = '1';
         quantityInput.step = '1';
-        quantityInput.enterKeyHint = "enter";
+        quantityInput.enterKeyHint = "enter"; 
         cellQuantity.appendChild(quantityInput);
 
         const cellAction = row.insertCell();
@@ -71,18 +71,18 @@ document.addEventListener('DOMContentLoaded', function () {
         removeBtn.textContent = 'Remove';
         removeBtn.className = 'npv-remove-cf-btn';
         removeBtn.type = 'button';
-        removeBtn.onclick = function () {
+        removeBtn.onclick = function() {
             row.remove();
         };
         cellAction.appendChild(removeBtn);
 
         if (typeof window.handleNumericInputKeydown === 'function' && typeof window.handleNumericInputDblClick === 'function') {
             [amountInput, quantityInput].forEach(input => {
-                input.removeEventListener('keydown', window.handleNumericInputKeydown);
+                input.removeEventListener('keydown', window.handleNumericInputKeydown); 
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
-                input.removeEventListener('dblclick', window.handleNumericInputDblClick);
-                input.addEventListener('dblclick', window.handleNumericInputDblClick);
-                input.title = "Press F1 or double click to access the calculator";
+                input.removeEventListener('dblclick', window.handleNumericInputDblClick); 
+                input.addEventListener('dblclick', window.handleNumericInputDblClick);    
+                input.title = "Press F1 or double-click to open the calculator";
             });
         }
     }
@@ -90,21 +90,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function setupDynamicTooltips(modalElement) {
         if (!modalElement) return;
         const tooltips = modalElement.querySelectorAll('.tooltip');
-        const tooltipMargin = 15;
+        const tooltipMargin = 15; 
 
         tooltips.forEach(tooltip => {
             const tooltipText = tooltip.querySelector('.tooltiptext');
             if (!tooltipText) return;
 
-            tooltip.addEventListener('mouseover', function (event) {
+            tooltip.addEventListener('mouseover', function(event) {
                 tooltipText.classList.remove('tooltiptext-above', 'tooltiptext-below');
-
+                
                 let actualTooltipHeight = tooltipText.offsetHeight;
                 let needsTempShow = false;
                 if (actualTooltipHeight === 0) {
                     needsTempShow = true;
-                    tooltipText.style.visibility = 'hidden';
-                    tooltipText.style.position = 'absolute';
+                    tooltipText.style.visibility = 'hidden'; 
+                    tooltipText.style.position = 'absolute'; 
                     tooltipText.style.display = 'block';
                     actualTooltipHeight = tooltipText.offsetHeight;
                 }
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const iconRect = tooltip.getBoundingClientRect();
                 const modalContent = modalElement.querySelector('.modal-content');
                 const modalContentRect = modalContent.getBoundingClientRect();
-
+                
                 const iconTopRelativeToModalContent = iconRect.top - modalContentRect.top;
 
                 if (iconTopRelativeToModalContent - actualTooltipHeight - tooltipMargin < 0) {
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tooltipText.classList.add('tooltiptext-above');
                 }
 
-                if (needsTempShow) {
+                if (needsTempShow) { 
                     tooltipText.style.display = '';
                     tooltipText.style.position = '';
                 }
@@ -137,41 +137,41 @@ document.addEventListener('DOMContentLoaded', function () {
         if (discountRateInput) discountRateInput.value = "10.0";
         if (financingRateInput) financingRateInput.value = "0.00";
         if (reinvestmentRateInput) reinvestmentRateInput.value = "0.00";
-
+        
         while (cashFlowsTableBody.firstChild) {
             cashFlowsTableBody.removeChild(cashFlowsTableBody.firstChild);
         }
-        cfRowCounterNpv = 0;
-        addNpvCashFlowRow("200.00", 1);
-        addNpvCashFlowRow("300.00", 2);
-        addNpvCashFlowRow("500.00", 1);
+        cfRowCounterNpv = 0; 
+        addNpvCashFlowRow("200.00", 1); 
+        addNpvCashFlowRow("300.00", 2); 
+        addNpvCashFlowRow("500.00", 1); 
     }
 
     function openNpvModal() {
         if (!npvModal) return;
-
+        
         if (isNpvFirstOpenThisSession) {
             resetNpvToDefaults();
-            isNpvFirstOpenThisSession = false;
+            isNpvFirstOpenThisSession = false; 
         } else {
             hideNpvError();
             if (npvResultContainer && npvResultValue.textContent === "") {
-                npvResultContainer.style.display = 'none';
+                 npvResultContainer.style.display = 'none';
             }
         }
 
-        if (npvModalContent) {
-            npvModalContent.style.position = '';
+        if (npvModalContent) { 
+            npvModalContent.style.position = ''; 
             npvModalContent.style.left = '';
             npvModalContent.style.top = '';
         }
-        npvModal.style.display = 'flex';
+        npvModal.style.display = 'flex'; 
 
         setTimeout(() => {
-            if (npvModal) {
-                setupDynamicTooltips(npvModal);
+            if (npvModal) { 
+                 setupDynamicTooltips(npvModal);
             }
-        }, 50);
+        }, 50); 
     }
 
     function closeNpvModal() {
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (adjNpvBtn) adjNpvBtn.addEventListener('click', openNpvModal);
     if (closeNpvModalBtn) closeNpvModalBtn.addEventListener('click', closeNpvModal);
-    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1));
+    if (addCashFlowRowBtn) addCashFlowRowBtn.addEventListener('click', () => addNpvCashFlowRow("", 1)); 
     if (resetNpvBtn) resetNpvBtn.addEventListener('click', resetNpvToDefaults);
 
     document.addEventListener('keydown', (e) => {
@@ -190,13 +190,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (calculateNpvBtn) {
-        calculateNpvBtn.addEventListener('click', function () {
+        calculateNpvBtn.addEventListener('click', function() {
             hideNpvError();
             try {
                 const initialInvestment = parseFinancialInput(initialInvestmentInput.value);
                 let discountRateVal = discountRateInput.value.trim();
                 if (discountRateVal === "") {
-                    throw new Error("The Discount Rate cannot be empty.");
+                     throw new Error("The Discount Rate cannot be empty.");
                 }
                 const discountRate = parseFinancialInput(discountRateVal) / 100;
 
@@ -206,14 +206,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (isNaN(initialInvestment) || isNaN(discountRate)) {
                     throw new Error("Initial Investment and Discount Rate must be valid numbers.");
                 }
-                if (discountRate <= -1) {
+                if (isNaN(financingRate) || isNaN(reinvestmentRate)) {
+                    throw new Error("Finance Rate and Reinvestment Rate must be valid numbers.");
+                }
+                 if (discountRate <= -1 ) { 
                     throw new Error("The Discount Rate must be greater than -100%.");
                 }
                 if (financingRate < -1) {
-                    throw new Error("The Financing Rate must be greater than or equal to -100%.");
+                     throw new Error("The Finance Rate must be greater than or equal to -100%.");
                 }
                 if (reinvestmentRate < -1) {
-                    throw new Error("The Reinvestment Rate must be greater than or equal to -100%.");
+                     throw new Error("The Reinvestment Rate must be greater than or equal to -100%.");
                 }
 
                 const cashFlowRows = cashFlowsTableBody.querySelectorAll('tr');
@@ -222,37 +225,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     const amountInput = row.querySelector('.npv-cash-flow-amount');
                     const quantityInput = row.querySelector('.npv-cash-flow-quantity');
                     const amount = parseFinancialInput(amountInput.value);
-                    const quantity = parseInt(quantityInput.value, 10);
+                    const quantity = Number(quantityInput.value); // whole number: parseInt silently read "2.5" as 2
 
                     if (isNaN(amount)) throw new Error(`Invalid value in one of the cash flow rows.`);
-                    if (isNaN(quantity) || quantity < 1) throw new Error(`Invalid quantity. Must be at least 1.`);
+                    if (!Number.isInteger(quantity) || quantity < 1) throw new Error(`Invalid quantity: use a whole number, at least 1.`);
                     for (let i = 0; i < quantity; i++) expandedCashFlows.push(amount);
                 });
-
+                
                 if (expandedCashFlows.length === 0 && initialInvestment === 0) {
-                    throw new Error("No cash flow provided (CF0 is zero and there are no subsequent CFs).");
+                    throw new Error("No cash flows entered (CF0 is zero and there are no later CFs).");
                 }
 
                 let npv = 0;
-                let resultTitleText = "NPV Result:";
+                let resultTitleText = "NPV Result:"; 
 
                 const useTraditionalNpv = financingRate === 0 && reinvestmentRate === 0;
 
                 if (useTraditionalNpv) {
                     npv = initialInvestment;
                     expandedCashFlows.forEach((cf, index) => {
-                        if (1 + discountRate === 0 && cf !== 0) throw new Error("Division by zero due to -100% Discount Rate.");
+                        if (1 + discountRate === 0 && cf !== 0) throw new Error("Division by zero due to a Discount Rate of -100%.");
                         npv += cf / Math.pow(1 + discountRate, index + 1);
                     });
                     resultTitleText = "NPV Result:";
                 } else {
                     const effectiveFinancingRate = financingRate === 0 ? discountRate : financingRate;
                     const effectiveReinvestmentRate = reinvestmentRate === 0 ? discountRate : reinvestmentRate;
-
+                    
                     let pvIntermediateOutflows = 0;
                     expandedCashFlows.forEach((cf, index) => {
                         if (cf < 0) {
-                            if (1 + effectiveFinancingRate === 0 && cf !== 0) throw new Error("Division by zero due to effective -100% Financing Rate.");
+                            if (1 + effectiveFinancingRate === 0 && cf !== 0) throw new Error("Division by zero due to an effective Finance Rate of -100%.");
                             pvIntermediateOutflows += cf / Math.pow(1 + effectiveFinancingRate, index + 1);
                         }
                     });
@@ -264,23 +267,23 @@ document.addEventListener('DOMContentLoaded', function () {
                             fvInflowsAtEnd += cf * Math.pow(1 + effectiveReinvestmentRate, numPeriods - (index + 1));
                         }
                     });
-
-                    if (1 + discountRate === 0 && fvInflowsAtEnd !== 0) throw new Error("Division by zero due to -100% Discount Rate when discounting future value of inflows.");
+                    
+                    if (1 + discountRate === 0 && fvInflowsAtEnd !== 0) throw new Error("Division by zero due to a Discount Rate of -100% when discounting the future value of the inflows.");
                     const pvOfFvInflows = numPeriods > 0 ? (fvInflowsAtEnd / Math.pow(1 + discountRate, numPeriods)) : 0;
-
+                    
                     npv = initialInvestment + pvIntermediateOutflows + pvOfFvInflows;
 
                     if (financingRate !== 0 && reinvestmentRate !== 0) {
-                        resultTitleText = "NPV (Adj) (Fin. & Reinv. Rate):";
+                        resultTitleText = "NPV (Adj) (Finance & Reinv. Rates):";
                     } else if (financingRate !== 0) {
-                        resultTitleText = "NPV (Adj) (Financing Rate):";
-                    } else {
+                        resultTitleText = "NPV (Adj) (Finance Rate):";
+                    } else { 
                         resultTitleText = "NPV (Adj) (Reinvestment Rate):";
                     }
                 }
 
                 if (!isFinite(npv)) {
-                    throw new Error("Could not calculate a finite NPV. Check the inputs.");
+                    throw new Error("A finite NPV could not be calculated. Please check the inputs.");
                 }
 
                 npvResultTitle.textContent = resultTitleText;
@@ -288,8 +291,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 npvResultContainer.style.display = 'block';
 
             } catch (error) {
-                showNpvError("Calculation Error: " + error.message);
-                console.error("Error in NPV Calculation:", error);
+                showNpvError("Calculation error: " + error.message);
+                console.error("NPV calculation error:", error);
             }
         });
     }
@@ -297,17 +300,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (npvModal && npvModalContent) {
         let isNpvDragging = false;
         let npvDragOffsetX, npvDragOffsetY;
-
+        
         npvModalContent.style.cursor = 'grab';
-        npvModalContent.addEventListener('mousedown', function (e) {
+        npvModalContent.addEventListener('mousedown', function(e) {
             const targetTagName = e.target.tagName.toLowerCase();
             const isInteractiveElement = ['button', 'input', 'select', 'textarea', 'span'].includes(targetTagName) ||
-                e.target.classList.contains('close') ||
-                e.target.closest('#npvCashFlowsTable') ||
-                e.target.closest('.npv-btn-add') ||
-                e.target.closest('.npv-button-group') ||
-                e.target.classList.contains('tooltip') ||
-                e.target.classList.contains('tooltiptext');
+                                         e.target.classList.contains('close') ||
+                                         e.target.closest('#npvCashFlowsTable') || 
+                                         e.target.closest('.npv-btn-add') ||
+                                         e.target.closest('.npv-button-group') ||
+                                         e.target.classList.contains('tooltip') || 
+                                         e.target.classList.contains('tooltiptext');
 
             if (isInteractiveElement) return;
 
@@ -319,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 npvModalContent.style.top = rect.top + 'px';
                 npvModalContent.style.margin = '0';
             }
-
+            
             npvDragOffsetX = e.clientX - npvModalContent.offsetLeft;
             npvDragOffsetY = e.clientY - npvModalContent.offsetTop;
             npvModalContent.style.cursor = 'grabbing';

@@ -101,7 +101,7 @@ h1 {
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
-    /* Margin will be controlled by group when there is more than one button */
+    /* The margin is controlled by the group when there is more than one button */
     margin-left: 10px;
 }
 
@@ -109,19 +109,19 @@ h1 {
     background-color: var(--primary-dark);
 }
 
-/* --- NEW STYLES FOR RATE BUTTON GROUP --- */
+/* --- STYLES FOR THE RATE BUTTON GROUP --- */
 .rate-button-group {
     display: flex;
     align-items: center;
-    gap: 5px; /* Spacing between buttons */
-    margin-left: 10px; /* Margem do grupo todo */
+    gap: 5px; /* Space between the buttons */
+    margin-left: 10px; /* Margin of the whole group */
 }
 
-/* Removes individual button margin when inside the group */
+/* Removes the individual button margin inside the group */
 .rate-button-group .btn-toggle {
     margin-left: 0;
 }
-/* --- FIM DOS NOVOS ESTILOS --- */
+/* --- END OF THE RATE BUTTON GROUP STYLES --- */
 
 
 input, select {
@@ -151,8 +151,8 @@ select {
 
 .button-group {
     display: grid;
-    /* CHANGE: Makes the grid responsive. It will try to create columns with at least 130px. */
-    /* If 3 dont fit, it will adjust to 2 or 1 automatically, avoiding overflow. */
+    /* Responsive grid: it tries to create columns of at least 130px. */
+    /* If 3 do not fit, it falls back to 2 or 1 automatically, avoiding overflow. */
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 10px;
     margin-top: 35px;
@@ -163,7 +163,7 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* <-- Leve ajuste para mais conforto visual */
+    font-size: 16px; /* <-- Slightly larger for readability */
     font-weight: 600;
     transition: all 0.3s;
 }
@@ -400,6 +400,17 @@ footer {
 
 .amortization-summary p {
     margin: 5px 0;
+}
+
+/* Notice when the schedule does not use exactly the PMT or n entered (same colors as the IRR warning) */
+.amortization-notice {
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 0.9em;
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 5px;
 }
 
 
@@ -741,9 +752,9 @@ input[type="text"].highlighted {
     z-index: 1050;
 }
 
-/* Adicione estas regras ao final do seu arquivo calculadora.css */
+/* Calculator (ALG/RPN) styles */
 
-/* --- Estilos para o Seletor de Modo ALG/RPN --- */
+/* --- ALG/RPN mode selector --- */
 .calc-mode-selector {
     display: flex;
     justify-content: center;
@@ -772,7 +783,7 @@ input[type="text"].highlighted {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* --- Estilos para o Visor RPN --- */
+/* --- RPN display --- */
 #calcDisplayContainer {
     margin-bottom: 15px;
 }
@@ -792,13 +803,13 @@ input[type="text"].highlighted {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    color: #6c757d; /* Cinza suave para registros T, Z, Y */
+    color: #6c757d; /* Soft gray for the T, Z, Y registers */
     font-size: 16px;
     line-height: 1.4;
 }
 
 .rpn-stack-row.main {
-    color: var(--text-color); /* Cor principal para o registro X */
+    color: var(--text-color); /* Main color for the X register */
     font-size: 28px;
     font-weight: 600;
 }
@@ -814,30 +825,30 @@ input[type="text"].highlighted {
     font-size: 0.7em;
 }
 
-/* Esconder o visor ALG quando em modo RPN */
-.calculator-modal.rpn-mode #algDisplay {
+/* Hide the ALG display in RPN mode (the rpn-mode class is on #calculatorModal) */
+#calculatorModal.rpn-mode #algDisplay {
     display: none;
 }
 
-/* Mostrar o visor RPN quando em modo RPN */
-.calculator-modal.rpn-mode #rpnDisplay {
-    display: flex; /* Usamos flex por causa do flex-direction: column */
+/* Show the RPN display in RPN mode */
+#calculatorModal.rpn-mode #rpnDisplay {
+    display: flex; /* flex because of flex-direction: column */
 }
 
-/* Hide RPN display by default (when not in rpn-mode) */
-.calculator-modal:not(.rpn-mode) #rpnDisplay {
+/* Hide the RPN display by default (when not in rpn-mode) */
+#calculatorModal:not(.rpn-mode) #rpnDisplay {
     display: none;
 }
 
-/* --- Estilos para Tooltip Customizada Mobile --- */
+/* --- Custom (mobile-friendly) tooltip --- */
 .custom-tooltip-popup {
-    position: fixed; /* Fica fixo na tela */
+    position: fixed; /* Fixed on the screen */
     background-color: #333;
     color: #fff;
     text-align: center;
     border-radius: 6px;
     padding: 10px 15px;
-    z-index: 2000; /* Garante que fique acima de tudo */
+    z-index: 2000; /* Keeps it above everything */
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none; /* Does not interfere with clicks */
@@ -850,13 +861,13 @@ input[type="text"].highlighted {
     opacity: 1;
 }
 
-/* --- Styles for Button with Tooltip Icon (FIXED) --- */
-/* --- Styles for Button with Icon (CENTERED ALIGNMENT) --- */
+/* --- Button with a tooltip icon --- */
+/* --- Button with an icon (centered alignment) --- */
 
-/* ADICIONE esta nova regra */
-/* --- Styles for Button with Icon (CENTERED ALIGNMENT) --- */
+/* Centered content for the grid buttons */
+/* --- Button with an icon (centered alignment) --- */
 
-/* This rule ensures ALL buttons in the grid center the same way */
+/* This rule centers ALL buttons in the grid the same way */
 .button-group > button {
     display: flex;
     justify-content: center;
@@ -868,7 +879,7 @@ input[type="text"].highlighted {
     gap: 8px;
 }
 
-/* Style for the '?' icon itself (no changes here) */
+/* The '?' icon itself */
 .tooltip-trigger-icon {
     display: inline-block;
     background-color: var(--primary-color);
@@ -889,23 +900,23 @@ input[type="text"].highlighted {
     background-color: var(--primary-dark);
 }
 
-/* --- Estilo para destacar o label principal --- */
+/* --- Highlight for the main label --- */
 .form-group .label-highlight {
-    font-weight: 700; /* Makes font bolder than the default 600 of other labels */
+    font-weight: 700; /* Bolder than the 600 weight of the other labels */
 }
 
-/* --- Styles for Tooltips Inserted in RPN Buttons --- */
+/* --- Tooltips inside the RPN buttons --- */
 .rpn-special-btn {
-    position: relative; /* Keeps reference for the icon */
+    position: relative; /* Positioning reference for the icon */
     
-    /* Estas 3 linhas garantem que o texto principal fique perfeitamente centralizado */
+    /* These 3 lines keep the main text perfectly centered */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .tooltip-icon-inset {
-    position: absolute; /* Positions the icon as a floating layer */
+    position: absolute; /* Places the icon as a floating layer */
     top: 4px;
     right: 4px;
     width: 14px;
@@ -920,10 +931,10 @@ input[type="text"].highlighted {
     opacity: 1;
 }
 
-/* --- Style for Responsive Amortization Table --- */
+/* --- Responsive amortization table --- */
 .amortization-table-container {
-    overflow-x: auto; /* THE MAGIC HAPPENS HERE: Adds horizontal scroll if necessary */
-    -webkit-overflow-scrolling: touch; /* Improves scrolling experience on iPhones/iPads */
-    margin: 0 -20px; /* Compensa o padding do modal para a rolagem ir de ponta a ponta */
-    padding: 0 20px; /* Adiciona o padding de volta dentro do container */
+    overflow-x: auto; /* Adds horizontal scrolling when needed */
+    -webkit-overflow-scrolling: touch; /* Smoother scrolling on iPhones/iPads */
+    margin: 0 -20px; /* Offsets the modal padding so scrolling goes edge to edge */
+    padding: 0 20px; /* Adds the padding back inside the container */
 }

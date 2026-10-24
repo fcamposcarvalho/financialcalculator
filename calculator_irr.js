@@ -1,7 +1,7 @@
 // calculator_irr.js
-document.addEventListener('DOMContentLoaded', function () {
-    // A função parseFinancialInput já foi declarada em financialcalculator.js
-    // e está disponível globalmente, então podemos usá-la aqui.
+document.addEventListener('DOMContentLoaded', function() {
+    // parseFinancialInput is declared in financialcalculator.js
+    // and is available globally, so it can be used here.
 
     const irrBtn = document.getElementById('irrBtn');
     const irrModal = document.getElementById('irrModal');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
             irrErrorMessage.style.display = 'none';
         }
     }
-
+    
     function showIrrWarning(message) {
         if (irrWarningMessage) {
             irrWarningMessage.textContent = message;
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
         amountInput.inputMode = 'decimal';
         amountInput.className = 'irr-cash-flow-amount';
         amountInput.value = amount;
-        amountInput.placeholder = "e.g.: 200 or -150";
+        amountInput.placeholder = "e.g. 200 or -150";
         amountInput.enterKeyHint = "enter";
         cellAmount.appendChild(amountInput);
 
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         removeBtn.textContent = 'Remove';
         removeBtn.className = 'irr-remove-cf-btn';
         removeBtn.type = 'button';
-        removeBtn.onclick = function () {
+        removeBtn.onclick = function() {
             row.remove();
         };
         cellAction.appendChild(removeBtn);
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.addEventListener('keydown', window.handleNumericInputKeydown);
                 input.removeEventListener('dblclick', window.handleNumericInputDblClick);
                 input.addEventListener('dblclick', window.handleNumericInputDblClick);
-                input.title = "Press F1 or double click to access the calculator";
+                input.title = "Press F1 or double-click to open the calculator";
             });
         }
     }
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideIrrWarning();
         if (irrResultContainer) irrResultContainer.style.display = 'none';
 
-        if (initialInvestmentInput) initialInvestmentInput.value = "-1000.00";
+        if(initialInvestmentInput) initialInvestmentInput.value = "-1000.00";
 
         while (cashFlowsTableBody.firstChild) {
             cashFlowsTableBody.removeChild(cashFlowsTableBody.firstChild);
@@ -125,10 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
             hideIrrError();
             hideIrrWarning();
             if (irrResultContainer && irrResultValue.textContent === "") {
-                irrResultContainer.style.display = 'none';
+                 irrResultContainer.style.display = 'none';
             }
         }
-
+        
         if (irrModalContent) {
             irrModalContent.style.position = '';
             irrModalContent.style.left = '';
@@ -164,30 +164,54 @@ document.addEventListener('DOMContentLoaded', function () {
         let derivative = 0;
         for (let i = 1; i < cashFlows.length; i++) {
             if (cashFlows[i] !== 0) {
-                derivative -= (i * cashFlows[i]) / Math.pow(1 + rate, i + 1);
+                 derivative -= (i * cashFlows[i]) / Math.pow(1 + rate, i + 1);
             }
         }
         return derivative;
     }
 
+    // Looks for an interval where the NPV changes sign (from -99.99% to 10,000%) and closes it by bisection.
+    // With more than one IRR, the positive one closest to zero wins (otherwise, the negative one closest to zero).
+    function findIRRByBisection(cashFlows) {
+        const grid = [-0.9999, -0.999, -0.99, -0.95, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05, 0,
+                      0.05, 0.1, 0.2, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10, 20, 50, 100];
+        const brackets = [];
+        for (let k = 1; k < grid.length; k++) {
+            const a = grid[k - 1], b = grid[k], fa = calculateNPV(a, cashFlows), fb = calculateNPV(b, cashFlows);
+            if (!isFinite(fa) || !isFinite(fb)) continue;
+            if (fa === 0) return a;
+            if (fa * fb < 0) brackets.push([a, b]);
+        }
+        if (brackets.length === 0) return null;
+        let [lo, hi] = brackets.find(([a]) => a >= 0) || brackets[brackets.length - 1];
+        let flo = calculateNPV(lo, cashFlows);
+        for (let k = 0; k < 200; k++) {
+            const mid = (lo + hi) / 2, fm = calculateNPV(mid, cashFlows);
+            if ((fm > 0) === (flo > 0)) { lo = mid; flo = fm; } else { hi = mid; }
+        }
+        return (lo + hi) / 2;
+    }
+
     function findIRR(cashFlows, guess = 0.1, maxIterations = 100, tolerance = 1e-7) {
         let rate = guess;
 
-        if (cashFlows.length < 2) return { error: "IRR requires at least an initial investment and one cash flow." };
-
+        if (cashFlows.length < 2) return { error: "The IRR requires at least an initial investment and one cash flow." };
+        
         let allPositive = cashFlows.every(cf => cf >= 0);
         let allNegative = cashFlows.every(cf => cf <= 0);
         if (allPositive || allNegative) {
-            return { error: "IRR cannot be calculated if all cash flows have the same sign." };
+             return { error: "The IRR cannot be calculated if all cash flows have the same sign." };
         }
-
+        
+        // Sign changes between non-zero flows (a zero in between does not split them: -100, 0, 230, 0, -132 has two)
+        const nonZeroFlows = cashFlows.filter(cf => cf !== 0);
         let signChanges = 0;
-        for (let i = 1; i < cashFlows.length; i++) {
-            if (Math.sign(cashFlows[i - 1]) !== Math.sign(cashFlows[i]) && cashFlows[i - 1] !== 0 && cashFlows[i] !== 0) {
+        for (let i = 1; i < nonZeroFlows.length; i++) {
+            if (Math.sign(nonZeroFlows[i-1]) !== Math.sign(nonZeroFlows[i])) {
                 signChanges++;
             }
         }
-        const multipleIrrWarning = signChanges > 1 ? "Warning: Multiple sign changes in cash flows. There may be more than one IRR, or none. The value shown is a potential solution." : null;
+        const multipleIrrWarning = signChanges > 1 ? "Warning: multiple sign changes in the cash flows. There may be more than one IRR, or none. The value shown is one possible solution." : null;
 
 
         for (let i = 0; i < maxIterations; i++) {
@@ -195,32 +219,32 @@ document.addEventListener('DOMContentLoaded', function () {
             const derivative = calculateNPVDerivative(rate, cashFlows);
 
             if (Math.abs(derivative) < tolerance) {
-                return { error: "Could not find IRR (derivative close to zero). Check the cash flows.", warning: multipleIrrWarning };
+                return { error: "The IRR could not be found (derivative close to zero). Please check the cash flows.", warning: multipleIrrWarning };
             }
-
+            
             const newRate = rate - npv / derivative;
 
             if (Math.abs(newRate - rate) < tolerance) {
-                if (!isFinite(newRate)) return { error: "The IRR calculation resulted in a non-finite number.", warning: multipleIrrWarning };
+                if (!isFinite(newRate)) return { error: "The IRR calculation produced a non-finite number.", warning: multipleIrrWarning };
                 return { value: newRate, warning: multipleIrrWarning };
             }
             rate = newRate;
             if (!isFinite(rate) || rate < -1) {
-                break;
+                 break; 
             }
         }
-        return { error: "IRR did not converge. Consider adjusting cash flows or using MIRR for a more robust analysis.", warning: multipleIrrWarning };
+        return { error: "The IRR did not converge. Consider adjusting the cash flows or using the MIRR for a more robust analysis.", warning: multipleIrrWarning };
     }
 
 
     if (calculateIrrBtn) {
-        calculateIrrBtn.addEventListener('click', function () {
+        calculateIrrBtn.addEventListener('click', function() {
             hideIrrError();
             hideIrrWarning();
             try {
                 const initialInvestment = parseFinancialInput(initialInvestmentInput.value);
                 if (isNaN(initialInvestment)) {
-                    throw new Error("Initial Investment must be a valid number.");
+                    throw new Error("The Initial Investment must be a valid number.");
                 }
 
                 const cashFlowRows = cashFlowsTableBody.querySelectorAll('tr');
@@ -229,34 +253,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     const amountInput = row.querySelector('.irr-cash-flow-amount');
                     const quantityInput = row.querySelector('.irr-cash-flow-quantity');
                     const amount = parseFinancialInput(amountInput.value);
-                    const quantity = parseInt(quantityInput.value, 10);
+                    const quantity = Number(quantityInput.value); // whole number: parseInt silently read "2.5" as 2
 
                     if (isNaN(amount)) throw new Error(`Invalid value in one of the cash flow rows.`);
-                    if (isNaN(quantity) || quantity < 1) throw new Error(`Invalid quantity. Must be at least 1.`);
-
+                    if (!Number.isInteger(quantity) || quantity < 1) throw new Error(`Invalid quantity: use a whole number, at least 1.`);
+                    
                     for (let i = 0; i < quantity; i++) {
                         expandedCashFlows.push(amount);
                     }
                 });
 
                 if (expandedCashFlows.length === 0 && initialInvestment === 0) {
-                    throw new Error("Please add at least one cash flow or provide an initial investment.");
+                    throw new Error("Please add at least one cash flow or enter an initial investment.");
                 }
-                if (expandedCashFlows.length === 0 && initialInvestment !== 0) {
-                    throw new Error("IRR calculation requires cash flows subsequent to the initial investment.");
-                }
+                 if (expandedCashFlows.length === 0 && initialInvestment !== 0) {
+                     throw new Error("The IRR calculation requires cash flows after the initial investment.");
+                 }
 
                 const allCashFlows = [initialInvestment, ...expandedCashFlows];
-
+                
                 if (allCashFlows.every(cf => cf === 0)) {
-                    throw new Error("All cash flows are zero. IRR is undefined.");
+                    throw new Error("All cash flows are zero. The IRR is undefined.");
                 }
-
+                
                 const guesses = [0.1, 0, -0.1, 0.05, 0.2, 0.5, -0.5];
                 let result = null;
                 for (const guess of guesses) {
                     result = findIRR(allCashFlows, guess);
                     if (result && typeof result.value === 'number') break;
+                }
+                // Fallback: with a very negative IRR (invest 1,000 and get 200 back = -80%) Newton goes below -100% and gives up
+                if (!(result && typeof result.value === 'number')) {
+                    const value = findIRRByBisection(allCashFlows);
+                    if (value !== null) result = { value, warning: result ? result.warning : null };
                 }
 
                 if (result && typeof result.value === 'number') {
@@ -266,21 +295,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         showIrrWarning(result.warning);
                     }
                 } else {
-                    let errorMessage = "Could not calculate IRR. ";
+                    let errorMessage = "The IRR could not be calculated. ";
                     if (result && result.error) {
                         errorMessage += result.error;
                     } else {
-                        errorMessage += "Please check your inputs. Ensure there is a mix of positive and negative flows.";
+                        errorMessage += "Please check your inputs. Make sure there is a mix of positive and negative flows.";
                     }
-                    if (result && result.warning) {
+                     if (result && result.warning) {
                         showIrrWarning(result.warning);
                     }
                     showIrrError(errorMessage);
                 }
 
             } catch (error) {
-                showIrrError("Calculation Error: " + error.message);
-                console.error("Error in IRR Calculation:", error);
+                showIrrError("Calculation error: " + error.message);
+                console.error("IRR calculation error:", error);
             }
         });
     }
@@ -290,13 +319,13 @@ document.addEventListener('DOMContentLoaded', function () {
         let irrDragOffsetX, irrDragOffsetY;
 
         irrModalContent.style.cursor = 'grab';
-        irrModalContent.addEventListener('mousedown', function (e) {
+        irrModalContent.addEventListener('mousedown', function(e) {
             const targetTagName = e.target.tagName.toLowerCase();
             const isInteractiveElement = ['button', 'input', 'select', 'textarea'].includes(targetTagName) ||
-                e.target.classList.contains('close') ||
-                e.target.closest('#irrCashFlowsTable') ||
-                e.target.closest('.irr-btn-add') ||
-                e.target.closest('.irr-button-group');
+                                         e.target.classList.contains('close') ||
+                                         e.target.closest('#irrCashFlowsTable') ||
+                                         e.target.closest('.irr-btn-add') ||
+                                         e.target.closest('.irr-button-group');
 
             if (isInteractiveElement) return;
 

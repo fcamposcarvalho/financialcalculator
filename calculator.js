@@ -1,27 +1,29 @@
-// calculator.js - Implementação da calculadora com modos ALG e RPN (Versão Final e Completa)
+// calculator.js - Calculator with ALG and RPN modes (HP 12c style)
 
 document.addEventListener('DOMContentLoaded', function () {
     // -------------------------------------------------------------------
-    // DECLARAÇÃO DE VARIÁVEIS DE ESTADO
+    // STATE VARIABLES
     // -------------------------------------------------------------------
 
     let activeInputField = null;
-    const DEBUG_RPN = false; // Mude para true para ver os logs do modo RPN no console
-    const DEBUG_ALG = false; // Mude para true para ver os logs do modo ALG no console
+    const DEBUG_RPN = false; // Set to true to see the RPN mode logs in the console
+    const DEBUG_ALG = false; // Set to true to see the ALG mode logs in the console
 
-    // --- Estado Modo Algébrico (ALG) ---
+    // --- Algebraic mode (ALG) state ---
     let currentInput = '0';
     let previousInput = '';
     let calculationOperator = '';
     let resetScreen = false;
     let expressionMode = false;
 
-    // --- Estado Modo Polonês Reverso (RPN) ---
+    // --- Reverse Polish Notation (RPN) state ---
     let rpnMode = false;
-    let rpnStack = [0, 0, 0, 0];
-    let isEntering = true;
+    let rpnStack = [0, 0, 0, 0]; // [T, Z, Y]; X is currentInput
+    let rpnTyping = false;  // true while a number is being typed into X
+    let stackLift = false;  // true: the next number pushes X into Y (disabled by ENTER and CLx, as on the HP 12c)
+    let rpnErrorX = '0';    // X before the operation that failed (the next key only clears the error)
 
-    // --- Acumuladores para Média Ponderada ---
+    // --- Weighted average accumulators ---
     let weightedAvgSumOfProducts = 0;
     let weightedAvgSumOfWeights = 0;
     let weightedAvgEntries = 0;
@@ -33,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // -------------------------------------------------------------------
-    // ELEMENTOS DO DOM
+    // DOM ELEMENTS
     // -------------------------------------------------------------------
     const calculatorBtn = document.getElementById('calculatorBtn');
     const calculatorModal = document.getElementById('calculatorModal');
@@ -57,12 +59,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const rpnAdvancedRow = document.querySelector('.rpn-only-row');
 
-    if (!calculatorBtn) console.error("CRITICAL ERROR: Button #calculatorBtn NOT found!");
-    if (!calculatorModal) console.error("CRITICAL ERROR: Modal #calculatorModal NOT found!");
-    if (!rpnAdvancedRow) console.warn("WARNING: RPN advanced buttons row (.rpn-only-row) not found in HTML.");
+    if (!calculatorBtn) console.error("CRITICAL ERROR: button #calculatorBtn NOT found!");
+    if (!calculatorModal) console.error("CRITICAL ERROR: modal #calculatorModal NOT found!");
+    if (!rpnAdvancedRow) console.warn("WARNING: the row of advanced RPN buttons (.rpn-only-row) was not found in the HTML.");
 
     // -------------------------------------------------------------------
-    // LÓGICA DE ARRASTAR O MODAL
+    // MODAL DRAGGING
     // -------------------------------------------------------------------
     if (calculatorModal && calculatorModalContentEl && closeCalculatorModal) {
         let isDragging = false;
@@ -124,14 +126,16 @@ document.addEventListener('DOMContentLoaded', function () {
             document.removeEventListener('mouseup', onMouseUp);
         }
     } else {
-        console.warn("Lógica de arrastar do modal NÃO configurada devido a elementos ausentes.");
+        console.warn("Modal dragging NOT set up because some elements are missing.");
     }
 
     // -------------------------------------------------------------------
-    // FUNÇÕES DE GERENCIAMENTO DE MODO
+    // MODE MANAGEMENT
     // -------------------------------------------------------------------
     function setMode(isRpn) {
-        const valueToCarryOver = (currentInput === 'Error') ? '0' : currentInput;
+        // Only a number carries over from one mode to the other (an expression such as "2+3" does not become X)
+        const carried = Number(currentInput);
+        const valueToCarryOver = (currentInput !== 'Error' && currentInput.trim() !== '' && isFinite(carried)) ? String(carried) : '0';
 
         rpnMode = isRpn;
         if (rpnMode) {
@@ -164,11 +168,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         resetCalculator();
         currentInput = valueToCarryOver;
+        if (rpnMode) stackLift = true;
         updateDisplay();
     }
 
     // -------------------------------------------------------------------
-    // FUNÇÕES DE ATUALIZAÇÃO DE VISOR E FORMATAÇÃO
+    // DISPLAY AND FORMATTING
     // -------------------------------------------------------------------
     function formatForDisplay(value) {
         let num = Number(value);
@@ -179,83 +184,88 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Intl.NumberFormat('en-US', { maximumFractionDigits: 10, useGrouping: true }).format(num);
     }
 
+    // Number being typed: shows exactly what was keyed ("1.0", "0.00"), only adding the thousands separators
+    function formatEntryForDisplay(text) {
+        const negative = text.startsWith('-');
+        const [intPart, decPart] = text.replace('-', '').split('.');
+        let shown = new Intl.NumberFormat('en-US', { useGrouping: true }).format(Number(intPart || '0'));
+        if (decPart !== undefined) shown += '.' + decPart;
+        return (negative ? '-' : '') + shown;
+    }
+
     function updateDisplay() {
         if (rpnMode) {
-            if (DEBUG_RPN) console.log(`[RPN] updateDisplay: X=${currentInput}, Y=${rpnStack[2]}, isEntering=${isEntering}`);
-            if (stackDisplays.x) stackDisplays.x.textContent = formatForDisplay(currentInput);
+            if (DEBUG_RPN) console.log(`[RPN] updateDisplay: X=${currentInput}, Y=${rpnStack[2]}, rpnTyping=${rpnTyping}, stackLift=${stackLift}`);
+            const xText = rpnTyping ? formatEntryForDisplay(currentInput) : formatForDisplay(currentInput);
+            if (stackDisplays.x) stackDisplays.x.textContent = xText;
             if (stackDisplays.y) stackDisplays.y.textContent = formatForDisplay(rpnStack[2]);
             if (stackDisplays.z) stackDisplays.z.textContent = formatForDisplay(rpnStack[1]);
             if (stackDisplays.t) stackDisplays.t.textContent = formatForDisplay(rpnStack[0]);
-
-            if (algDisplayInput) {
-                let displayValue = formatForDisplay(currentInput);
-                if (currentInput.slice(-1) === '.' && currentInput.indexOf('.') === currentInput.length - 1) {
-                    if (!displayValue.includes(',')) {
-                        displayValue += ',';
-                    }
-                }
-                algDisplayInput.value = displayValue;
-            }
+            if (algDisplayInput) algDisplayInput.value = xText;
         } else {
             if (DEBUG_ALG) console.log(`[ALG] updateDisplay: currentInput=${currentInput}`);
             if (algDisplayInput) {
-                algDisplayInput.value = currentInput.toString().replace(/\./g, ',');
+                algDisplayInput.value = currentInput.toString();
             }
         }
     }
 
     // -------------------------------------------------------------------
-    // LÓGICA DA PILHA E FUNÇÕES AUXILIARES RPN
+    // RPN STACK AND HELPERS
     // -------------------------------------------------------------------
-    function rpnEnter() {
-        if (DEBUG_RPN) console.log('[RPN] ==> rpnEnter() called.');
+    function rpnLiftStack() {
         rpnStack[0] = rpnStack[1];
         rpnStack[1] = rpnStack[2];
-        rpnStack[2] = parseFloat(currentInput.replace(',', '.')) || 0;
-        isEntering = true;
+        rpnStack[2] = parseFloat(currentInput) || 0;
     }
 
+    function rpnEnter() {
+        if (DEBUG_RPN) console.log('[RPN] ==> rpnEnter() called.');
+        rpnLiftStack();
+        rpnTyping = false;
+        stackLift = false;
+    }
+
+    // On the HP 12c, when the stack drops, T is repeated (that is what allows a "constant" in T)
     function rpnDrop() {
         if (DEBUG_RPN) console.log('[RPN] ==> rpnDrop() called.');
         rpnStack[2] = rpnStack[1];
         rpnStack[1] = rpnStack[0];
-        rpnStack[0] = 0;
     }
 
+    // Start of number entry: lifts the stack if stack lift is enabled. Returns true on the first digit.
+    function rpnStartEntry() {
+        if (rpnTyping) return false;
+        if (stackLift) rpnLiftStack();
+        rpnTyping = true;
+        stackLift = true;
+        return true;
+    }
+
+    // HP 12c M.DY format: mm.ddyyyy, always with six decimals (the number loses its trailing zeros: 1.012020 becomes 1.01202)
     function parseDateHP(dateNumber) {
-        try {
-            const s = dateNumber.toString().replace(',', '.');
-            const parts = s.split('.');
-            if (parts.length !== 2 || !parts[1]) return null;
-            const day = parseInt(parts[0]);
-            const rest = parts[1];
-            let month, year;
-            if (rest.length === 5 || rest.length === 6) {
-                month = parseInt(rest.substring(0, 2));
-                year = parseInt(rest.substring(2));
-            } else { return null; }
-            if (isNaN(day) || isNaN(month) || isNaN(year) || year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) {
-                return null;
-            }
-            const dateObj = new Date(year, month - 1, day);
-            if (dateObj.getFullYear() === year && dateObj.getMonth() === month - 1 && dateObj.getDate() === day) {
-                return dateObj;
-            }
-            return null;
-        } catch {
-            return null;
+        if (!isFinite(dateNumber) || dateNumber <= 0) return null;
+        const month = Math.floor(dateNumber);
+        const rest = String(Math.round((dateNumber - month) * 1e6)).padStart(6, '0');
+        const day = parseInt(rest.substring(0, 2), 10);
+        const year = parseInt(rest.substring(2), 10);
+        if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+        const dateObj = new Date(year, month - 1, day);
+        if (dateObj.getFullYear() === year && dateObj.getMonth() === month - 1 && dateObj.getDate() === day) {
+            return dateObj;
         }
+        return null;
     }
 
     function resetWeightedAverage() {
-        if (DEBUG_RPN) console.log('[RPN] Acumuladores de Média Ponderada zerados.');
+        if (DEBUG_RPN) console.log('[RPN] Weighted average accumulators cleared.');
         weightedAvgSumOfProducts = 0;
         weightedAvgSumOfWeights = 0;
         weightedAvgEntries = 0;
     }
 
     // -------------------------------------------------------------------
-    // FUNÇÕES DA CALCULADORA (Lógica de input e cálculo)
+    // CALCULATOR FUNCTIONS (input and calculation logic)
     // -------------------------------------------------------------------
     function getOperatorChar(opAction) {
         switch (opAction) {
@@ -282,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function () {
         resetCalculator();
 
         if (inputField && inputField.value && inputField.value.trim() !== "") {
-            const parsedValue = typeof parseFinancialInput === 'function' ? parseFinancialInput(inputField.value) : parseFloat(inputField.value.replace(/\./g, '').replace(',', '.'));
+            const parsedValue = typeof parseFinancialInput === 'function' ? parseFinancialInput(inputField.value) : parseFloat(inputField.value.replace(/,/g, ''));
             if (!isNaN(parsedValue)) {
                 currentInput = parsedValue.toString();
                 if (rpnMode) {
-                    rpnEnter();
+                    stackLift = true;
                 } else {
                     resetScreen = true;
                 }
@@ -298,19 +308,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function inputDigit(digit) {
         if (rpnMode) {
-            // AJUSTE FINAL: Implementa o "Stack Lift" automático.
-            if (isEntering) {
-                // Se o valor em X é diferente de Y, significa que um cálculo acabou de acontecer.
-                // Então, "salvamos" o resultado na pilha antes de começar o novo número.
-                if (parseFloat(currentInput.replace(',', '.')) !== rpnStack[2]) {
-                    rpnEnter();
-                }
+            if (rpnStartEntry()) {
                 currentInput = digit;
-                isEntering = false;
+            } else if (currentInput === '0' || currentInput === '-0') {
+                currentInput = currentInput.replace('0', digit);
             } else {
-                currentInput = (currentInput === '0') ? digit : currentInput + digit;
+                currentInput += digit;
             }
-        } else { // MODO ALG (Inalterado)
+        } else {
             if (resetScreen) {
                 currentInput = digit;
                 resetScreen = false;
@@ -324,18 +329,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function inputConstant(constantName) {
         const value = MATH_CONSTANTS[constantName].toString();
         if (rpnMode) {
-            if (!isEntering) rpnEnter();
+            if (stackLift) rpnLiftStack();
             currentInput = value;
-            isEntering = true;
+            rpnTyping = false;
+            stackLift = true;
         } else {
-            if (resetScreen) {
+            if (resetScreen || currentInput === '0') {
                 currentInput = value;
                 resetScreen = false;
             } else {
-                currentInput += value;
+                currentInput += implicitMultiply() + value;
             }
             expressionMode = true;
         }
+    }
+
+    // A constant or function right after a number or ")" multiplies: "2π" = 2×π
+    function implicitMultiply() {
+        return /[\d.)]$/.test(currentInput) ? '×' : '';
     }
 
     function inputParenthesis(parenthesis) {
@@ -343,8 +354,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (resetScreen) {
             currentInput = parenthesis;
             resetScreen = false;
+        } else if (currentInput === '0') {
+            currentInput = parenthesis;
         } else {
-            currentInput = (currentInput === '0') ? parenthesis : currentInput + parenthesis;
+            // "2(3+1)" = 2×(3+1), like a constant or a function after a number
+            currentInput += (parenthesis === '(' ? implicitMultiply() : '') + parenthesis;
         }
         expressionMode = true;
     }
@@ -358,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentInput = displayFunction;
                 resetScreen = false;
             } else {
-                currentInput = (currentInput === '0') ? displayFunction : currentInput + displayFunction;
+                currentInput = (currentInput === '0') ? displayFunction : currentInput + implicitMultiply() + displayFunction;
             }
             expressionMode = true;
         }
@@ -366,9 +380,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function inputDecimal() {
         if (rpnMode) {
-            if (isEntering) {
+            if (rpnStartEntry()) {
                 currentInput = '0.';
-                isEntering = false;
             } else if (!currentInput.includes('.')) {
                 currentInput += '.';
             }
@@ -406,27 +419,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function negateValue() {
         if (currentInput === 'Error') return;
         if (rpnMode) {
-            currentInput = (parseFloat(currentInput.replace(',', '.')) * -1).toString();
-            if (isEntering) isEntering = false;
+            if (rpnTyping) {
+                currentInput = currentInput.startsWith('-') ? currentInput.slice(1) : '-' + currentInput;
+            } else {
+                // Outside number entry, CHS changes the sign of X without touching stack lift (as on the HP 12c)
+                currentInput = (-parseFloat(currentInput)).toString();
+            }
         } else {
-            const match = currentInput.match(/([+\-×÷^])?([0-9.]+)$/);
+            // ± adds or removes the sign of the last number without touching the operation: "10−2 ±" becomes "10−-2",
+            // which is 10 − (−2). Turning it into "10+2" would be wrong with powers: 10 − (−2)² = 6, while "10+2^2" = 14.
+            const match = currentInput.match(/(^|[+\-×÷^(])(-?)([0-9.]+)$/);
             if (match) {
-                const prefixIndex = match.index + (match[1] ? 1 : 0);
-                const prefix = currentInput.substring(0, prefixIndex);
-                const sign = match[1];
-                const number = match[2];
-                if (sign === '+') {
-                    currentInput = currentInput.substring(0, prefixIndex - 1) + '-' + number;
-                } else if (sign === '-') {
-                    const charBeforeSign = currentInput.charAt(prefixIndex - 2);
-                    if ('×÷^('.includes(charBeforeSign) || prefixIndex === 1) {
-                        currentInput = currentInput.substring(0, prefixIndex - 1) + number;
-                    } else {
-                        currentInput = currentInput.substring(0, prefixIndex - 1) + '+' + number;
-                    }
-                } else {
-                    currentInput = prefix + '-' + number;
-                }
+                const numberStart = match.index + match[1].length;
+                currentInput = currentInput.substring(0, numberStart) + (match[2] ? '' : '-') + match[3];
             } else if (!isNaN(parseFloat(currentInput))) {
                 currentInput = (parseFloat(currentInput) * -1).toString();
             }
@@ -435,8 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function inputPercent() {
         if (rpnMode) {
-            currentInput = (parseFloat(currentInput.replace(',', '.')) / 100).toString();
-            isEntering = true;
+            handleRpnOperation('percent');
         } else {
             if (currentInput === 'Error') return;
             const lastChar = currentInput.slice(-1);
@@ -451,18 +455,43 @@ document.addEventListener('DOMContentLoaded', function () {
             handleRpnOperation('inverse');
         } else {
             if (currentInput === 'Error') return;
-            if (!isNaN(parseFloat(currentInput))) {
-                const value = parseFloat(currentInput);
-                currentInput = (value === 0) ? 'Error' : (1 / value).toString();
-                resetScreen = true;
-            }
+            calculate(); // 1/x applies to the whole expression, not just to the first number
+            if (currentInput === 'Error') return;
+            const value = parseFloat(currentInput);
+            currentInput = (value === 0) ? 'Error' : formatResult(1 / value);
+            resetScreen = true;
         }
     }
 
     function formatResult(value) {
         if (!isFinite(value)) return "Error";
-        const stringValue = Number(value.toPrecision(12)).toString();
-        return parseFloat(stringValue).toString();
+        // 15 significant digits: with 12, $12,345,678,901.23 became 12,345,678,901.2
+        const rounded = Number(value.toPrecision(15));
+        let text = rounded.toString();
+        if (text.includes('e')) {
+            // No scientific notation on the ALG display: "1e-7" would be read as 1×e−7 in the next calculation
+            text = Math.abs(rounded) < 1 ? rounded.toFixed(20).replace(/\.?0+$/, '') : BigInt(Math.round(rounded)).toString();
+        }
+        return text;
+    }
+
+    // a + b% = a + a×b/100 and a − b% = a − a×b/100 (as on common calculators); "a" is what comes before, within the same parentheses.
+    // With × and ÷, b% stays b/100 (a×b% = a×b/100; a÷b% = a÷(b/100)).
+    function applyAdditivePercent(expr) {
+        const additive = /[\d)]([+\-])(\d+\.?\d*)%/;
+        let match;
+        while ((match = additive.exec(expr))) {
+            const signIndex = match.index + 1;
+            let depth = 0, start = signIndex - 1;
+            for (; start >= 0; start--) {
+                if (expr[start] === ')') depth++;
+                else if (expr[start] === '(') { if (depth === 0) break; depth--; }
+            }
+            const base = expr.slice(start + 1, signIndex);
+            const pctEnd = signIndex + 1 + match[2].length + 1;
+            expr = expr.slice(0, signIndex + 1) + `((${base})×${match[2]}÷100)` + expr.slice(pctEnd);
+        }
+        return expr;
     }
 
     function calculate() {
@@ -476,7 +505,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 expressionToEvaluate += ')'.repeat(openCount - closeCount);
             }
             expressionToEvaluate = expressionToEvaluate
-                .replace(/,/g, '.').replace(/π/g, `(${MATH_CONSTANTS.pi})`)
+                // leading zeros: eval would read 010 as octal (= 8)
+                .replace(/(^|[^\d.])0+(?=\d)/g, '$1')
+                // a signed number becomes (-n): the ± key changes the sign of the number, and JavaScript rejects -2**2
+                .replace(/(^|[(+\-×÷^])-(\d+\.?\d*)/g, '$1(-$2)');
+            expressionToEvaluate = applyAdditivePercent(expressionToEvaluate)
+                .replace(/π/g, `(${MATH_CONSTANTS.pi})`)
                 .replace(/e(?!xp)/g, `(${MATH_CONSTANTS.euler})`).replace(/φ/g, `(${MATH_CONSTANTS.phi})`)
                 .replace(/sqrt\(/g, 'Math.sqrt(').replace(/log\(/g, 'Math.log10(')
                 .replace(/ln\(/g, 'Math.log(').replace(/exp\(/g, 'Math.exp(')
@@ -487,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function () {
             currentInput = (result === undefined || result === null || !isFinite(result)) ? 'Error' : formatResult(result);
             _resetCalculationInternalState();
         } catch (error) {
-            console.error("Error evaluating expression:", error, "Expression:", expressionToEvaluate);
+            console.error("Error evaluating the expression:", error, "Expression:", expressionToEvaluate);
             currentInput = 'Error';
             _resetCalculationInternalState();
         }
@@ -495,9 +529,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function backspace() {
         if (rpnMode) {
-            if (!isEntering) {
-                currentInput = (currentInput.length > 1) ? currentInput.slice(0, -1) : '0';
-                if (currentInput === '0') isEntering = true;
+            if (rpnTyping) {
+                currentInput = currentInput.slice(0, -1);
+                if (currentInput === '' || currentInput === '-') clearEntry();
+            } else {
+                clearEntry(); // outside number entry, ⌫ works like CLx
             }
         } else {
             if (currentInput === 'Error' || currentInput.length === 1) {
@@ -510,9 +546,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function clearEntry() {
         if (rpnMode) {
+            // CLx clears X and disables stack lift; the weighted average accumulators are only cleared by C
             currentInput = '0';
-            isEntering = true;
-            resetWeightedAverage();
+            rpnTyping = false;
+            stackLift = false;
         } else {
             const match = currentInput.match(/^(.*)([+\-×÷^])([^+\-×÷^]*)$/);
             if (match && match[3] !== "") {
@@ -525,15 +562,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function resetCalculator() {
-        if (DEBUG_RPN && rpnMode) console.warn("--- [RPN] CALCULADORA RESETADA ---");
-        if (DEBUG_ALG && !rpnMode) console.warn("--- [ALG] CALCULADORA RESETADA ---");
+        if (DEBUG_RPN && rpnMode) console.warn("--- [RPN] CALCULATOR RESET ---");
+        if (DEBUG_ALG && !rpnMode) console.warn("--- [ALG] CALCULATOR RESET ---");
         currentInput = '0';
         previousInput = '';
         calculationOperator = '';
         resetScreen = false;
         expressionMode = false;
         rpnStack = [0, 0, 0, 0];
-        isEntering = true;
+        rpnTyping = false;
+        stackLift = false;
+        rpnErrorX = '0';
         resetWeightedAverage();
     }
 
@@ -545,15 +584,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 activeInputField.focus(); activeInputField = null; return;
             }
             let valueToApply = currentInput;
-            const numericValue = parseFloat(currentInput);
+            const numericValue = parseFloat(currentInput.toString());
+
             if (!isNaN(numericValue)) {
-                const rateFieldIds = ['rate', 'mirrFinancingRate', 'mirrReinvestmentRate', 'npvDiscountRate', 'npvFinancingRate', 'npvReinvestmentRate'];
-                if (rateFieldIds.includes(activeInputField.id)) {
-                    valueToApply = numericValue.toFixed(8);
-                } else if (activeInputField.id === 'periods') {
-                    valueToApply = Math.round(numericValue);
+                if (activeInputField.type === 'number') {
+                    // Number inputs get the raw JavaScript format without trailing zeros (e.g. 35 or 35.5)
+                    valueToApply = (activeInputField.id === 'periods') ? numericValue.toFixed(8) : numericValue.toString();
                 } else {
-                    valueToApply = numericValue.toFixed(2);
+                    // Text inputs: rates with 8 decimals, amounts in cents
+                    const rateFieldIds = ['rate', 'mirrFinancingRate', 'mirrReinvestmentRate', 'npvDiscountRate', 'npvFinancingRate', 'npvReinvestmentRate'];
+                    if (rateFieldIds.includes(activeInputField.id)) {
+                        valueToApply = numericValue.toFixed(8);
+                    } else if (activeInputField.id === 'periods') {
+                        valueToApply = numericValue.toFixed(8);
+                    } else {
+                        // cents through the Financial Calculator's roundCents (toFixed(2) turned 1.005 into 1.00)
+                        const cents = typeof roundCents === 'function' ? (roundCents(numericValue) || 0) : numericValue;
+                        valueToApply = cents.toFixed(2);
+                    }
                 }
             }
             activeInputField.value = valueToApply;
@@ -568,41 +616,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // -------------------------------------------------------------------
-    // LÓGICA DE OPERAÇÃO RPN
+    // RPN OPERATIONS
     // -------------------------------------------------------------------
+    // Every operation ends number entry and enables stack lift. On error, the stack stays as it was.
     function handleRpnOperation(action) {
-        // CORREÇÃO: Não fazer stack lift automático antes de operações.
-        // As operações usam Y e X diretamente da pilha.
-        // Operações de um operando usam apenas X.
+        const x = parseFloat(currentInput);
+        const y = rpnStack[2];
 
-        let x = parseFloat(currentInput.replace(',', '.'));
-        let y = rpnStack[2];
-        let result;
+        const twoOperandOps = ['add', 'subtract', 'multiply', 'divide', 'power', 'dateDiff', 'equivRate'];
+        const percentOps = ['percent', 'percentDiff']; // they use Y and X, but Y stays on the stack (HP 12c)
 
-        const twoOperandOps = ['add', 'subtract', 'multiply', 'divide', 'power', 'dateDiff', 'percentDiff', 'equivRate'];
-        const oneOperandOps = ['inverse', 'sqrt', 'log', 'ln', 'exp'];
+        const usesY = twoOperandOps.includes(action) || percentOps.includes(action);
+        const result = usesY ? performRpnCalculation(action, y, x) : performRpnCalculation(action, x);
+        rpnTyping = false;
+        stackLift = true;
 
-        if (twoOperandOps.includes(action)) {
-            result = performRpnCalculation(action, y, x);
-            if (result.toString() !== 'Error') rpnDrop();
-            isEntering = true;
-        } else if (oneOperandOps.includes(action)) {
-            result = performRpnCalculation(action, x);
-            isEntering = true;
-        } else {
-            result = x;
+        if (typeof result !== 'number' || !isFinite(result)) {
+            setRpnError();
+            return;
         }
-
+        if (twoOperandOps.includes(action)) rpnDrop();
         currentInput = result.toString();
     }
 
-    function handleWeightedAverage() {
-        const weight = parseFloat(currentInput.replace(',', '.'));
-        const value = rpnStack[2];
+    function setRpnError() {
+        rpnErrorX = currentInput;
+        currentInput = 'Error';
+        rpnTyping = false;
+    }
 
-        if (isNaN(weight) || isNaN(value)) {
-            currentInput = 'Error';
-            isEntering = true;
+    // Input: [value] ENTER [weight] x̄w. Result: X = running weighted average, Y = number of entries.
+    function handleWeightedAverage() {
+        const weight = parseFloat(currentInput);
+        const value = rpnStack[2];
+        rpnTyping = false;
+        stackLift = true;
+
+        if (!isFinite(weight) || !isFinite(value) || weightedAvgSumOfWeights + weight === 0) {
+            setRpnError();
             return;
         }
 
@@ -610,13 +661,8 @@ document.addEventListener('DOMContentLoaded', function () {
         weightedAvgSumOfWeights += weight;
         weightedAvgEntries++;
 
-        const average = (weightedAvgSumOfWeights === 0) ? 0 : weightedAvgSumOfProducts / weightedAvgSumOfWeights;
-
-        currentInput = average.toString();
+        currentInput = (weightedAvgSumOfProducts / weightedAvgSumOfWeights).toString();
         rpnStack[2] = weightedAvgEntries;
-        rpnStack[1] = rpnStack[0];
-        rpnStack[0] = 0;
-        isEntering = true;
     }
 
     function performRpnCalculation(operator, op1, op2) {
@@ -635,8 +681,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const date1 = parseDateHP(op1);
                 const date2 = parseDateHP(op2);
                 if (!date1 || !date2) return 'Error';
-                const diffTime = Math.abs(date2.getTime() - date1.getTime());
-                return Math.round(diffTime / (1000 * 60 * 60 * 24));
+                // Actual days from the 1st (Y) to the 2nd date (X): negative if the 2nd is earlier, as on the HP 12c
+                return Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+            case 'percent': return op1 * op2 / 100;
             case 'percentDiff':
                 if (op1 === 0) return 'Error';
                 return ((op2 - op1) / op1) * 100;
@@ -648,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // -------------------------------------------------------------------
-    // EVENT LISTENERS E INICIALIZAÇÃO
+    // EVENT LISTENERS AND INITIALIZATION
     // -------------------------------------------------------------------
     window.handleNumericInputKeydown = function (event) {
         const allowed = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Backspace', 'Tab', 'Home', 'End', 'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'ContextMenu', 'PageUp', 'PageDown', 'Insert', 'F5', 'F12', 'Enter'];
@@ -659,7 +706,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
     window.handleNumericInputDblClick = function (event) {
-        event.preventDefault(); openCalculator(event.target);
+        const input = event.target;
+        if (input.tagName === 'INPUT' && input.type === 'number') {
+            const rect = input.getBoundingClientRect();
+            // Do not open the calculator if the click was on the spinner arrows, about 28px on the right side.
+            if (rect.right - event.clientX < 28) {
+                return;
+            }
+        }
+        event.preventDefault();
+        openCalculator(input);
     };
     function setupNumericInputs() {
         const numericInputs = document.querySelectorAll('input[type="number"], input[type="text"][inputmode="decimal"]');
@@ -668,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('keydown', window.handleNumericInputKeydown);
             input.removeEventListener('dblclick', window.handleNumericInputDblClick);
             input.addEventListener('dblclick', window.handleNumericInputDblClick);
-            if (!input.title) input.title = "Press F1 or double click to access the calculator";
+            if (!input.title) input.title = "Press F1 or double-click to open the calculator";
             input.removeEventListener('focus', highlightInput);
             input.removeEventListener('blur', unhighlightInput);
             input.addEventListener('focus', highlightInput);
@@ -709,6 +765,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const action = button.dataset.action;
 
                 if (currentInput === 'Error' && action !== 'clear') {
+                    // RPN: as on the HP 12c, the next key only clears the error and brings back the previous X
+                    if (rpnMode) {
+                        currentInput = rpnErrorX;
+                        updateDisplay();
+                    }
                     return;
                 }
 
@@ -720,12 +781,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             case 'enter': rpnEnter(); break;
                             case 'clearX': clearEntry(); break;
                             case 'swap':
-                                let tempY = rpnStack[2]; rpnStack[2] = parseFloat(currentInput.replace(',', '.')) || 0;
-                                currentInput = tempY.toString(); isEntering = false; break;
+                                let tempY = rpnStack[2]; rpnStack[2] = parseFloat(currentInput) || 0;
+                                currentInput = tempY.toString(); rpnTyping = false; stackLift = true; break;
                             case 'rollDown':
-                                let tempX = parseFloat(currentInput.replace(',', '.')) || 0;
+                                let tempX = parseFloat(currentInput) || 0;
                                 currentInput = rpnStack[2].toString(); rpnStack[2] = rpnStack[1];
-                                rpnStack[1] = rpnStack[0]; rpnStack[0] = tempX; isEntering = false; break;
+                                rpnStack[1] = rpnStack[0]; rpnStack[0] = tempX; rpnTyping = false; stackLift = true; break;
+                            case 'percent':
                             case 'add': case 'subtract': case 'multiply': case 'divide': case 'power':
                             case 'inverse': case 'sqrt': case 'log': case 'ln': case 'exp':
                             case 'dateDiff': case 'percentDiff': case 'equivRate':
@@ -734,7 +796,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 handleWeightedAverage(); break;
                             default:
                                 switch (action) {
-                                    case 'percent': inputPercent(); break;
                                     case 'decimal': inputDecimal(); break;
                                     case 'negate': negateValue(); break;
                                     case 'clear': resetCalculator(); break;
@@ -773,7 +834,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- INICIALIZAÇÃO ---
+    // --- INITIALIZATION ---
     setupNumericInputs();
     setMode(false);
+    window.openCalculator = openCalculator;
 });
