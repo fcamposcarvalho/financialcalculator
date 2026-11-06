@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let rpnTyping = false;  // true while a number is being typed into X
     let stackLift = false;  // true: the next number pushes X into Y (disabled by ENTER and CLx, as on the HP 12c)
     let rpnErrorX = '0';    // X before the operation that failed (the next key only clears the error)
+    let rpnPrefix = null;   // 'STO' or 'RCL' waiting for the memory number
+    let rpnLastX = 0;       // LSTx: X before the last calculation
+    const rpnMemories = {}; // memories 0 to 9: they last until overwritten or the page is reloaded (C does not clear them)
 
     // --- Weighted average accumulators ---
     let weightedAvgSumOfProducts = 0;
@@ -56,6 +59,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const ceClxBtn = document.getElementById('ceClxBtn');
     const parenSwapBtn = document.getElementById('parenSwapBtn');
     const parenRollBtn = document.getElementById('parenRollBtn');
+    const parenRollLabel = document.getElementById('parenRollLabel'); // the button's "?" sits next to the label
+    const parenSwapLabel = document.getElementById('parenSwapLabel');
+    const ceClxLabel = document.getElementById('ceClxLabel');
+    const rpnPrefixEl = document.getElementById('rpnPrefix');
 
     const rpnAdvancedRow = document.querySelector('.rpn-only-row');
 
@@ -84,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
             calculatorModalContentEl.style.cursor = 'grab';
             calculatorModalContentEl.addEventListener('mousedown', function (e) {
                 const targetTagName = e.target.tagName.toLowerCase();
-                const isInteractiveElement = targetTagName === 'button' || targetTagName === 'input' || e.target === closeCalculatorModal || e.target.closest('.calc-buttons');
+                const isInteractiveElement = targetTagName === 'button' || targetTagName === 'input' || e.target === closeCalculatorModal || e.target.closest('.calc-buttons, .tooltip-trigger-icon');
                 if (isInteractiveElement) return;
 
                 isDragging = true;
@@ -145,11 +152,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rpnAdvancedRow) rpnAdvancedRow.style.display = '';
             equalsEnterBtn.textContent = 'ENTER';
             equalsEnterBtn.dataset.action = 'enter';
-            ceClxBtn.textContent = 'CLx';
+            ceClxLabel.textContent = 'CLx';
             ceClxBtn.dataset.action = 'clearX';
-            parenSwapBtn.textContent = 'x↔y';
+            parenSwapLabel.textContent = 'x↔y';
             parenSwapBtn.dataset.action = 'swap';
-            parenRollBtn.textContent = 'R↓';
+            parenRollLabel.textContent = 'R↓';
             parenRollBtn.dataset.action = 'rollDown';
         } else {
             calculatorModal.classList.remove('rpn-mode');
@@ -158,11 +165,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rpnAdvancedRow) rpnAdvancedRow.style.display = 'none';
             equalsEnterBtn.textContent = '=';
             equalsEnterBtn.dataset.action = 'equals';
-            ceClxBtn.textContent = 'CE';
+            ceClxLabel.textContent = 'CE';
             ceClxBtn.dataset.action = 'clearEntry';
-            parenSwapBtn.textContent = '(';
+            parenSwapLabel.textContent = '(';
             parenSwapBtn.dataset.action = 'openParenthesis';
-            parenRollBtn.textContent = ')';
+            parenRollLabel.textContent = ')';
             parenRollBtn.dataset.action = 'closeParenthesis';
         }
 
@@ -201,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (stackDisplays.y) stackDisplays.y.textContent = formatForDisplay(rpnStack[2]);
             if (stackDisplays.z) stackDisplays.z.textContent = formatForDisplay(rpnStack[1]);
             if (stackDisplays.t) stackDisplays.t.textContent = formatForDisplay(rpnStack[0]);
+            if (rpnPrefixEl) rpnPrefixEl.textContent = rpnPrefix ? rpnPrefix + ' _' : '';
             if (algDisplayInput) algDisplayInput.value = xText;
         } else {
             if (DEBUG_ALG) console.log(`[ALG] updateDisplay: currentInput=${currentInput}`);
@@ -240,6 +248,25 @@ document.addEventListener('DOMContentLoaded', function () {
         rpnTyping = true;
         stackLift = true;
         return true;
+    }
+
+    // STO stores X without touching the stack; RCL enters a new number
+    function rpnMemory(prefix, memory) {
+        if (prefix === 'STO') {
+            rpnMemories[memory] = parseFloat(currentInput) || 0;
+            rpnTyping = false;
+            stackLift = true;
+        } else {
+            rpnEnterValue(rpnMemories[memory] || 0);
+        }
+    }
+
+    // RCL and LSTx: the value goes into X as a new number
+    function rpnEnterValue(value) {
+        if (stackLift) rpnLiftStack();
+        currentInput = String(value);
+        rpnTyping = false;
+        stackLift = true;
     }
 
     // HP 12c M.DY format: mm.ddyyyy, always with six decimals (the number loses its trailing zeros: 1.012020 becomes 1.01202)
@@ -573,6 +600,8 @@ document.addEventListener('DOMContentLoaded', function () {
         rpnTyping = false;
         stackLift = false;
         rpnErrorX = '0';
+        rpnPrefix = null;
+        rpnLastX = 0;
         resetWeightedAverage();
     }
 
@@ -624,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const y = rpnStack[2];
 
         const twoOperandOps = ['add', 'subtract', 'multiply', 'divide', 'power', 'dateDiff', 'equivRate'];
-        const percentOps = ['percent', 'percentDiff']; // they use Y and X, but Y stays on the stack (HP 12c)
+        const percentOps = ['percent', 'percentDiff', 'percentTotal']; // they use Y and X, but Y stays on the stack (HP 12c)
 
         const usesY = twoOperandOps.includes(action) || percentOps.includes(action);
         const result = usesY ? performRpnCalculation(action, y, x) : performRpnCalculation(action, x);
@@ -635,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setRpnError();
             return;
         }
+        rpnLastX = x;
         if (twoOperandOps.includes(action)) rpnDrop();
         currentInput = result.toString();
     }
@@ -657,6 +687,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        rpnLastX = weight;
         weightedAvgSumOfProducts += value * weight;
         weightedAvgSumOfWeights += weight;
         weightedAvgEntries++;
@@ -684,6 +715,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Actual days from the 1st (Y) to the 2nd date (X): negative if the 2nd is earlier, as on the HP 12c
                 return Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
             case 'percent': return op1 * op2 / 100;
+            case 'percentTotal': return op1 === 0 ? 'Error' : (op2 / op1) * 100;
             case 'percentDiff':
                 if (op1 === 0) return 'Error';
                 return ((op2 - op1) / op1) * 100;
@@ -773,6 +805,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                // After STO or RCL, the next key is the memory number; any other key only cancels
+                if (rpnPrefix) {
+                    if (!action) rpnMemory(rpnPrefix, button.textContent);
+                    rpnPrefix = null;
+                    updateDisplay();
+                    return;
+                }
+
                 if (!action) {
                     inputDigit(button.textContent);
                 } else {
@@ -780,6 +820,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         switch (action) {
                             case 'enter': rpnEnter(); break;
                             case 'clearX': clearEntry(); break;
+                            case 'store': rpnPrefix = 'STO'; break;
+                            case 'recall': rpnPrefix = 'RCL'; break;
+                            case 'lastX': rpnEnterValue(rpnLastX); break;
                             case 'swap':
                                 let tempY = rpnStack[2]; rpnStack[2] = parseFloat(currentInput) || 0;
                                 currentInput = tempY.toString(); rpnTyping = false; stackLift = true; break;
@@ -787,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 let tempX = parseFloat(currentInput) || 0;
                                 currentInput = rpnStack[2].toString(); rpnStack[2] = rpnStack[1];
                                 rpnStack[1] = rpnStack[0]; rpnStack[0] = tempX; rpnTyping = false; stackLift = true; break;
-                            case 'percent':
+                            case 'percent': case 'percentTotal':
                             case 'add': case 'subtract': case 'multiply': case 'divide': case 'power':
                             case 'inverse': case 'sqrt': case 'log': case 'ln': case 'exp':
                             case 'dateDiff': case 'percentDiff': case 'equivRate':

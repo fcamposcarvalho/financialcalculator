@@ -1033,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- CLICK-BASED CUSTOM TOOLTIPS ---
 document.addEventListener('DOMContentLoaded', function() {
     let activeTooltip = null;
+    let activeTrigger = null;
 
     function showTooltip(triggerElement) {
         const message = triggerElement.getAttribute('data-tooltip-message');
@@ -1076,28 +1077,25 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => tooltipElement.classList.add('visible'), 10);
 
         activeTooltip = tooltipElement;
+        activeTrigger = triggerElement;
     }
 
-    // Hides the active tooltip
+    // Hides the active tooltip right away, so the next click is not lost
     function hideTooltip() {
         if (activeTooltip) {
-            activeTooltip.classList.remove('visible');
-            setTimeout(() => {
-                if (activeTooltip) activeTooltip.remove();
-                activeTooltip = null;
-            }, 300);
+            activeTooltip.remove();
+            activeTooltip = null;
+            activeTrigger = null;
         }
     }
 
-    // Click handling
+    // Click handling: the same "?" closes its tooltip; another "?" switches straight to its own
     document.querySelectorAll('.tooltip-trigger-icon').forEach(icon => {
         icon.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (activeTooltip) {
-                hideTooltip();
-            } else {
-                showTooltip(icon);
-            }
+            const sameTooltip = activeTrigger === icon;
+            hideTooltip();
+            if (!sameTooltip) showTooltip(icon);
         });
     });
 

@@ -23,6 +23,7 @@ An advanced cash flow calculator for financial calculations such as present valu
 - **MIRR (Modified Internal Rate of Return)** with finance and reinvestment rates
 - **NPV (Net Present Value)** with adjustable discount rates
 - **RPN mode** (Reverse Polish Notation) for HP-style calculations, with the T, Z, Y, X stack on screen
+- **STO and RCL memories** (0 to 9), **LSTx** and **%T** in RPN mode, with "?" tips on the buttons and the display
 - **Amortization schedules** with the PRICE (constant payment) and SAC (constant amortization) methods
 
 ## Number and date formats

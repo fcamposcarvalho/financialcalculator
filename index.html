@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cash Flow Calculator</title>
-    <link rel="stylesheet" href="calculator.css?v=1">
+    <link rel="stylesheet" href="calculator.css?v=2">
     <link rel="stylesheet" href="calculator_mirr.css?v=1">
     <link rel="stylesheet" href="calculator_npv.css?v=1">
     <link rel="stylesheet" href="calculator_irr.css?v=1">
@@ -18,7 +18,7 @@
         </header>
 
         <main>
-            <div class="calculator">
+            <div class="calculator" id="calculator-form">
                 <div class="error" id="errorMessage"></div>
 
                 <div class="form-group">
@@ -142,23 +142,41 @@
                         </div>
 
                         <div class="calc-display-rpn" id="rpnDisplay">
+                            <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="The RPN calculator keeps numbers in 4 registers, stacked like plates:&#10;X: the number on the display. It is where you type and where the result appears.&#10;Y: the previous number. Calculations go in the order Y then X (e.g., Y − X).&#10;Z and T: hold older numbers for the next calculations.&#10;ENTER stores the X number in Y. After a calculation, the numbers drop on their own.&#10;Example: 10 ENTER 2 − gives 8.">?</span>
                             <div class="rpn-stack-row"><span class="rpn-reg">T:</span><span id="stackT">0</span></div>
                             <div class="rpn-stack-row"><span class="rpn-reg">Z:</span><span id="stackZ">0</span></div>
                             <div class="rpn-stack-row"><span class="rpn-reg">Y:</span><span id="stackY">0</span></div>
-                            <div class="rpn-stack-row main"><span class="rpn-reg">X:</span><span id="stackX">0</span></div>
+                            <div class="rpn-stack-row main"><span class="rpn-reg">X:</span><span id="rpnPrefix" class="rpn-prefix"></span><span id="stackX">0</span></div>
                         </div>
                     </div>
 
                     <div class="calc-buttons">
                         <div class="calc-row">
-                            <button class="calc-btn calc-btn-clear" data-action="clear">C</button>
+                            <button class="calc-btn calc-btn-clear rpn-special-btn" data-action="clear">
+                                <span>C</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset rpn-only-tip"
+                                    data-tooltip-message="C clears X, Y, Z, T, LSTx and the weighted average accumulators (x̄w).&#10;Use it to start a calculation from scratch. The STO memories stay.">?</span>
+                            </button>
                             <button class="calc-btn calc-btn-op" data-action="backspace">⌫</button>
-                            <button id="ceClxBtn" class="calc-btn calc-btn-op" data-action="clearEntry">CE</button>
+                            <button id="ceClxBtn" class="calc-btn calc-btn-op rpn-special-btn" data-action="clearEntry">
+                                <span id="ceClxLabel">CE</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset rpn-only-tip"
+                                    data-tooltip-message="CLx clears only X; Y, Z and T stay.&#10;Use it to correct the number you just typed: the next number takes its place without pushing the stack.&#10;Example: 5 ENTER 3 CLx 4 + gives 9.">?</span>
+                            </button>
                             <button id="equalsEnterBtn" class="calc-btn calc-btn-equal" data-action="equals">=</button>
                         </div>
                         <div class="calc-row">
-                            <button id="parenSwapBtn" class="calc-btn calc-btn-op" data-action="openParenthesis">(</button>
-                            <button id="parenRollBtn" class="calc-btn calc-btn-op" data-action="closeParenthesis">)</button>
+                            <button id="parenSwapBtn" class="calc-btn calc-btn-op rpn-special-btn" data-action="openParenthesis">
+                                <span id="parenSwapLabel">(</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset rpn-only-tip"
+                                    data-tooltip-message="x↔y swaps the numbers in X and Y; Z and T do not change.&#10;Use it when the numbers went in the wrong order, before a subtraction or division.&#10;Example: 2 ENTER 10 x↔y − gives 8.">?</span>
+                            </button>
+                            <button id="parenRollBtn" class="calc-btn calc-btn-op rpn-special-btn" data-action="closeParenthesis">
+                                <span id="parenRollLabel">)</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset rpn-only-tip"
+                                    data-tooltip-message="R↓ rolls the stack down: T goes to Z, Z to Y, Y to X, and the X number goes to T.&#10;No number is lost; after 4 presses, they are all back in place. Use it to see or use a number kept in the stack without clearing the others.&#10;Example: with T=1, Z=2, Y=3 and X=4, R↓ leaves T=4, Z=1, Y=2 and X=3.">?</span>
+                            </button>
                             <button class="calc-btn calc-btn-op" data-action="percent">%</button>
                             <button class="calc-btn calc-btn-op" data-action="divide">÷</button>
                         </div>
@@ -192,6 +210,28 @@
                             <button class="calc-btn calc-btn-op" data-action="log">log</button>
                             <button class="calc-btn calc-btn-op" data-action="ln">ln</button>
                         </div>
+                        <div class="calc-row rpn-only-line">
+                            <button class="calc-btn calc-btn-op rpn-special-btn" data-action="store">
+                                <span>STO</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="STO stores the X number in a memory; the stack does not change.&#10;After STO, press a number from 0 to 9, which is the memory. Any other key cancels.&#10;Memories last until you overwrite them or reload the page; C does not clear them.&#10;Example: 25 STO 1 stores 25 in memory 1.">?</span>
+                            </button>
+                            <button class="calc-btn calc-btn-op rpn-special-btn" data-action="recall">
+                                <span>RCL</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="RCL brings back a number stored with STO.&#10;After RCL, press the memory number (0 to 9). The number goes into X, as if it had been typed. An empty memory returns 0. Any other key cancels.&#10;Example: 25 STO 1 C RCL 1 brings back 25.">?</span>
+                            </button>
+                            <button class="calc-btn calc-btn-op rpn-special-btn" data-action="lastX">
+                                <span>LSTx</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="LSTx brings back the number that was in X before the last calculation.&#10;Use it to recover a number or undo a mistake without typing again. C clears LSTx.&#10;Example: 10 ENTER 2 × gives 20; then LSTx ÷ undoes the calculation and returns to 10.">?</span>
+                            </button>
+                            <button class="calc-btn calc-btn-op rpn-special-btn" data-action="percentTotal">
+                                <span>%T</span>
+                                <span class="tooltip-trigger-icon tooltip-icon-inset"
+                                    data-tooltip-message="%T shows what percentage of the total in Y the X number represents. The total stays in Y for the next calculation.&#10;Example: 200 ENTER 50 %T gives 25, because 50 is 25% of 200.">?</span>
+                            </button>
+                        </div>
 						<div class="calc-row rpn-only-row">
 							<button class="calc-btn rpn-special-btn" data-action="weightedAverage">
 								<span>x̄w</span>
@@ -212,8 +252,8 @@
 						</div>
 						<div class="calc-row">
                             <button class="calc-btn calc-btn-const" data-action="pi">π</button>
-                            <button class="calc-btn calc-btn-const" data-action="euler">e</button>
                             <button class="calc-btn calc-btn-const" data-action="phi">φ</button>
+                            <button class="calc-btn calc-btn-const" data-action="euler">e</button>
                             <button class="calc-btn calc-btn-op" data-action="exp">e^x</button>
                         </div>
                         <div class="calc-row">
@@ -402,8 +442,8 @@ Must be greater than -100% (when not zero).</span></span>
         </footer>
     </div>
 
-    <script src="financialcalculator.js?v=1"></script>
-    <script src="calculator.js?v=1"></script>
+    <script src="financialcalculator.js?v=2"></script>
+    <script src="calculator.js?v=2"></script>
     <script src="calculator_mirr.js?v=1"></script>
     <script src="calculator_irr.js?v=1"></script>
     <script src="calculator_npv.js?v=1"></script>
